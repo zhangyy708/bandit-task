@@ -3,6 +3,10 @@ $(document).ready(function () {
     var numTrials = 10; // number of trials
     var p1 = 0.7; // probability of getting a reward from option 1
     var p2 = 0.3;
+    var p3 = 0.7;
+    var p4 = 0.3;
+    
+
     var sumReward = 0; // number of rewards a participant already gets
     var init = (new Date()).getTime(); // the time the experiment starts
     var subID = createCode();
@@ -10,8 +14,7 @@ $(document).ready(function () {
     var stayTime = 500; // result stay time (after reward being displayed in each trial)
 
     // var numArms = 2; // number of arms
-    var tempNumArms;
-    
+    var numArms;    
 
     // styling --------------------------------------------------------------------------------------------------------------
     var thisHeight = $(document).height() * 0.9;
@@ -21,8 +24,8 @@ $(document).ready(function () {
     $('#Main').css('min-height', thisHeight);
     $('#Main').css('width', thisWidth);
 
-    // testing();
-    var numArms = para();
+    para();
+
     // information();
     // instructions(1);
     // options(1);
@@ -33,15 +36,21 @@ $(document).ready(function () {
         $('#Stage').css('width', dispWidth);
         $('#Stage').css('min-height', thisHeight * 17 / 20);
         $('#Bottom').css('min-height', thisHeight / 20);
+        createDiv('Stage', 'Title');
         createDiv('Stage', 'TextBoxDiv');
+        $('#TextBoxDiv').css('font-size', '16px');
+        $('#TextBoxDiv').css('padding-top', '20%');
 
-        var title = '<h3 align="center">Choosing parametres for testing the experiment</h3>'; 
-        var info = 'Number of arms:<br>'; 
+        var title = '<h3 align="center">Choosing parameters for testing the experiment</h3>'; 
+        var info1 = '<p align="center">Number of arms<br></p>'; 
         // $('#TextBoxDiv').html(title + info);
 
         var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default" id="num2"' + 
             ' value="2"><input align="center" type="button" class="btn btn-default" id="num4" value="4"></div>';
-        $('#TextBoxDiv').html(title + info + buttons); 
+
+        var info2 = '<p align="center"><br>Other parameters (under development...)</p>'; 
+        $('#Title').html(title)
+        $('#TextBoxDiv').html(info1 + buttons + info2); 
 
         $('#num2').click(function () {
             numArms = 2;
@@ -59,7 +68,15 @@ $(document).ready(function () {
             information();
         });
 
-        return numArms;
+        
+        switch(numArms) { // probabilities of getting a reward from options
+            case 2:
+                p = [0.7, 0.3];
+            case 4:
+                p = [0.7, 0.3, 0.7, 0.3];
+        }
+
+        console.log(numArms);
     };
 
 
@@ -69,22 +86,49 @@ $(document).ready(function () {
         $('#Stage').css('width', dispWidth);
         $('#Stage').css('min-height', thisHeight * 17 / 20);
         $('#Bottom').css('min-height', thisHeight / 20);
+        createDiv('Stage', 'Title')
         createDiv('Stage', 'TextBoxDiv');
 
-        var title = '<h3 align="center">Information page for participants in research studies</h3>'; // header
-        var info = 'Here is a lot of information about the experiment.'; // information content
-        $('#TextBoxDiv').html(title + info);
+        $('#TextBoxDiv').css('font-size', '16px');
+        $('#TextBoxDiv').css('padding-top', '20%');
 
-        var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default" id="toConsent"' + 
-            ' value="Next"></div>';
+        var title = '<h2 align="center">Information page</h2>'; // header
+        var info = 'Thanks for participating in this experiment!<br>In this experiment, you will be asked to ' + 
+            'choose from several options and your final reward will be dependent on your choice. The session ' + 
+            'should last no more than 30 minutes and you will be paid ￡5 plus additional reward for your ' + 
+            'participation.<br>If you have any questions, please ask the experimenter or contact me at' +
+            ' Y.Zhang-327@sms.ed.ac.uk<br><br><br>'; // information content
+        var ticks = '<input type="checkbox" name="consent" value="consent">I have read the information above.<br>'
+        
+        $('#Title').html(title)
+        $('#TextBoxDiv').html(info + ticks);
+
+        // var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default" id="toConsent"' + 
+        //     ' value="Next"></div>';
+        // $('#Bottom').html(buttons); // click button to proceed
+
+        // $('#toConsent').click(function () {
+        //     $('#TextBoxDiv').remove();
+        //     $('#Stage').empty();
+        //     $('#Bottom').empty();
+        //     consent();
+        // });
+
+        var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
+            ' id="toInstructions" value="Next"></div>';
         $('#Bottom').html(buttons); // click button to proceed
 
-        $('#toConsent').click(function () {
-            $('#TextBoxDiv').remove();
-            $('#Stage').empty();
-            $('#Bottom').empty();
-            consent();
-        });
+        $('#toInstructions').click(function() {
+            if($('input:checkbox:not(:checked)').length > 0) {
+                alert('You must tick all check boxes to continue.');
+            } else {
+                $('#Title').remove();
+                $('#TextBoxDiv').remove();
+                $('#Stage').empty();
+                $('#Bottom').empty();
+                instructions(1); // move to the first page of instrcutions
+            };
+         });
     };
 
     // consent form ---------------------------------------------------------------------------------------------------------
@@ -94,6 +138,7 @@ $(document).ready(function () {
         $('#Stage').css('min-height', thisHeight * 17 / 20);
         $('#Bottom').css('min-height', thisHeight / 20);
         createDiv('Stage', 'TextBoxDiv');
+        
         var title = '<h3 align="center">Consent form for participants in research studies</h3>'; // header
         var info = 'Please read the following criteria and tick all boxes. <br><br>'; // consent content
         var ticks = '<input type="checkbox" name="consent" value="consent1">I have read the information page.<br>' // +
@@ -131,13 +176,19 @@ $(document).ready(function () {
         $('#Bottom').css('min-height', thisHeight / 20);
         var numPages = 2; // number of pages of instruction
         var picHeight = dispWidth / 2;
+        createDiv('Stage', 'Title');
         createDiv('Stage', 'TextBoxDiv');
+
+        $('#TextBoxDiv').css('font-size', '16px');
+        // $('#TextBoxDiv').css('padding-top', '20%');
+        
 
         var title = '<h2 align="center">Instructions</h2>';
         switch(pageNum) {
             case 1:
-                var info = '<h3>In this experiment, you have to collect as many coins as possible, hidden behind two doors. ' + 
-                    'On each trial, you have to choose between the doors. <br>Each door has some probability of getting a ' + 
+                var info = '<h3>In this experiment, you have to collect as many coins as possible, hidden behind two' + 
+                    ' or more doors. ' + 
+                    'On each trial, you have to choose among the doors. Each door has some probability of getting a ' + 
                     'coin. You choose the door by clicking on it with your mouse. <br>There are ' + numTrials + ' trials ' +
                     'in this experiment.</h3><br><br>';
                 break;
@@ -153,7 +204,8 @@ $(document).ready(function () {
 
         var thisImage = '<div align="center"><img src="images/instruction' + pageNum + '.png" alt="house" height=""' +
             picHeight + ' align="center"><br><br></div>'
-            $('#TextBoxDiv').html(title + info + thisImage);
+        $('#Title').html(title);
+        $('#TextBoxDiv').html(info + thisImage);
 
         var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default" id="Back"' + 
             ' value="Back"><input align="center" type="button" class="btn btn-default" id="Next" value="Next">' + 
@@ -188,6 +240,8 @@ $(document).ready(function () {
             $('#TextBoxDiv').remove();
             $('#Stage').empty();
             $('#Bottom').empty();
+
+            $('#Stage.h1').css('padding-top', '20%');
             
             setTimeout(function() {
                 $('#Stage').html('<h1 align="center">Ready</h1>');
@@ -267,21 +321,47 @@ $(document).ready(function () {
         $('#Title').html(title);
         $('#TextBoxDiv').html(images);
 
-        for(let i = 1; i <= numArms; i++) {
-            $('#Door' + i).click(function() {
-                $(this).css({"border-color": "#CCFF33",
-                             "border-width": "3px",
-                             "border-style": "solid"});
-                reward(trialNum, i);
-            });
-        };
+        // for(let i = 1; i <= numArms; i++) {
+        //     $('#Door' + i).click(function() {
+        //         $(this).css({"border-color": "#CCFF33",
+        //                      "border-width": "3px",
+        //                      "border-style": "solid"});
+        //         reward(trialNum, i);
+        //     });
+        // };
+
+        $('#Door1').click(function() {
+            $(this).css({"border-color": "#CCFF33",
+                         "border-width": "3px",
+                         "border-style": "solid"});
+            reward(trialNum, 1);
+        });
+        $('#Door' + 2).click(function() {
+            $(this).css({"border-color": "#CCFF33",
+                         "border-width": "3px",
+                         "border-style": "solid"});
+            reward(trialNum, 2);
+        });
+        $('#Door' + 3).click(function() {
+            $(this).css({"border-color": "#CCFF33",
+                         "border-width": "3px",
+                         "border-style": "solid"});
+            reward(trialNum, 3);
+        });
+        $('#Door' + 4).click(function() {
+            $(this).css({"border-color": "#CCFF33",
+                         "border-width": "3px",
+                         "border-style": "solid"});
+            reward(trialNum, 4);
+        });
     };
 
     // rewards ---------------------------------------------------------------------------------------------------------------
     function reward(trialNum, choice) {
-        $('#Title').empty();
+        // $('#Title').empty();
         var thisReward = 0;
         var randomNum = Math.random();
+
         if(choice === 1) { // door 1
             if(randomNum < p1) {
                 thisReward = 1;
@@ -292,9 +372,17 @@ $(document).ready(function () {
             };
         };
 
+        // for (let i = 1; i <= numArms; i++) {
+        //     if(choice === i) {
+        //         if(randomNum < p[i - 1]) {
+        //             thisReward = 1;
+        //         };
+        //     };
+        // };
+
         if(thisReward === 1) { // coin
             $('#Title').html('<h2 align="center">You got a coin!!</h2>');
-            $('#Middle').html('<img id="Door1" src="images/coin.png" class="img-responsive center-block">');
+            $('#Middle').html('<img id="Reward" src="images/coin.png" class="img-responsive center-block">');
             sumReward = sumReward + 1;
 
             if(trialNum + 1 < numTrials) {
@@ -314,7 +402,7 @@ $(document).ready(function () {
             };
         } else { // no coin
             $('#Title').html('<h2 align="center">You got nothing...</h2>');
-            $('#Middle').html('<img id="Door1" src="images/frowny.png" class="img-responsive center-block">');
+            $('#Middle').html('<img id="Reward" src="images/frowny.png" class="img-responsive center-block">');
 
             if(trialNum + 1 < numTrials) {
                 setTimeout(function() {
