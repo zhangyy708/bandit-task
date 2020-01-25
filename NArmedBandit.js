@@ -1,28 +1,31 @@
 $(document).ready(function () {
-    // initialising variables ----------------------------------------------------------------------------------------------
-    var numTrials = 10; // number of trials
-    var p1 = 0.7; // probability of getting a reward from option 1
+    // initialising variables ------------------------------------------------------------------------------------------------
+    // adjustable
+    var numTrials = 5; // number of trials
+    var p1 = 0.5; // probability of getting a reward from option 1
     var p2 = 0.3;
     var p3 = 0.7;
-    var p4 = 0.3;
-    
-
-    var sumReward = 0; // number of rewards a participant already gets
-    var init = (new Date()).getTime(); // the time the experiment starts
-    var subID = createCode();
+    var p4 = 0.3;    
     var fadeTime = 500; // fade out time (after reward being displayed in each trial)
     var stayTime = 500; // result stay time (after reward being displayed in each trial)
 
-    // var numArms = 2; // number of arms
-    var numArms;    
+    // system
+    var numArms; // number of arms
+    var p = new Array(); // probability array
+    var sumReward = 0; // number of rewards a participant already gets
 
-    // styling --------------------------------------------------------------------------------------------------------------
+    var init = (new Date()).getTime(); // the time the experiment starts
+    var subID = createCode();
+
+    // styling ---------------------------------------------------------------------------------------------------------------
     var thisHeight = $(document).height() * 0.9;
     var thisWidth = thisHeight * 4 / 3;
     var dispWidth = thisHeight * 5 / 6;
     var dispHeight = dispWidth / 2;
     $('#Main').css('min-height', thisHeight);
     $('#Main').css('width', thisWidth);
+
+    var spacing = '<br><br>'; // in trials, the spacing between title and images
 
     para();
 
@@ -67,14 +70,6 @@ $(document).ready(function () {
             $('#Bottom').empty();
             information();
         });
-
-        
-        switch(numArms) { // probabilities of getting a reward from options
-            case 2:
-                p = [0.7, 0.3];
-            case 4:
-                p = [0.7, 0.3, 0.7, 0.3];
-        };
     };
 
 
@@ -214,173 +209,140 @@ $(document).ready(function () {
 
     // options ---------------------------------------------------------------------------------------------------------------
     function options(trialNum) {
-        $('#Top').css('height', thisHeight / 20);
-        $('#Stage').css('width', dispWidth);
-        $('#Stage').css('min-height', thisHeight * 17 / 20);
-        $('#Bottom').css('min-height', thisHeight / 20);
+        if(trialNum > numTrials) {
+            $('#TextBoxDiv').remove();
+            $('#Stage').empty();
+            $('#Bottom').empty();
+            $('#Top').empty();
+            $('#Title').empty();
+            $('#Middle').empty();
+            end();
 
-        createDiv('Stage', 'Title');
-        // $('#Title').css('margin-top', thisHeight / 10);
-        createDiv('Stage', 'TextBoxDiv');
-        $('#TextBoxDiv').css('margin-down', thisHeight / 5);
+        } else {
+            $('#Top').css('height', thisHeight / 20);
+            $('#Stage').css('width', dispWidth);
+            // $('#Stage').css('min-height', thisHeight * 17 / 20);
+            $('#Bottom').css('min-height', thisHeight / 20);
 
-        var title = '<div id="Title"><h2 align="center">Choose a door:</h2></div>';
+            // createDiv('Stage', 'Title');
+            // $('#Title').css('margin-top', thisHeight / 10);
+            createDiv('Stage', 'TextBoxDiv');
+            $('#TextBoxDiv').css('margin-top', '20%');
 
-        var door = new Array();
-        for(let i = 1; i <= numArms; i++) {
-            door[i - 1] = '<img id="Door' + i + '" src="images/door.png" class="img-responsive center-block">';
-        }
-        
-        switch(numArms) {
-            case 2:
-                var images = '<div class="row">' + 
-                    '<div class="col-sm-' + 0 + '"></div>' + 
-                    '<div class="col-sm-' + 3 + '">' + door[0] + '</div>' + 
-                    '<div class="col-sm-' + 6 + '"></div>' + 
-                    '<div class="col-sm-' + 3 + '">' + door[1] + '</div>' + 
-                    '<div class="col-sm-' + 0 + '"></div></div>' +
-                    '<div class="row">' + 
-                    '<div class="col-sm-' + 5 + '"></div>' + 
-                    '<div id="Middle" class="col-sm-' + 2 + '"></div>' + 
-                    '<div class="col-sm-' + 5 + '"></div></div>';
-                // var images = '<div class="row">' + 
-                //     '<div class="col-md-' + 1 + '"></div>' + 
-                //     '<div class="col-md-' + 3 + '">' + door[0] + '</div>' + 
-                //     '<div class="col-md-' + 1 + '"></div>' + 
-                //     '<div id="Middle" class="col-md-' + 2 + '"></div>' + 
-                //     '<div class="col-md-' + 1 + '"></div>' + 
-                //     '<div class="col-md-' + 3 + '">' + door[1] + '</div>' + 
-                //     '<div class="col-md-' + 1 + '"></div></div>';
-                break;
-            case 4:
-                var images = '<div class="row">' + 
-                    '<div class="col-sm-' + 0 + '"></div>' + 
-                    '<div class="col-sm-' + 3 + '">' + door[0] + '</div>' + 
-                    '<div class="col-sm-' + 0 + '"></div>' + 
-                    '<div class="col-sm-' + 3 + '">' + door[1] + '</div>' + 
-                    '<div class="col-sm-' + 0 + '"></div>' + 
-                    '<div class="col-sm-' + 3 + '">' + door[2] + '</div>' + 
-                    '<div class="col-sm-' + 0 + '"></div>' + 
-                    '<div class="col-sm-' + 3 + '">' + door[3] + '</div>' + 
-                    '<div class="col-sm-' + 0 + '"></div></div>' +
-                    '<div class="row">' + 
-                    '<div class="col-sm-' + 5 + '"></div>' + 
-                    '<div id="Middle" class="col-sm-' + 2 + '"></div>' + 
-                    '<div class="col-sm-' + 5 + '"></div></div>';
-                break;
+            var infoTrial = 'Coins already got in this game: ' + sumReward + '<br>' + 
+                'Trial ' + trialNum + ' of ' + numTrials;
+            $('#Top').html(infoTrial);
+
+            var title = '<div id="Title"><h2 align="center">Choose a door:' + spacing + '</h2></div>';
+
+            var door = new Array();
+            for(let i = 1; i <= numArms; i++) {
+                door[i - 1] = '<img id="Door' + i + '" src="images/door.png" class="img-responsive center-block">';
+            }
+            
+            switch(numArms) {
+                case 2:
+                    var images = '<div class="row">' + 
+                        '<div class="col-sm-' + 0 + '"></div>' + 
+                        '<div class="col-sm-' + 3 + '">' + door[0] + '</div>' + 
+                        '<div class="col-sm-' + 6 + '"></div>' + 
+                        '<div class="col-sm-' + 3 + '">' + door[1] + '</div>' + 
+                        '<div class="col-sm-' + 0 + '"></div></div>' +
+                        '<div class="row">' + 
+                        '<div class="col-sm-' + 5 + '"></div>' + 
+                        '<div id="Middle" class="col-sm-' + 2 + '"></div>' + 
+                        '<div class="col-sm-' + 5 + '"></div></div>';
+                    // var images = '<div class="row">' + 
+                    //     '<div class="col-md-' + 1 + '"></div>' + 
+                    //     '<div class="col-md-' + 3 + '">' + door[0] + '</div>' + 
+                    //     '<div class="col-md-' + 1 + '"></div>' + 
+                    //     '<div id="Middle" class="col-md-' + 2 + '"></div>' + 
+                    //     '<div class="col-md-' + 1 + '"></div>' + 
+                    //     '<div class="col-md-' + 3 + '">' + door[1] + '</div>' + 
+                    //     '<div class="col-md-' + 1 + '"></div></div>';
+                    break;
+                case 4:
+                    var images = '<div class="row">' + 
+                        '<div class="col-sm-' + 0 + '"></div>' + 
+                        '<div class="col-sm-' + 3 + '">' + door[0] + '</div>' + 
+                        '<div class="col-sm-' + 0 + '"></div>' + 
+                        '<div class="col-sm-' + 3 + '">' + door[1] + '</div>' + 
+                        '<div class="col-sm-' + 0 + '"></div>' + 
+                        '<div class="col-sm-' + 3 + '">' + door[2] + '</div>' + 
+                        '<div class="col-sm-' + 0 + '"></div>' + 
+                        '<div class="col-sm-' + 3 + '">' + door[3] + '</div>' + 
+                        '<div class="col-sm-' + 0 + '"></div></div>' +
+                        '<div class="row">' + 
+                        '<div class="col-sm-' + 5 + '"></div>' + 
+                        '<div id="Middle" class="col-sm-' + 2 + '"></div>' + 
+                        '<div class="col-sm-' + 5 + '"></div></div>';
+                    break;
+            };        
+            
+            $('#TextBoxDiv').html(title + images);
+
+            var isClick = true; // prevent from clicking too fast / too many times
+            for(let i = 1; i <= numArms; i++) {
+                $('#Door' + i).click(function() {
+                    if(isClick) {
+                        isClick = false;
+                        $(this).css({"border-color": "#CCFF33",
+                                    "border-width": "3px",
+                                    "border-style": "solid"});
+                        reward(trialNum, i);
+                    };                
+                });             
+            };
         };
-        
-        
-        $('#Title').html(title);
-        $('#TextBoxDiv').html(images);
-
-        // for(let i = 1; i <= numArms; i++) {
-        //     $('#Door' + i).click(function() {
-        //         $(this).css({"border-color": "#CCFF33",
-        //                      "border-width": "3px",
-        //                      "border-style": "solid"});
-        //         reward(trialNum, i);
-        //     });
-        // };
-
-        $('#Door1').click(function() {
-            $(this).css({"border-color": "#CCFF33",
-                         "border-width": "3px",
-                         "border-style": "solid"});
-            reward(trialNum, 1);
-        });
-        $('#Door' + 2).click(function() {
-            $(this).css({"border-color": "#CCFF33",
-                         "border-width": "3px",
-                         "border-style": "solid"});
-            reward(trialNum, 2);
-        });
-        $('#Door' + 3).click(function() {
-            $(this).css({"border-color": "#CCFF33",
-                         "border-width": "3px",
-                         "border-style": "solid"});
-            reward(trialNum, 3);
-        });
-        $('#Door' + 4).click(function() {
-            $(this).css({"border-color": "#CCFF33",
-                         "border-width": "3px",
-                         "border-style": "solid"});
-            reward(trialNum, 4);
-        });
     };
 
     // rewards ---------------------------------------------------------------------------------------------------------------
     function reward(trialNum, choice) {
-        // $('#Title').empty();
+        $('#Title').empty();
         var thisReward = 0;
         var randomNum = Math.random();
 
-        if(choice === 1) { // door 1
-            if(randomNum < p1) {
-                thisReward = 1;
-            };
-        } else { // door 2
-            if(randomNum < p2) {
-                thisReward = 1;
+        switch(numArms) { // probabilities of getting a reward from options
+            case 2:
+                p = [p1, p2];
+            case 4:
+                p = [p1, p2, p3, p4];
+        };
+
+        for (let i = 1; i <= numArms; i++) {
+            if(choice === i) {
+                if(randomNum < p[i - 1]) {
+                    thisReward = 1;
+                };
             };
         };
 
-        // for (let i = 1; i <= numArms; i++) {
-        //     if(choice === i) {
-        //         if(randomNum < p[i - 1]) {
-        //             thisReward = 1;
-        //         };
-        //     };
-        // };
-
         if(thisReward === 1) { // coin
-            $('#Title').html('<h2 align="center">You got a coin!!</h2>');
+            $('#Title').html('<h2 align="center">You got a coin!!' + spacing + '</h2>');
             $('#Middle').html('<img id="Reward" src="images/coin.png" class="img-responsive center-block">');
             sumReward = sumReward + 1;
-
-            if(trialNum + 1 < numTrials) {
-                setTimeout(function() {
-                    $('#TextBoxDiv').fadeOut(500);
-                    setTimeout(function() {
-                        $('#Stage').empty();
-                        $('#Bottom').empty();
-                        options(trialNum + 1);
-                    }, fadeTime); 
-                }, stayTime); 
-            } else {
-                $('#TextBoxDiv').remove();
-                $('#Stage').empty();
-                $('#Bottom').empty();
-                end();
-            };
         } else { // no coin
-            $('#Title').html('<h2 align="center">You got nothing...</h2>');
+            $('#Title').html('<h2 align="center">You got nothing...' + spacing + '</h2>');
             $('#Middle').html('<img id="Reward" src="images/frowny.png" class="img-responsive center-block">');
+        };
 
-            if(trialNum + 1 < numTrials) {
-                setTimeout(function() {
-                    $('#TextBoxDiv').fadeOut(500);
-                    setTimeout(function() {
-                        $('#Stage').empty();
-                        $('#Bottom').empty();
-                        options(trialNum + 1);
-                    }, fadeTime); 
-                }, stayTime);
-            } else {
-                $('#TextBoxDiv').remove();
+        setTimeout(function() {
+            $('#TextBoxDiv').fadeOut(500);
+            setTimeout(function() {
                 $('#Stage').empty();
                 $('#Bottom').empty();
-                end();
-            };
-        };   
+                options(trialNum + 1);
+            }, fadeTime); 
+        }, stayTime); 
     };
 
     function end() {
         $('#Top').css('height', thisHeight / 20);
         $('#Stage').css('width', dispWidth);
-        $('#Stage').css('min-height', thisHeight * 17 / 20);
+        // $('#Stage').css('min-height', thisHeight * 17 / 20);
         $('#Bottom').css('min-height', thisHeight / 20);
         createDiv('Stage', 'TextBoxDiv');
+        $('#TextBoxDiv').css('margin-top', '20%');
 
         var title = '<h2 align="center">You have finished the experiment!<br><br>You earned ' + sumReward +
             ' coins!<br><br>Thanks for participating!</h2>';
