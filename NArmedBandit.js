@@ -74,9 +74,7 @@ $(document).ready(function () {
                 p = [0.7, 0.3];
             case 4:
                 p = [0.7, 0.3, 0.7, 0.3];
-        }
-
-        console.log(numArms);
+        };
     };
 
 
@@ -103,17 +101,6 @@ $(document).ready(function () {
         $('#Title').html(title)
         $('#TextBoxDiv').html(info + ticks);
 
-        // var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default" id="toConsent"' + 
-        //     ' value="Next"></div>';
-        // $('#Bottom').html(buttons); // click button to proceed
-
-        // $('#toConsent').click(function () {
-        //     $('#TextBoxDiv').remove();
-        //     $('#Stage').empty();
-        //     $('#Bottom').empty();
-        //     consent();
-        // });
-
         var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
             ' id="toInstructions" value="Next"></div>';
         $('#Bottom').html(buttons); // click button to proceed
@@ -123,43 +110,6 @@ $(document).ready(function () {
                 alert('You must tick all check boxes to continue.');
             } else {
                 $('#Title').remove();
-                $('#TextBoxDiv').remove();
-                $('#Stage').empty();
-                $('#Bottom').empty();
-                instructions(1); // move to the first page of instrcutions
-            };
-         });
-    };
-
-    // consent form ---------------------------------------------------------------------------------------------------------
-    function consent() {
-        $('#Top').css('height', thisHeight / 20);
-        $('#Stage').css('width', dispWidth);
-        $('#Stage').css('min-height', thisHeight * 17 / 20);
-        $('#Bottom').css('min-height', thisHeight / 20);
-        createDiv('Stage', 'TextBoxDiv');
-        
-        var title = '<h3 align="center">Consent form for participants in research studies</h3>'; // header
-        var info = 'Please read the following criteria and tick all boxes. <br><br>'; // consent content
-        var ticks = '<input type="checkbox" name="consent" value="consent1">I have read the information page.<br>' // +
-            // '<input type="checkbox" name="consent" value="consent2">I have had the opportunity to contact the' + 
-            //     ' researcher to ask questions and discuss the study.<br>' +
-            // '<input type="checkbox" name="consent" value="consent3">I have received satisfactory answers to my' + 
-            //     ' questions or have been advised of an individual to contact for answers to pertinent questions' + 
-            //     ' about the research and my rights as a participant.<br>' +
-            // '<input type="checkbox" name="consent" value="consent4">I understand that I am free to withdraw at' +　
-            //     ' any time, without giving a reason, and without incurring any penalty.<br>' +
-            // '<input type="checkbox" name="consent" value="consent5">I am over 18 years of age.<br>'
-        $('#TextBoxDiv').html(title + info + ticks);
-
-        var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
-            ' id="toInstructions" value="Next"></div>';
-        $('#Bottom').html(buttons); // click button to proceed
-
-        $('#toInstructions').click(function() {
-            if($('input:checkbox:not(:checked)').length > 0) {
-                alert('You must tick all check boxes to continue.');
-            } else {
                 $('#TextBoxDiv').remove();
                 $('#Stage').empty();
                 $('#Bottom').empty();
@@ -180,22 +130,22 @@ $(document).ready(function () {
         createDiv('Stage', 'TextBoxDiv');
 
         $('#TextBoxDiv').css('font-size', '16px');
-        // $('#TextBoxDiv').css('padding-top', '20%');
+        $('#TextBoxDiv').css('padding-top', '20%');
         
 
         var title = '<h2 align="center">Instructions</h2>';
         switch(pageNum) {
             case 1:
-                var info = '<h3>In this experiment, you have to collect as many coins as possible, hidden behind two' + 
+                var info = 'In this experiment, you have to collect as many coins as possible, hidden behind two' + 
                     ' or more doors. ' + 
                     'On each trial, you have to choose among the doors. Each door has some probability of getting a ' + 
                     'coin. You choose the door by clicking on it with your mouse. <br>There are ' + numTrials + ' trials ' +
-                    'in this experiment.</h3><br><br>';
+                    'in this experiment.<br><br>';
                 break;
             case 2:
-                var info = '<h3>After each decision, you will see the outcome - coin or nothing. You will then continue ' + 
+                var info = 'After each decision, you will see the outcome - coin or nothing. You will then continue ' + 
                     'directly to the next trial. At the end, you will see how many coins you have earned.<br>Good luck!' +
-                    '</h3><br><br>';
+                    '<br><br>';
                 break;
             default:
                 var info;
@@ -241,7 +191,8 @@ $(document).ready(function () {
             $('#Stage').empty();
             $('#Bottom').empty();
 
-            $('#Stage.h1').css('padding-top', '20%');
+            $('#Stage').css('margin-top', '20%');
+            $('#Stage').css('min-height', thisHeight * 7 / 20);
             
             setTimeout(function() {
                 $('#Stage').html('<h1 align="center">Ready</h1>');
@@ -251,6 +202,8 @@ $(document).ready(function () {
                         $('#Stage').html('<h1 align="center">Go!</h1>');
                         setTimeout(function() {
                             $('#Stage').html('<h1 align="center"></h1>');
+                            $('#Stage').css('margin-top', 'auto');
+                            $('#Stage').empty();
                             options(1); // start with the first trial
                         }, 1000);
                     }, 1000);
@@ -267,9 +220,9 @@ $(document).ready(function () {
         $('#Bottom').css('min-height', thisHeight / 20);
 
         createDiv('Stage', 'Title');
-        $('#Title').css('margin-top', thisHeight / 10);
+        // $('#Title').css('margin-top', thisHeight / 10);
         createDiv('Stage', 'TextBoxDiv');
-        $('#TextBoxDiv').css('margin-top', thisHeight / 5);
+        $('#TextBoxDiv').css('margin-down', thisHeight / 5);
 
         var title = '<div id="Title"><h2 align="center">Choose a door:</h2></div>';
 
