@@ -1,7 +1,7 @@
 $(document).ready(function () {
     // initialising variables ------------------------------------------------------------------------------------------------
     // adjustable
-    var numTrials = 5; // number of trials
+    var numTrials = 10; // number of trials
     var p1 = 0.5; // probability of getting a reward from option 1
     var p2 = 0.3;
     var p3 = 0.7;
@@ -9,7 +9,12 @@ $(document).ready(function () {
     var fadeTime = 500; // fade out time (after reward being displayed in each trial)
     var stayTime = 500; // result stay time (after reward being displayed in each trial)
 
+    var teacher = [1, 2, 2, 1, 2, 1, 1, 1, 1, 1]; // teachers' choices, need to be changed
+
     // system
+    var isTeacher; // whether their is a demonstrator
+    var teacherId; // which teacher
+    
     var numArms; // number of arms
     var p = new Array(); // probability array
     var sumReward = 0; // number of rewards a participant already gets
@@ -27,14 +32,14 @@ $(document).ready(function () {
 
     var spacing = '<br><br>'; // in trials, the spacing between title and images
 
-    para();
+    para(1);
 
     // information();
     // instructions(1);
     // options(1);
 
     // choosing parametres ---------------------------------------------------------------------------------------------------
-    function para() {
+    function para(pageNum) {
         $('#Top').css('height', thisHeight / 20);
         $('#Stage').css('width', dispWidth);
         $('#Stage').css('min-height', thisHeight * 17 / 20);
@@ -45,31 +50,87 @@ $(document).ready(function () {
         $('#TextBoxDiv').css('padding-top', '20%');
 
         var title = '<h3 align="center">Choosing parameters for testing the experiment</h3>'; 
-        var info1 = '<p align="center">Number of arms<br></p>'; 
-        // $('#TextBoxDiv').html(title + info);
 
-        var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default" id="num2"' + 
-            ' value="2"><input align="center" type="button" class="btn btn-default" id="num4" value="4"></div>';
+        switch(pageNum) {
+            case 1:
+                var info1 = '<p align="center">Number of arms<br></p>'; 
 
-        var info2 = '<p align="center"><br>Other parameters (under development...)</p>'; 
-        $('#Title').html(title)
-        $('#TextBoxDiv').html(info1 + buttons + info2); 
+                var buttons = '<div align="center">' + 
+                    '<input align="center" type="button" class="btn btn-default" id="num2" value="2">' + 
+                    '<input align="center" type="button" class="btn btn-default" id="num4" value="4">' + 
+                    '</div>';
 
-        $('#num2').click(function () {
-            numArms = 2;
-            $('#TextBoxDiv').remove();
-            $('#Stage').empty();
-            $('#Bottom').empty();
-            information();
-        });
+                // var info2 = '<p align="center"><br>Other parameters (under development...)</p>'; 
+                $('#Title').html(title)
+                $('#TextBoxDiv').html(info1 + buttons); 
+                // $('#TextBoxDiv').html(info1 + buttons + info2); 
 
-        $('#num4').click(function () {
-            numArms = 4;
-            $('#TextBoxDiv').remove();
-            $('#Stage').empty();
-            $('#Bottom').empty();
-            information();
-        });
+                $('#num2').click(function () {
+                    numArms = 2;
+                    $('#TextBoxDiv').remove();
+                    $('#Stage').empty();
+                    $('#Bottom').empty();
+                    // information();
+                    para(2);
+                });
+
+                $('#num4').click(function () {
+                    numArms = 4;
+                    $('#TextBoxDiv').remove();
+                    $('#Stage').empty();
+                    $('#Bottom').empty();
+                    // information();
+                    para(2);
+                });
+                break;
+
+            case 2:
+                var info1 = '<p align="center">Demonstrator<br>' + 
+                    '(currently the choices of demonstrators are not properly defined)<br>' + 
+                    '(and there might be some bug in the first trial)<br>' + 
+                    '</p>'; 
+
+                var buttons = '<div align="center">' + 
+                    '<input align="center" type="button" class="btn btn-default" id="tea0" value="No demonstrator">' + 
+                    '<input align="center" type="button" class="btn btn-default" id="tea1" value="Low performance">' + 
+                    '<input align="center" type="button" class="btn btn-default" id="tea2" value="High performance">' + 
+                    '</div>';
+    
+                var info2 = '<p align="center"><br>Other parameters (under development...)</p>'; 
+                $('#Title').html(title)
+                $('#TextBoxDiv').html(info1 + buttons + info2); 
+    
+                $('#tea0').click(function () {
+                    isTeacher = false;
+                    teacherId = 0;
+                    $('#TextBoxDiv').remove();
+                    $('#Stage').empty();
+                    $('#Bottom').empty();
+                    information();
+                });
+    
+                $('#tea1').click(function () {
+                    isTeacher = true;
+                    teacherId = 1;
+                    $('#TextBoxDiv').remove();
+                    $('#Stage').empty();
+                    $('#Bottom').empty();
+                    information();
+                });
+
+                $('#tea2').click(function () {
+                    isTeacher = true;
+                    teacherId = 2;
+                    $('#TextBoxDiv').remove();
+                    $('#Stage').empty();
+                    $('#Bottom').empty();
+                    information();
+                });
+
+                break;
+
+        };
+        
     };
 
 
@@ -117,6 +178,7 @@ $(document).ready(function () {
     function instructions(pageNum) {
         $('#Top').css('height', thisHeight / 20);
         $('#Stage').css('width', dispWidth);
+        // $('#Stage').css('position', 'relative');
         $('#Stage').css('min-height', thisHeight * 17 / 20);
         $('#Bottom').css('min-height', thisHeight / 20);
         var numPages = 2; // number of pages of instruction
@@ -186,7 +248,7 @@ $(document).ready(function () {
             $('#Stage').empty();
             $('#Bottom').empty();
 
-            $('#Stage').css('margin-top', '20%');
+            $('#Stage').css('margin-top', '30%');
             $('#Stage').css('min-height', thisHeight * 7 / 20);
             
             setTimeout(function() {
@@ -227,7 +289,10 @@ $(document).ready(function () {
             // createDiv('Stage', 'Title');
             // $('#Title').css('margin-top', thisHeight / 10);
             createDiv('Stage', 'TextBoxDiv');
+            createDiv('Stage', 'TextBoxDiv2');
             $('#TextBoxDiv').css('margin-top', '20%');
+
+            $('#Top').css('font-size', '20px');
 
             var infoTrial = 'Coins already got in this game: ' + sumReward + '<br>' + 
                 'Trial ' + trialNum + ' of ' + numTrials;
@@ -240,6 +305,27 @@ $(document).ready(function () {
                 door[i - 1] = '<img id="Door' + i + '" src="images/door.png" class="img-responsive center-block">';
             }
             
+            // switch(numArms) {
+            //     case 2:
+            //         var images = '<div id="'
+            //         break;
+            //     case 4:
+            //         var images = '<div class="row">' + 
+            //             '<div class="col-sm-' + 0 + '"></div>' + 
+            //             '<div class="col-sm-' + 3 + '">' + door[0] + '</div>' + 
+            //             '<div class="col-sm-' + 0 + '"></div>' + 
+            //             '<div class="col-sm-' + 3 + '">' + door[1] + '</div>' + 
+            //             '<div class="col-sm-' + 0 + '"></div>' + 
+            //             '<div class="col-sm-' + 3 + '">' + door[2] + '</div>' + 
+            //             '<div class="col-sm-' + 0 + '"></div>' + 
+            //             '<div class="col-sm-' + 3 + '">' + door[3] + '</div>' + 
+            //             '<div class="col-sm-' + 0 + '"></div></div>' +
+            //             '<div class="row">' + 
+            //             '<div class="col-sm-' + 5 + '"></div>' + 
+            //             '<div id="Middle" class="col-sm-' + 2 + '"></div>' + 
+            //             '<div class="col-sm-' + 5 + '"></div></div>';
+            //         break;
+            // };        
             switch(numArms) {
                 case 2:
                     var images = '<div class="row">' + 
@@ -252,14 +338,6 @@ $(document).ready(function () {
                         '<div class="col-sm-' + 5 + '"></div>' + 
                         '<div id="Middle" class="col-sm-' + 2 + '"></div>' + 
                         '<div class="col-sm-' + 5 + '"></div></div>';
-                    // var images = '<div class="row">' + 
-                    //     '<div class="col-md-' + 1 + '"></div>' + 
-                    //     '<div class="col-md-' + 3 + '">' + door[0] + '</div>' + 
-                    //     '<div class="col-md-' + 1 + '"></div>' + 
-                    //     '<div id="Middle" class="col-md-' + 2 + '"></div>' + 
-                    //     '<div class="col-md-' + 1 + '"></div>' + 
-                    //     '<div class="col-md-' + 3 + '">' + door[1] + '</div>' + 
-                    //     '<div class="col-md-' + 1 + '"></div></div>';
                     break;
                 case 4:
                     var images = '<div class="row">' + 
@@ -279,7 +357,33 @@ $(document).ready(function () {
                     break;
             };        
             
-            $('#TextBoxDiv').html(title + images);
+            
+
+            var point = '<div class="row">' +　
+                '<div class="col-sm-' + 5 + '"></div>' + 
+                '<div id="Middle2" class="col-sm-' + 2 + '"></div>' + 
+                '<div class="col-sm-' + 5 + '"></div></div>';
+
+            if(isTeacher) {
+                $('#TextBoxDiv').html(title + images + point);
+                $('#Middle2').html('<img id="Point" src="images/point.png" class="img-responsive center-block">');
+                $('#Middle2').css('position', 'absolute');
+                $('#Middle2').css('margin-left', dispWidth * 9 / 20);
+                $('#Middle2').css('margin-top', '0px');
+
+                $("#Middle2").animate({
+                    left : - dispWidth / 10,
+                    top : dispHeight
+                }, 1000);
+                $('#Middle2').delay(250);
+                $('#Middle2').fadeOut(250);
+
+            } else {
+                $('#TextBoxDiv').html(title + images);
+            }
+            
+
+           
 
             var isClick = true; // prevent from clicking too fast / too many times
             for(let i = 1; i <= numArms; i++) {
