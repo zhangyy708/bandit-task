@@ -370,6 +370,7 @@ $(document).ready(function () {
                 $('#Middle2').css('position', 'absolute');
                 $('#Middle2').css('margin-left', dispWidth * 9 / 20);
                 $('#Middle2').css('margin-top', '0px');
+                $('#Middle2').css('width', dispWidth / 5);
 
                 $("#Middle2").animate({
                     left : - dispWidth / 10,
