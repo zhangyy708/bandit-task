@@ -1,7 +1,7 @@
 $(document).ready(function () {
     // initialising variables ------------------------------------------------------------------------------------------------
     // adjustable
-    var numTrials = 10; // number of trials
+    var numTrials = 20; // number of trials
     var p1 = 0.5; // probability of getting a reward from option 1
     var p2 = 0.3;
     var p3 = 0.7;
@@ -209,8 +209,8 @@ $(document).ready(function () {
                 break;
         }
 
-        var thisImage = '<div align="center"><img src="images/instruction' + pageNum + '.png" alt="house" height=""' +
-            picHeight + ' align="center"><br><br></div>'
+        var thisImage = '<div align="center"><img src="images/instruction' + pageNum + '.png" alt="house" height="' +
+            picHeight + '" align="center"><br><br></div>'
         $('#Title').html(title);
         $('#TextBoxDiv').html(info + thisImage);
 
@@ -373,7 +373,7 @@ $(document).ready(function () {
                 $('#Middle2').css('width', dispWidth / 5);
 
                 $("#Middle2").animate({
-                    left : - dispWidth / 10,
+                    left : document.getElementById("Door1").getBoundingClientRect().left / 2.5,
                     top : dispHeight
                 }, 1000);
                 $('#Middle2').delay(250);
