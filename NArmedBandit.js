@@ -33,7 +33,7 @@ $(document).ready(function () {
     var spacing = '<br><br>'; // in trials, the spacing between title and images
 
     // checking pc or phone
-    if(navigator.userAgent.match(/(iPhone|iPod|Android|iPad)/i)){
+    if(navigator.userAgent.match(/(Android|webOS|iPhone|iPad|BlackBerry)/i)){
         alert('The experiment is only supported in PCs.'); // cannot continue the experiment; phone web
     }else{
         alert('pc端');
