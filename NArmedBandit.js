@@ -32,7 +32,14 @@ $(document).ready(function () {
 
     var spacing = '<br><br>'; // in trials, the spacing between title and images
 
-    para(1);
+    // checking pc or phone
+    if(navigator.userAgent.match(/(iPhone|iPod|Android|ios)/i)){
+        alert('The experiment is only supported in PCs.'); // cannot continue the experiment; phone web
+    }else{
+        alert('pc端');
+        para(1);
+    }
+    
 
     // information();
     // instructions(1);
@@ -48,6 +55,10 @@ $(document).ready(function () {
         createDiv('Stage', 'TextBoxDiv');
         $('#TextBoxDiv').css('font-size', '16px');
         $('#TextBoxDiv').css('padding-top', '20%');
+
+
+
+
 
         var title = '<h3 align="center">Choosing parameters for testing the experiment</h3>'; 
 
