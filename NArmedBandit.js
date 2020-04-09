@@ -42,7 +42,7 @@ $(document).ready(function () {
         "2No"   : [],
         "4No"   : [],
         "8No"   : []
-    }
+    };
 
     var conditions = ["2Low", "2High", "4Low", "4High", "8Low", "8High", "2No", "4No", "8No"];
     conditions.sort(function(){ // randomising conditions
@@ -301,7 +301,7 @@ $(document).ready(function () {
                     'coin. You can choose the door by clicking on it with your mouse.' + 
                     'Your goal is to collect as many coins as possible.<br>' +
                     'There are ' + conditions.length + ' games in this experiment, and in some of the games, ' + 
-                    'you can see the choice of a previous player who has played the same game as you do. ' + 
+                    'you can see the choice of a previous player (demonstrator) who has played the same game as you do. ' + 
                     'Each game has a different demonstrator (randomly assigned), who might perform better or ' + 
                     'worse than you.';
                 break;
@@ -309,7 +309,7 @@ $(document).ready(function () {
                 var info = 'After each decision, you will see the outcome - coin or nothing. You will then continue ' + 
                     'directly to the next trial. At the end, you will see how many coins you have earned.<br>' + 
                     'There are ' + numTrials + ' trials in each game, ' + conditions.length + ' games in this experiment.<br>' +
-                    'This experiment takes 10 minutes on average.<br>' +
+                    'This experiment takes 5~10 minutes on average.<br>' +
                     'Good luck!';
                 break;
             default:
