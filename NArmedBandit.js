@@ -1,10 +1,10 @@
 $(document).ready(function () {
     // initialising variables ------------------------------------------------------------------------------------------------
     // adjustable
-    var numTrials = 20; // number of trials
-    var p1 = [0.8, 0.2];
-    var p2 = [0.8, 0.2, 0.7, 0.3];
-    var p3 = [0.8, 0.2, 0.7, 0.3, 0.8, 0.2, 0.7, 0.3];
+    var numTrials = 15; // number of trials
+    // var p1 = [0.8, 0.2];
+    // var p2 = [0.8, 0.2, 0.7, 0.3];
+    // var p3 = [0.8, 0.2, 0.7, 0.3, 0.8, 0.2, 0.7, 0.3];
     var fadeTime = 200; // fade out time (after reward being displayed in each trial)
     var stayTime = 200; // result stay time (after reward being displayed in each trial)
     var movePoint = 500; // moving time for the point
@@ -18,6 +18,18 @@ $(document).ready(function () {
         "4High" : [4, 1, 2, 1, 4, 3, 1, 3, 1, 3, 2, 1, 1, 3, 1, 4, 1, 3, 1, 1],
         "8Low"  : [6, 2, 3, 1, 4, 6, 2, 8, 5, 7, 4, 2, 1, 5, 4, 8, 6, 1, 5, 1],
         "8High" : [7, 1, 3, 1, 4, 1, 5, 1, 5, 7, 4, 1, 1, 5, 1, 8, 6, 1, 5, 1]
+    };
+
+    var ps = { // generated from Beta(2, 2) (see matlab file experiment.m)
+        "2No"   : [0.6587, 0.0749],
+        "4No"   : [0.7287, 0.4253, 0.6671, 0.1911],
+        "8No"   : [0.2965, 0.6915, 0.4265, 0.2132, 0.3079, 0.2206, 0.3604, 0.4732],
+        "2Low"  : [0.7091, 0.5989],
+        "4Low"  : [0.3495, 0.2870, 0.6070, 0.3308],
+        "8Low"  : [0.3553, 0.4551, 0.4378, 0.5093, 0.6155, 0.4025, 0.3933, 0.7649],
+        "2High" : [0.4356, 0.6446],
+        "4High" : [0.5069, 0.7603, 0.8165, 0.1660],
+        "8High" : [0.8031, 0.2143, 0.2514, 0.1146, 0.3846, 0.2437, 0.6357, 0.1272]    
     }
 
     // system
@@ -26,6 +38,8 @@ $(document).ready(function () {
     
     var numArms; // number of arms
     var p = new Array(); // probability array
+    var t = new Array(); // teacher's choices array
+    var order = new Array(); // doors' order array
     var sumReward = 0; // total rewards a participant already gets
     var tempReward = 0; // rewards in a single game
 
@@ -49,6 +63,8 @@ $(document).ready(function () {
         return Math.random() - 0.5;
     });
 
+    var numGames = 1; // initialising; interation inside options()
+
     // styling ---------------------------------------------------------------------------------------------------------------
     var thisHeight = document.body.clientHeight * 0.9;
     var thisWidth = document.body.clientWidth * 0.9; // width = height * 4/3
@@ -66,7 +82,7 @@ $(document).ready(function () {
 
     // checking pc or phone/pad
     if(navigator.userAgent.match(/(Android|webOS|iPhone|Pad|BlackBerry)/i)){
-        alert('The experiment is only supported in PCs!'); // cannot continue the experiment
+        alert('Please open this page in PCs!'); // cannot continue the experiment
     }else{
         // alert('pc端');
         // para(1); // for testing; changing parameters
@@ -82,8 +98,8 @@ $(document).ready(function () {
     }
 
 
-    // randomising ---------------------------------------------------------------------------------------------------------
-    var numGames = 1; // initialising; interation inside options()
+    // full games -----------------------------------------------------------------------------------------------------------
+    // var numGames = 1; // initialising; interation inside options()
     function ran() { // used inside instructions()
         sumReward = sumReward + tempReward;
         tempReward = 0;
@@ -92,6 +108,19 @@ $(document).ready(function () {
             end();
         } else {
             numArms = parseInt(conditions[numGames-1].substring(0, 1));
+            order = Array.from({length:numArms},(item, index)=> index+1); // generating an array like [1, 2, 3, 4]
+            order.sort(function(){ // randomising doors' order in a game
+                return Math.random() - 0.5;
+            });
+
+            for (i = 0; i < numArms; i++) {
+                p[i] = ps[conditions[numGames-1]][order[i]-1]; // reordering the reward rates
+            };
+
+            for (i = 0; i < numTrials; i++) {
+                t[i] = order.indexOf(teacher[conditions[numGames-1]][i]) + 1; // reordering the choices of the teacher
+            };
+
             isTeacher = conditions[numGames-1].substring(1) !== "No";
             teacherPerform = conditions[numGames-1].substring(1);
 
@@ -238,7 +267,10 @@ $(document).ready(function () {
         $('#Top').css('height', thisHeight / 20);
         $('#Stage').css('width', dispWidth);
         $('#Stage').css('min-height', thisHeight * 17 / 20);
-        $('#Bottom').css('min-height', thisHeight / 20);
+        $('#Bottom').css({'height': thisHeight / 20,
+                          'position': 'absolute',
+                          'width': thisWidth,
+                          'top': bottomPos});
         createDiv('Stage', 'Title');
         createDiv('Stage', 'TextBoxDiv');
 
@@ -530,8 +562,8 @@ $(document).ready(function () {
             };
 
             if(isTeacher) {
-                var whichTeacher = teacher[numArms + teacherPerform]; // which teacher
-                var whichDemo = whichTeacher[trialNum-1]; // which door does the teacher choose in the current trial
+                // var whichTeacher = t; // which teacher
+                var whichDemo = t[trialNum-1]; // which door does the teacher choose in the current trial
                 
                 $('#TextBoxDiv').append('<img id="Point" src="images/point.png">');
                 $('#Point').css({'position': 'absolute',
@@ -584,18 +616,6 @@ $(document).ready(function () {
         $('#Title').empty();
         var thisReward = 0;
         var randomNum = Math.random();
-
-        switch(numArms) { // probabilities of getting a reward from options
-            case 2:
-                p = p1;
-                break;
-            case 4:
-                p = p2;
-                break;
-            case 8:
-                p = p3;
-                break;
-        };
 
         for (let i = 1; i <= numArms; i++) {
             if(choice === i) {
