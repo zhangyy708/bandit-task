@@ -105,6 +105,9 @@ $(document).ready(function () {
             end();
         } else {
             numArms = parseInt(conditions[numGames-1].substring(0, 1));
+            isTeacher = conditions[numGames-1].substring(1) !== "No";
+            teacherPerform = conditions[numGames-1].substring(1);
+
             order = Array.from({length:numArms},(item, index)=> index+1); // generating an array like [1, 2, 3, 4]
             order.sort(function(){ // randomising doors' order in a game
                 return Math.random() - 0.5;
@@ -114,12 +117,16 @@ $(document).ready(function () {
                 p[i] = ps[conditions[numGames-1]][order[i]-1]; // reordering the reward rates
             };
 
-            for (i = 0; i < numTrials; i++) {
-                t[i] = order.indexOf(teacher[conditions[numGames-1]][i]) + 1; // reordering the choices of the teacher
+            if(isTeacher) {
+                for (i = 0; i < numTrials; i++) {
+                    t[i] = order.indexOf(teacher[conditions[numGames-1]][i]) + 1; // reordering the choices of the teacher
+                };
+                isTeacherDisplay = "Yes";
+            } else {
+                isTeacherDisplay = "No";
             };
+                
 
-            isTeacher = conditions[numGames-1].substring(1) !== "No";
-            teacherPerform = conditions[numGames-1].substring(1);
 
             $('#Top').css('height', thisHeight / 20);
             $('#Stage').css('width', dispWidth);
@@ -130,11 +137,6 @@ $(document).ready(function () {
             $('#TextBoxDiv0').css('font-size', '16px');
             $('#TextBoxDiv0').css('padding-top', '20%');
             
-            if(isTeacher) {
-                isTeacherDisplay = "Yes";
-            } else {
-                isTeacherDisplay = "No";
-            };
             var title = '<div id="Title"><h2 align="center">' + 'Game ' + numGames + '<br>' +
                         'Number of doors: ' + numArms + '<br>' +
                         'Is there a demonstrator: ' + isTeacherDisplay + '</h2><div>';
