@@ -2,22 +2,19 @@ $(document).ready(function () {
     // initialising variables ------------------------------------------------------------------------------------------------
     // adjustable
     var numTrials = 15; // number of trials
-    // var p1 = [0.8, 0.2];
-    // var p2 = [0.8, 0.2, 0.7, 0.3];
-    // var p3 = [0.8, 0.2, 0.7, 0.3, 0.8, 0.2, 0.7, 0.3];
     var fadeTime = 200; // fade out time (after reward being displayed in each trial)
     var stayTime = 200; // result stay time (after reward being displayed in each trial)
     var movePoint = 500; // moving time for the point
     var stayPoint = 100; // point stay time
     var fadePoint = 100; // point fade out time
 
-    var teacher = { // numArms + teacherPerform
-        "2Low"  : [1, 2, 1, 2, 1, 1, 2, 2, 2, 1, 2, 1, 1, 2, 2, 1, 1, 2, 1, 1], 
-        "2High" : [2, 1, 2, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1], 
-        "4Low"  : [3, 4, 2, 1, 4, 3, 2, 3, 1, 4, 4, 2, 3, 1, 2, 4, 2, 1, 3, 1],
-        "4High" : [4, 1, 2, 1, 4, 3, 1, 3, 1, 3, 2, 1, 1, 3, 1, 4, 1, 3, 1, 1],
-        "8Low"  : [6, 2, 3, 1, 4, 6, 2, 8, 5, 7, 4, 2, 1, 5, 4, 8, 6, 1, 5, 1],
-        "8High" : [7, 1, 3, 1, 4, 1, 5, 1, 5, 7, 4, 1, 1, 5, 1, 8, 6, 1, 5, 1]
+    var teacher = { // numArms + teacherPerform (see matlab file experiment.m)
+        "2Low"  : [2, 1, 2, 2, 1, 1, 1, 2, 2, 1, 1, 2, 1, 1, 2], 
+        "2High" : [2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2], 
+        "4Low"  : [4, 1, 4, 3, 4, 1, 3, 1, 2, 3, 1, 1, 2, 3, 1],
+        "4High" : [4, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+        "8Low"  : [6, 1, 5, 2, 7, 2, 5, 6, 5, 5, 1, 7, 7, 7, 4],
+        "8High" : [2, 2, 3, 7, 7, 7, 7, 7, 8, 7, 2, 2, 6, 5, 5]
     };
 
     var ps = { // generated from Beta(2, 2) (see matlab file experiment.m)
