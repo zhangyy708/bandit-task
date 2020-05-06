@@ -277,7 +277,7 @@ $(document).ready(function () {
         $('#TextBoxDiv').css('padding-top', '20%');
 
         var title = '<h2 align="center">Information page</h2>'; // header
-        var info = '(information sheet ' + '<a href="/webexperiment_consent_gdpr_filled">here</a>' + ')<br>' + // HERE!
+        var info = '(information sheet ' + '<a href="webexperiment_consent_gdpr_filled.pdf">here</a>' + ')<br>' + // HERE!
             'Thanks for participating in this experiment!<br>In this experiment, you will be asked to ' + 
             'choose from several options and your final reward will be dependent on your choice. The session ' + 
             'should last no more than 10 minutes and you will be paid ￡1 plus additional reward for your ' + 
