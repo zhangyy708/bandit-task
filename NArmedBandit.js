@@ -35,7 +35,7 @@ $(document).ready(function () {
     
     var numArms; // number of arms
     var p = new Array(); // probability array
-    var t = new Array(); // teacher's choices array
+    var t = Array(numTrials); // teacher's choices array
     var order = new Array(); // doors' order array
     var sumReward = 0; // total rewards a participant already gets
     var tempReward = 0; // rewards in a single game
