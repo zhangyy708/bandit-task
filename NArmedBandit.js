@@ -42,6 +42,8 @@ $(document).ready(function () {
 
     var init = (new Date()).getTime(); // the time the experiment starts
     var subID = createCode();
+    var year; // birth year of the subject
+    var edu; // years of formal education that the subject has received
 
     var subChoice = { // numArms + teacherPerform
         "2Low"  : [], 
@@ -91,6 +93,10 @@ $(document).ready(function () {
         // options(1);
 
         // formal
+        expRewardsRandom(); // calculating the expected rewards of random policy
+        expRewardsBest(); // calculating the largest total rewards possible
+        expRewardsOpt(); // calculating the expected rewards of optimal policy 
+                         // (always choosing the option with the highest reward rate)
         information();
     }
 
@@ -137,9 +143,12 @@ $(document).ready(function () {
             $('#TextBoxDiv0').css('font-size', '16px');
             $('#TextBoxDiv0').css('padding-top', '20%');
             
-            var title = '<div id="Title"><h2 align="center">' + 'Game ' + numGames + '<br>' +
-                        'Number of doors: ' + numArms + '<br>' +
-                        'Is there a demonstrator: ' + isTeacherDisplay + '</h2><div>';
+            var title = '<div id="Title"><h2 align="center">' + 'Game No. ' + 
+                        '<span style="color:red;">' + numGames + '</span><br>' +
+                        'Number of doors: ' + '<span style="color:red;">' + numArms + '</span><br>' +
+                        'Is there a demonstrator: ' + '<span style="color:red;">' + isTeacherDisplay + '</span><br><br>' +
+                        'You already got ' + '<span style="color:red;">' + 
+                        sumReward + '</span> coins in this experiment!' + '</h2><div>';
             $('#TextBoxDiv0').html(title);
 
             var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
@@ -274,27 +283,91 @@ $(document).ready(function () {
         createDiv('Stage', 'TextBoxDiv');
 
         $('#TextBoxDiv').css('font-size', '16px');
-        $('#TextBoxDiv').css('padding-top', '20%');
+        $('#TextBoxDiv').css('padding-top', '5%');
 
-        var title = '<h2 align="center">Information page</h2>'; // header
-        var info = '(information sheet ' + '<a href="webexperiment_consent_gdpr_filled.pdf">here</a>' + ')<br>' + // HERE!
-            'Thanks for participating in this experiment!<br>In this experiment, you will be asked to ' + 
-            'choose from several options and your final reward will be dependent on your choice. The session ' + 
-            'should last no more than 10 minutes and you will be paid ￡1 plus additional reward for your ' + 
-            'participation.<br>If you have any question, please contact ' +
-            ' Y.Zhang-327@sms.ed.ac.uk<br><br><br>'; // information content
-        var ticks = '<input type="checkbox" name="consent" value="consent">I have read the information above.<br>'
+        var title = '<h2 align="center">Information Page</h2>'; // header
+        var info = 'Thanks for participating in this experiment!<br><br>' + 
+            'In this experiment, you will be asked to choose repeatedly among multiple options, each of which is associated ' + 
+            'a certain probability of getting additional rewards. Your final compensation will be dependent on your choices. ' + 
+            'More instructions on the task could be found on next pages.<br><br>' + 
+            'Your session should last for up to 10 minutes. You will be paid ￡1~1.5 (based on your choices in the task) ' + 
+            'for your participation. ' +
+            'You need to be over 18 years old to participate in this study.<br><br>' + 
+            'Please check <a href="webexperiment_consent_gdpr_filled.pdf" target="_blank">this pdf file</a> ' + 
+            'for more information on how your data will be stored and used and your rights to withdraw. ' + 
+            // 'Your personal data will not be shared outside the research team. You have the right to withdraw ' +
+            // 'at any time, and you can contact the research team after completing this study to withdraw ' +
+            // 'before August 1st 2020. Your data will be deleted if you withdraw. ' +
+            'If you have any question about this study, please feel free to contact Y.Zhang-327@sms.ed.ac.uk<br><br><br>' +
+            'By continuing to next pages, you consent to the following: <br><br>'
+        var ticks = '<input type="checkbox" name="consent" value="consent">I agree to participate in this study.<br>' +
+                    '<input type="checkbox" name="consent" value="consent">' + 
+                    'I confirm that I have read and understood how my data will be stored and used.<br>' +
+                    '<input type="checkbox" name="consent" value="consent">' + 
+                    'I understand that I have the right to terminate this session at any point. ' + 
+                    'If I choose to withdraw after completing the study (before August 1st 2020), ' + 
+                    'my data will be deleted at that time.<br>'
+
         
         $('#Title').html(title);
         $('#TextBoxDiv').html(info + ticks);
+
+        var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
+            ' id="toForm" value="Next"></div>';
+        $('#Bottom').html(buttons); // click button to proceed
+
+        $('#toForm').click(function() {
+            if($('input:checkbox:not(:checked)').length > 0) {
+                alert('You must tick all check boxes to continue.');
+            } else {
+                $('#Title').remove();
+                $('#TextBoxDiv').remove();
+                $('#Stage').empty();
+                $('#Bottom').empty();
+                form();
+                // instructions(1); // move to the first page of instrcutions
+            };
+         });
+    };
+
+    // form page -------------------------------------------------------------------------------------------------------------
+    function form() {
+        $('#Top').css('height', thisHeight / 20);
+        $('#Stage').css('width', dispWidth);
+        $('#Stage').css('min-height', thisHeight * 17 / 20);
+        $('#Bottom').css({'height': thisHeight / 20,
+                          'position': 'absolute',
+                          'width': thisWidth,
+                          'top': bottomPos});
+        createDiv('Stage', 'Title');
+        createDiv('Stage', 'TextBoxDiv');
+
+        $('#TextBoxDiv').css('font-size', '16px');
+        $('#TextBoxDiv').css('padding-top', '20%');
+
+        var title = '<h2 align="center">Demographic Information</h2>'; // header
+        var info = 'Please answer the following questions. This data will not be shared outside the research team.<br><br>' +
+                   'In which year were you born? ' + '<input type="number" id="year"><br><br>' +
+                   'How many years have you received formal education (counting from elementary school)? ' + 
+                   '<input type="number" id="edu"><br><br>' +
+                   'Click "Next" button below to submit and continue to task instructions.'
+        $('#Title').html(title);
+        $('#TextBoxDiv').html(info);
 
         var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
             ' id="toInstructions" value="Next"></div>';
         $('#Bottom').html(buttons); // click button to proceed
 
         $('#toInstructions').click(function() {
-            if($('input:checkbox:not(:checked)').length > 0) {
-                alert('You must tick all check boxes to continue.');
+            year = $("#year").val();
+            edu = $("#edu").val();
+
+            if (isNaN(year) || isNaN(edu) || year === "" || edu === "") {
+                alert('Please enter a number.');
+            } else if (year % 1 !== 0 || edu % 1 !== 0) {
+                alert('Please enter an integer.');
+            } else if (year < 1900 || year > 2003 || edu < 0 || edu > 50) {
+                alert('Please enter a valid number.');
             } else {
                 $('#Title').remove();
                 $('#TextBoxDiv').remove();
@@ -307,7 +380,7 @@ $(document).ready(function () {
 
     var bottomPos = $('#Bottom').position().top; // to align the position of the buttons
 
-    // instructions ---------------------------------------------------------------------------------------------------------
+    // instructions ----------------------------------------------------------------------------------------------------------
     function instructions(pageNum) {
         $('#Top').css('height', thisHeight / 20);
         $('#Stage').css('width', dispWidth);
@@ -316,7 +389,7 @@ $(document).ready(function () {
                           'position': 'absolute',
                           'width': thisWidth,
                           'top': bottomPos});
-        var numPages = 2; // number of pages of instruction
+        var numPages = 3; // number of pages of instruction
         var picHeight = dispWidth / 2;
         createDiv('Stage', 'Title');
         createDiv('Stage', 'TextBoxDiv');
@@ -328,20 +401,26 @@ $(document).ready(function () {
         var title = '<h2 align="center">Instructions</h2>';
         switch(pageNum) {
             case 1:
-                var info = 'In this experiment, you will choose among 2 or more doors, each has some probability of hiding a ' + 
-                    'coin. You can choose the door by clicking on it with your mouse.' + 
-                    'Your goal is to collect as many coins as possible.<br>' +
-                    'There are ' + conditions.length + ' games in this experiment, and in some of the games, ' + 
-                    'you can see the choice of a previous player (demonstrator) who has played the same game as you do. ' + 
-                    'Each game has a different demonstrator (randomly assigned), who might perform better or ' + 
-                    'worse than you.';
+                var info = 'In this experiment, you will choose among 2 or more doors, each of which ' + 
+                    'is associated a fixed but unknown probability of getting a coin. ' +
+                    'You can choose the door by clicking on it with your mouse.<br>' + 
+                    'Your goal is to collect as many coins as possible. ' + 
+                    'For every 2 coins you collect in the task, you will earn additional 1p.<br>'
                 break;
             case 2:
-                var info = 'After each decision, you will see the outcome - coin or nothing. You will then continue ' + 
-                    'directly to the next trial. At the end, you will see how many coins you have earned.<br>' + 
-                    'There are ' + numTrials + ' trials in each game, ' + conditions.length + ' games in this experiment.<br>' +
+                var info = 'There are ' + conditions.length + ' games in this experiment, and in some of the games, ' + 
+                    'before making your decision, you can see the choice of a previous player (demonstrator) ' + 
+                    'who has played exactly the same game as you are playing. ' + 
+                    'Each game has a different demonstrator (randomly assigned), who might perform well or badly.';
+                break;
+            case 3:
+                var info = 'After each decision, you will see the outcome - coin or nothing. ' + 
+                    'You will then continue directly to the next trial. ' + 
+                    'At the end of each game, you will see how many coins you have earned.<br>' + 
+                    'There are ' + numTrials + ' trials in each game, ' +
+                    conditions.length + ' games in this experiment.<br>' +
                     'This experiment takes 5~10 minutes on average.<br>' +
-                    'Good luck!';
+                    'Click "Start!" to start the games!';
                 break;
             default:
                 var info;
@@ -355,7 +434,7 @@ $(document).ready(function () {
 
         var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default" id="Back"' + 
             ' value="Back"><input align="center" type="button" class="btn btn-default" id="Next" value="Next">' + 
-            '<input align="center" type="button" class="btn btn-default" id="Start" value="Start!"></div>';
+            '<input align="center" type="button" class="btn btn-default" id="Start" style="color:red" value="Start!"></div>';
         $('#Bottom').html(buttons);
         
         if(pageNum === 1) {
@@ -387,25 +466,27 @@ $(document).ready(function () {
             $('#Stage').empty();
             $('#Bottom').empty();
 
-            $('#Stage').css('margin-top', '30%');
-            $('#Stage').css('min-height', thisHeight * 7 / 20);
+            // $('#Stage').css('margin-top', '30%');
+            // $('#Stage').css('min-height', thisHeight * 7 / 20);
             
-            setTimeout(function() {
-                $('#Stage').html('<h1 align="center">Ready</h1>');
-                setTimeout(function() {
-                    $('#Stage').html('<h1 align="center">Steady</h1>');
-                    setTimeout(function() {
-                        $('#Stage').html('<h1 align="center">Go!</h1>');
-                        setTimeout(function() {
-                            $('#Stage').html('<h1 align="center"></h1>');
-                            $('#Stage').css('margin-top', 'auto');
-                            $('#Stage').empty();
-                            // options(1); // start with the first trial
-                            ran(); // multiple conditions
-                        }, 1000);
-                    }, 1000);
-                }, 1000);
-            }, 10);
+            ran(); // multiple conditions
+            
+            // setTimeout(function() {
+            //     $('#Stage').html('<h1 align="center">Ready</h1>');
+            //     setTimeout(function() {
+            //         $('#Stage').html('<h1 align="center">Steady</h1>');
+            //         setTimeout(function() {
+            //             $('#Stage').html('<h1 align="center">Go!</h1>');
+            //             setTimeout(function() {
+            //                 $('#Stage').html('<h1 align="center"></h1>');
+            //                 $('#Stage').css('margin-top', 'auto');
+            //                 $('#Stage').empty();
+            //                 // options(1); // start with the first trial
+            //                 ran(); // multiple conditions
+            //             }, 1000);
+            //         }, 1000);
+            //     }, 1000);
+            // }, 10);
         });            
     };
 
@@ -657,17 +738,46 @@ $(document).ready(function () {
     function end() {
         $('#Top').css('height', thisHeight / 20);
         $('#Stage').css('width', dispWidth);
-        // $('#Stage').css('min-height', thisHeight * 17 / 20);
-        $('#Bottom').css('min-height', thisHeight / 20);
+        $('#Stage').css('min-height', thisHeight * 17 / 20);
+        $('#Bottom').css({'height': thisHeight / 20,
+                          'position': 'absolute',
+                          'width': thisWidth,
+                          'top': bottomPos});
+        createDiv('Stage', 'Title');
         createDiv('Stage', 'TextBoxDiv');
-        $('#TextBoxDiv').css('padding-top', '20%');
 
-        var title = '<h2 align="center">You have finished the experiment!<br><br>You earned ' + sumReward +
-            ' coins!<br><br>Thanks for participating!</h2>';
+        $('#TextBoxDiv').css('font-size', '16px');
+        $('#TextBoxDiv').css('padding-top', '10%');
+
+        var money = 1 + Math.round(sumReward / 2) * 0.01;
+
+        var title = '<h2 align="center">You have finished the experiment!<br><br></h2>';
+        var info = '<div>You earned ' + sumReward + ' coins, so your will be paid ￡' + money + '.<br><br>' + 
+                   'Thanks for participating!<br><br>' + 
+                   '(Optional) If you have any questions or suggestions on this study, you could write here:<br>' +
+                //    '<input type="text" id="feedback" ' + 
+                //    'style="width:' + dispWidth + 'px; height:' + dispWidth / 3 + 'px; word-break:break-all"></div>';
+                   '<textarea id="feedback" style="width:' + dispWidth + 'px; height:' + dispWidth / 3 + 'px"></textarea></div>';
             
-        $('#TextBoxDiv').html(title);
+        $('#Title').html(title);
+        $('#TextBoxDiv').html(info);
 
-        console.log(subChoice);        
+        var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
+            ' id="submitFeedback" value="Submit"></div>';
+        $('#Bottom').html(buttons); // click button to proceed
+
+        $('#submitFeedback').click(function() {
+            feedback = $("#feedback").val(); // feedback from participants
+            if (feedback !== "") {
+                alert('Thanks for your feedback!');
+            };
+            
+         });
+
+        // console.log(subChoice);        
+        // console.log(feedback);
+        // console.log(year);
+        // console.log(edu);        
     };
 
 
@@ -687,7 +797,42 @@ $(document).ready(function () {
         d.appendTo(container);
     };
 
+    // miscellanous
+    // calculate expeceted rewards for random choices
+    function multiply(input) {
+        return input * numTrials;
+    };
+    
+    function expRewardsRandom() {
+        var tempPsNew;
+        var x = Array(conditions.length);
+        var i;
+        for (i = 0; i < conditions.length; i++) {
+            tempPsNew = ps[conditions[i]].map(multiply); // in each condition, each door' reward rate * number of trials
+            x[i] = eval(tempPsNew.join("+")) / parseInt(conditions[i].substring(0, 1)); // average over tempPsNew in each condition
+        };
 
+        console.log(eval(x.join("+")));
+        // 63.4831875 // expected rewards for random policy
+    };
+
+    function expRewardsBest() {
+        console.log(conditions.length * numTrials);
+        // 135 // total rewards if all choices get a reward
+    };
+
+    function expRewardsOpt() {
+        var tempPsNew;
+        var y = Array(conditions.length);
+        var i;
+        for (i = 0; i < conditions.length; i++) {
+            tempPsNew = Math.max.apply(null, ps[conditions[i]]);
+            y[i] = tempPsNew * numTrials;
+        };
+
+        console.log(eval(y.join("+")));
+        // 96.36149999999999 // expected rewards if all choices have the highest reward rate in the game
+    };
 
 
 })
