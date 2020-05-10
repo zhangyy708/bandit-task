@@ -16,6 +16,19 @@ $(document).ready(function () {
         "8Low": [6, 1, 5, 2, 7, 2, 5, 6, 5, 5, 1, 7, 7, 7, 4],
         "8High": [2, 2, 3, 7, 7, 7, 7, 7, 8, 7, 2, 2, 6, 5, 5]
     };
+    
+    // random surnames from https://en.geneanet.org/genealogy/ popularity around 1,000,000
+    var names = {
+        "2No": "None",
+        "4No": "None",
+        "8No": "None",
+        "2Low": "Foster",
+        "4Low": "Russell",
+        "8Low": "Reed",
+        "2High": "Hamilton",
+        "4High": "Fisher",
+        "8High": "Bennett"
+    };
 
     var ps = { // generated from Beta(2, 2) (see matlab file experiment.m)
         "2No": [0.6587, 0.0749],
@@ -128,10 +141,11 @@ $(document).ready(function () {
                 for (i = 0; i < numTrials; i++) {
                     t[i] = order.indexOf(teacher[conditions[numGames - 1]][i]) + 1; // reordering the choices of the teacher
                 };
-                isTeacherDisplay = "Yes";
+                // isTeacherDisplay = "Yes";
             } else {
-                isTeacherDisplay = "No";
+                // isTeacherDisplay = "No";
             };
+            isTeacherDisplay = names[conditions[numGames - 1]];
 
 
 
@@ -144,12 +158,16 @@ $(document).ready(function () {
             $('#TextBoxDiv0').css('font-size', '16px');
             $('#TextBoxDiv0').css('padding-top', '20%');
 
-            var title = '<div id="Title"><h2 align="center">' + 'Game No. ' +
-                '<span style="color:red;">' + numGames + '</span><br>' +
-                'Number of doors: ' + '<span style="color:red;">' + numArms + '</span><br>' +
-                'Is there a demonstrator: ' + '<span style="color:red;">' + isTeacherDisplay + '</span><br><br>' +
-                'You already got ' + '<span style="color:red;">' +
-                sumReward + '</span> coins in this experiment!' + '</h2><div>';
+            // var title = '<div id="Title"><h2 align="center">' + 'Game No. ' +
+            //     '<span style="color:red;">' + numGames + '</span><br>' +
+            //     'Number of doors: ' + '<span style="color:red;">' + numArms + '</span><br>' +
+            //     'Is there a demonstrator: ' + '<span style="color:red;">' + isTeacherDisplay + '</span><br><br>' +
+            //     'You already got ' + '<span style="color:red;">' +
+            //     sumReward + '</span> coins in this experiment!' + '</h2><div>';
+            var title = '<div id="Title"><h2 align="center">' + 'Game No. <b>' + numGames + '</b><br>' +
+                        'Number of doors: <b>' + numArms + '</b><br>' +
+                        'Demonstrator: <b>' + isTeacherDisplay + '</b><br><br>' +
+                        'You\'ve got <b>' + sumReward + '</b> coins in this study!' + '</h2><div>';
             $('#TextBoxDiv0').html(title);
 
             var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
@@ -288,35 +306,6 @@ $(document).ready(function () {
         $('#TextBoxDiv').css('font-size', '16px');
         $('#TextBoxDiv').css('padding-top', '5%');
 
-        // .scroll_text {
-        //     height: 450px;
-        //     overflow: scroll;
-        //     padding: 0 0 0 0;
-        // }
-
-
-			
-		//  <div id="reminder" style="display: none;">
-		// 	<h1 align="center">Thank you for joining our experiment</h1>
-		// 	<div class="frame">
-		// 		<p>Please note that:</p>
-		// 		<ul>
-		// 			<li>You will have to complete a comprehension quiz before you can start the experiment.</li>
-		// 			<li>Please minimize the chances of possible distractions - switch off messengers, music, etc.</li>
-		// 			<li>Please use full-screen mode.</li>
-		// 			<li>You <b>can not</b> use a mobile phone or tablet.</li>
-		// 			<li>You <b>can only</b> participate if you use Google Chrome.</li>
-		// 			<li>Do not refresh this page during the experiment.</li>
-		// 		</ul>
-		// 	</div>
-		// 	<a class="button" href="flask_bel_updating"><span>Understood</span></a>
-		// </div>
-
-// $('#consent-btn').click(function () {
-// 	$('#information').hide();
-// 	$('#reminder').show();	
-// }); 
-
         var title = '<h2 align="center">Information for Participants</h2>'; // header
         // var info = 'Thanks for participating in this experiment!<br><br>' +
         //     'In this experiment, you will be asked to choose repeatedly among multiple options, each of which is associated ' +
@@ -386,39 +375,60 @@ $(document).ready(function () {
                         '<li>I understand that I have the right to <b>terminate this session</b> at any point. </li>' +
                     '</ol>' +
                 '</div>';
+        var title2 = '<h2 align="center">Thank you for joining our experiment</h2>';
+        var info2 = '<div id="reminder">' + 
+                        '<p>Please note that:</p>' +
+                        '<ul>' +
+                            '<li>You will have to complete a comprehension quiz before you can start the experiment.</li>' +
+                            '<li>Please minimize the chances of possible distractions -' +
+                            ' switch off messengers, music, etc.</li>' +
+                            '<li>Please use full-screen mode.</li>' +
+                            '<li>You <b>can not</b> use a mobile phone or tablet.</li>' + 
+                            '<li>You <b>can only</b> participate if you use Google Chrome.</li>' +
+                            '<li>Do not refresh this page during the experiment.</li>' +
+                        '</ul>' +
+                    '</div>';
 
         $('#Title').html(title);
-        // $('#TextBoxDiv').html(info + ticks);
         $('#TextBoxDiv').html(info);
 
         $('.scroll_text').css({
             'height': thisHeight * 14 / 20,
             'overflow': 'scroll'});
 
+        var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
+            ' id="toReminder" value="Accept HIT" disabled></div>';
+        var buttons2 = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
+            ' id="toForm" value="Understood"></div>';
+        // '<a class="button" href="flask_bel_updating"><span>Understood</span></a>'
+        $('#Bottom').html(buttons); // click button to proceed
 
         $('#consent-info').scroll(function() {
             if ($(this)[0].scrollHeight - $(this).scrollTop() <= $(this).outerHeight()) {
-                   $('#consent-btn').prop('disabled',false);
-            }
+                   $('#toReminder').prop('disabled', false);
+            };
         });
 
-        var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
-            ' id="toForm" value="Next"></div>';
-        // var buttons = '<button class="button" id="consent-btn"><span>Accept Hit</span></button>'
-        $('#Bottom').html(buttons); // click button to proceed
+        $('#toReminder').click(function () {
+            $('#Title').empty();
+            $('#TextBoxDiv').empty();
+            $('Bottom').empty();
+            $('#Title').html(title2);
+            $('#TextBoxDiv').html(info2);
+            $('#Bottom').html(buttons2);
 
-        $('#toForm').click(function () {
-            if ($('input:checkbox:not(:checked)').length > 0) {
-                alert('You must tick all check boxes to continue.');
-            } else {
+            $('#toForm').click(function () {
                 $('#Title').remove();
                 $('#TextBoxDiv').remove();
                 $('#Stage').empty();
                 $('#Bottom').empty();
                 form();
                 // instructions(1); // move to the first page of instrcutions
-            };
+            });
+
         });
+
+        
     };
 
     // form page -------------------------------------------------------------------------------------------------------------
@@ -909,10 +919,13 @@ $(document).ready(function () {
 
         });
 
-        // console.log(subChoice);        
-        // console.log(feedback);
-        // console.log(year);
-        // console.log(edu);        
+        // save to the database
+        console.log(subChoice);        
+        console.log(feedback);
+        console.log(year);
+        console.log(edu);        
+        console.log(init);        
+        console.log(subID);
     };
 
 
