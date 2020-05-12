@@ -547,7 +547,7 @@ $(document).ready(function () {
                 break;
         };
 
-        var thisImage = '<div align="center"><img src="static/images/instruction' + pageNum + '.png" alt="house" height="' +
+        var thisImage = '<div align="center"><img src="bandit-task/static/images/instruction' + pageNum + '.png" alt="house" height="' +
             picHeight + '" align="center"></div>'
         $('#Title').html(title);
         $('#TextBoxDiv').html(info + thisImage);
@@ -761,7 +761,7 @@ $(document).ready(function () {
 
             var door = new Array();
             for (let i = 1; i <= numArms; i++) {
-                door[i - 1] = '<img id="Door' + i + '" src="static/images/door.png">';
+                door[i - 1] = '<img id="Door' + i + '" src="bandit-task/static/images/door.png">';
             }
 
             switch (numArms) {
@@ -903,7 +903,7 @@ $(document).ready(function () {
                 // var whichTeacher = t; // which teacher
                 var whichDemo = t[trialNum - 1]; // which door does the teacher choose in the current trial
 
-                $('#TextBoxDiv').append('<img id="Point" src="static/images/point.png">');
+                $('#TextBoxDiv').append('<img id="Point" src="bandit-task/static/images/point.png">');
                 $('#Point').css({
                     'position': 'absolute',
                     'left': '48%',
@@ -974,11 +974,11 @@ $(document).ready(function () {
 
         if (thisReward === 1) { // coin
             $('#MessageBox').html('<h2 align="center" id="Message">You got a coin!!' + spacing + '</h2>');
-            $('#TextBoxDiv2').html('<img id="Reward" src="static/images/coin.png">');
+            $('#TextBoxDiv2').html('<img id="Reward" src="bandit-task/static/images/coin.png">');
             tempReward = tempReward + 1;
         } else { // no coin
             $('#MessageBox').html('<h2 align="center" id="Message">You got nothing...' + spacing + '</h2>');
-            $('#TextBoxDiv2').html('<img id="Reward" src="static/images/frowny.png">');
+            $('#TextBoxDiv2').html('<img id="Reward" src="bandit-task/static/images/frowny.png">');
         };
 
         $('#Reward').css({
