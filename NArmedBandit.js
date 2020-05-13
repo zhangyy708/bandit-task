@@ -2,6 +2,7 @@ $(document).ready(function () {
     // only for debugging ----------------------------------------------------------------------------------------------------
     // var imageSrc = '/bandit-task/static/images'; // Github
     var imageSrc = 'static/images'; // local testing
+    // var imageSrc = 'experiments/yuyan/bandit-task/static/images'; // server (wrong)
     
     // initialising variables ------------------------------------------------------------------------------------------------
     // adjustable
