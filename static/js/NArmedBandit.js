@@ -1,7 +1,7 @@
 $(document).ready(function () {
     // only for debugging ----------------------------------------------------------------------------------------------------
     // var imageSrc = '/bandit-task/static/images'; // Github
-    var imageSrc = '/static/images'; // local testing
+    var imageSrc = 'static/images'; // local testing
     
     // initialising variables ------------------------------------------------------------------------------------------------
     // adjustable
@@ -544,7 +544,7 @@ $(document).ready(function () {
                     'There are ' + numTrials + ' trials in each game, ' +
                     conditions.length + ' games in this experiment.' +
                     'This experiment takes 5~10 minutes to complete on average.<br><br>' +
-                    'Click "Comprehension quiz" to continue.';
+                    'Click "Continue" to start the comprehension quiz.';
                 break;
             default:
                 var info;
@@ -559,7 +559,7 @@ $(document).ready(function () {
         var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default" id="Back"' +
             ' value="Back"><input align="center" type="button" class="btn btn-default" id="Next" value="Next">' +
             '<input align="center" type="button" class="btn btn-default" id="Start" style="color:red" ' + 
-            'value="Comprehension quiz"></div>';
+            'value="Continue"></div>';
         $('#Bottom').html(buttons);
 
         if (pageNum === 1) {
