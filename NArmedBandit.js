@@ -13,15 +13,26 @@ $(document).ready(function () {
     var stayPoint = 100; // point stay time
     var fadePoint = 100; // point fade out time
 
-    var teacher = { // numArms + teacherPerform (see matlab file experiment.m)
-        "2Low": [2, 1, 2, 2, 1, 1, 1, 2, 2, 1, 1, 2, 1, 1, 2],
-        "2High": [2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-        "4Low": [4, 1, 4, 3, 4, 1, 3, 1, 2, 3, 1, 1, 2, 3, 1],
-        "4High": [4, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
-        "8Low": [6, 1, 5, 2, 7, 2, 5, 6, 5, 5, 1, 7, 7, 7, 4],
-        "8High": [2, 2, 3, 7, 7, 7, 7, 7, 8, 7, 2, 2, 6, 5, 5]
-    };
-    
+    // var teacher = { // numArms + teacherPerform (see matlab file experiment.m)
+    //     "2Low": [2, 1, 2, 2, 1, 1, 1, 2, 2, 1, 1, 2, 1, 1, 2],
+    //     "2High": [2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+    //     "4Low": [4, 1, 4, 3, 4, 1, 3, 1, 2, 3, 1, 1, 2, 3, 1],
+    //     "4High": [4, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+    //     "8Low": [6, 1, 5, 2, 7, 2, 5, 6, 5, 5, 1, 7, 7, 7, 4],
+    //     "8High": [2, 2, 3, 7, 7, 7, 7, 7, 8, 7, 2, 2, 6, 5, 5]
+    // };
+    var teacher = {
+        "2Low" : [1, 1, 2, 1, 2, 2, 1, 2, 2, 1, 1, 2, 1, 1, 1],
+        "4Low" : [3, 2, 3, 3, 1, 2, 4, 2, 4, 1, 3, 3, 4, 2, 1],
+        "8Low" : [6, 4, 8, 7, 8, 7, 3, 4, 3, 5, 6, 6, 1, 1, 7],
+        "2Mid" : [2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 1, 2, 1, 2],
+        "4Mid" : [3, 1, 3, 3, 3, 2, 3, 3, 3, 4, 4, 4, 4, 4, 4],
+        "8Mid" : [4, 5, 4, 5, 5, 5, 8, 5, 8, 4, 4, 4, 4, 4, 5],
+        "2High": [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+        "4High": [2, 2, 2, 4, 3, 1, 4, 4, 4, 4, 3, 4, 4, 4, 4],
+        "8High": [5, 4, 4, 4, 4, 4, 4, 7, 7, 7, 7, 7, 7, 7, 7]
+    }
+
     // random surnames from https://en.geneanet.org/genealogy/ popularity around 1,000,000
     var names = {
         "2No": "None",
@@ -30,22 +41,40 @@ $(document).ready(function () {
         "2Low": "Foster",
         "4Low": "Russell",
         "8Low": "Reed",
+        "2Mid": "Collins",
+        "4Mid": "Hughes",
+        "8Mid": "Carter",
         "2High": "Hamilton",
         "4High": "Fisher",
         "8High": "Bennett"
     };
 
+    // var ps = { // generated from Beta(2, 2) (see matlab file experiment.m)
+    //     "2No": [0.6587, 0.0749],
+    //     "4No": [0.7287, 0.4253, 0.6671, 0.1911],
+    //     "8No": [0.2965, 0.6915, 0.4265, 0.2132, 0.3079, 0.2206, 0.3604, 0.4732],
+    //     "2Low": [0.7091, 0.5989],
+    //     "4Low": [0.3495, 0.2870, 0.6070, 0.3308],
+    //     "8Low": [0.3553, 0.4551, 0.4378, 0.5093, 0.6155, 0.4025, 0.3933, 0.7649],
+    //     "2High": [0.4356, 0.6446],
+    //     "4High": [0.5069, 0.7603, 0.8165, 0.1660],
+    //     "8High": [0.8031, 0.2143, 0.2514, 0.1146, 0.3846, 0.2437, 0.6357, 0.1272]
+    // }
+
     var ps = { // generated from Beta(2, 2) (see matlab file experiment.m)
-        "2No": [0.6587, 0.0749],
-        "4No": [0.7287, 0.4253, 0.6671, 0.1911],
-        "8No": [0.2965, 0.6915, 0.4265, 0.2132, 0.3079, 0.2206, 0.3604, 0.4732],
-        "2Low": [0.7091, 0.5989],
-        "4Low": [0.3495, 0.2870, 0.6070, 0.3308],
-        "8Low": [0.3553, 0.4551, 0.4378, 0.5093, 0.6155, 0.4025, 0.3933, 0.7649],
-        "2High": [0.4356, 0.6446],
-        "4High": [0.5069, 0.7603, 0.8165, 0.1660],
-        "8High": [0.8031, 0.2143, 0.2514, 0.1146, 0.3846, 0.2437, 0.6357, 0.1272]
-    }
+        "2No"  : [0.6587, 0.0749],
+        "4No"  : [0.2921, 0.6607, 0.5861, 0.6737],
+        "8No"  : [0.3653, 0.5430, 0.6756, 0.6901, 0.3553, 0.4551, 0.4378, 0.5093],
+        "2Low" : [0.7091, 0.5989],
+        "4Low" : [0.7595, 0.3684, 0.1898, 0.6393],
+        "8Low" : [0.3663, 0.7822, 0.3878, 0.3492, 0.8031, 0.2143, 0.2514, 0.1146],
+        "2Mid" : [0.4356, 0.6446],
+        "4Mid" : [0.6042, 0.1958, 0.4415, 0.8789],
+        "8Mid" : [0.9619, 0.4056, 0.8665, 0.8836, 0.4739, 0.8596, 0.8702, 0.7446],
+        "2High": [0.3651, 0.6211],
+        "4High": [0.2052, 0.2406, 0.4109, 0.2506],
+        "8High": [0.4613, 0.4383, 0.5122, 0.7120, 0.6893, 0.7409, 0.7462, 0.4496]
+    };
 
     // system
     var isTeacher; // whether their is a demonstrator
@@ -56,7 +85,7 @@ $(document).ready(function () {
     var t = Array(numTrials); // teacher's choices array
     var order = new Array(); // doors' order array
     var sumReward = 0; // total rewards a participant already gets
-    var tempReward = 0; // rewards in a single game
+    var tempReward = 0;
     var money = 0; // money paid to the participant
 
     var startTime = new Date(); // the time the experiment starts
@@ -64,13 +93,19 @@ $(document).ready(function () {
     var subID = generateToken(10); // random ID for each participant
     var year; // birth year of the subject
     var edu; // years of formal education that the subject has received
+    var feedback; // feedback
+    var strategy1;
+    var strategy2;
 
     var subChoice = { // numArms + teacherPerform
         "2Low": [],
-        "2High": [],
         "4Low": [],
-        "4High": [],
         "8Low": [],
+        "2Mid": [],
+        "4Mid": [],
+        "8Mid": [],
+        "2High": [],
+        "4High": [],
         "8High": [],
         "2No": [],
         "4No": [],
@@ -78,10 +113,11 @@ $(document).ready(function () {
     };
     var subChoiceReorder = subChoice; // re-ordered subject choices; this will be sent to database
 
-    var conditions = ["2Low", "2High", "4Low", "4High", "8Low", "8High", "2No", "4No", "8No"];
+    var conditions = ["2Low", "4Low", "8Low", "2Mid", "4Mid", "8Mid", "2High", "4High", "8High", "2No", "4No", "8No"];
     conditions.sort(function () { // randomising conditions
         return Math.random() - 0.5;
     });
+    var trialReward = Array(conditions.length); // sum rewards in each game
 
     var numGames = 1; // initialising; interation inside options()
 
@@ -116,24 +152,26 @@ $(document).ready(function () {
 
         // formal
         expRewardsRandom(); // calculating the expected rewards of random policy
-        expRewardsBest(); // calculating the largest total rewards possible
         expRewardsOpt(); // calculating the expected rewards of optimal policy 
+        expRewardsMin(); // calculating the min expected rewards  
         // (always choosing the option with the highest reward rate)
-        information();
+        information(); // start the entire experiment
     }
 
 
     // full games -----------------------------------------------------------------------------------------------------------
     // var numGames = 1; // initialising; interation inside options()
     function ran() { // used inside instructions()
-        sumReward = sumReward + tempReward;
-        tempReward = 0;
-        
-        if (numGames >= 2) {            
+        if (numGames >= 2) {
+            trialReward[numGames - 2] = tempReward;
+            sumReward = sumReward + tempReward;
+            tempReward = 0;
+
             for (i = 0; i < numTrials; i++) { // re-ordering participants' choices
                 var temp = subChoice[numArms + teacherPerform][i];
                 subChoiceReorder[numArms + teacherPerform][i] = order[temp - 1];
             };
+            console.log(subChoiceReorder[numArms + teacherPerform]);
         };
 
         if (numGames > conditions.length) {
@@ -351,7 +389,7 @@ $(document).ready(function () {
                        'getting additional rewards. Your final compensation in this experiment will be dependent on your ' + 
                        'choices. After the experiment, we will ask you you to provide some basic demographics (e.g., age). ' + 
                        'Your session should last for up to 10 minutes. You will be given full instructions shortly.</p>' +
-                    '<p><b>Compensation.&nbsp;</b>You will be paid $1~1.50 for your participation.</p>' + 
+                    '<p><b>Compensation.&nbsp;</b>You will be paid $1.30~1.70 for your participation.</p>' + 
                     '<p><b>Risks and benefits.&nbsp;</b>There are no known risks to participation in this study. ' + 
                         'Other than the payment mentioned, there no tangible benefits to you, however you will be ' + 
                         'contributing to our knowledge about reasoning and information integration.</p>' +
@@ -380,7 +418,8 @@ $(document).ready(function () {
                         'during or after data gathering, we will delete your data and there is no penalty or loss of ' + 
                         'benefits to which you are otherwise entitled.</p>' +
                     '<p>If you have any questions about what you’ve just read, please feel free to ask, or contact us later. ' +
-                        'You can contact us by email at <a href="mailto:bramleylab@ed.ac.uk">bramleylab@ed.ac.uk</a>. This ' + 
+                        'You can contact us by email at <a href="mailto:Y.Zhang-327@sms.ed.ac.uk">' + 
+                        'Y.Zhang-327@sms.ed.ac.uk</a>. This ' + 
                         'project has been approved by PPLS Ethics committee. If you have questions or comments regarding ' + 
                         'your own or your child’s rights as a participant, they can be contacted at 0131 650 4020 or ' + 
                         '<a href="mailto:ppls.ethics@ed.ac.uk">ppls.ethics@ed.ac.uk</a>.</p>' +
@@ -547,7 +586,7 @@ $(document).ready(function () {
                     'At the end of each game, you will see how many coins you have earned in total.<br><br>' +
                     'There are ' + numTrials + ' trials in each game, ' +
                     conditions.length + ' games in this experiment.' +
-                    'This experiment takes 5~10 minutes to complete on average.<br><br>' +
+                    'This experiment takes around 10 minutes to complete on average.<br><br>' +
                     'Click "Continue" to start the comprehension quiz.';
                 break;
             default:
@@ -672,7 +711,9 @@ $(document).ready(function () {
             var q3 = $('#comp_q3').val();
             var q4 = $('#comp_q4').val();
 
-            if(q1 == answers[0] && q2 == answers[1] && q3 == answers[2] && q4 == answers[3]) {
+            if (q1 == "noresp" || q2 == "noresp" || q3 == "noresp" || q4 == "noresp") {
+                alert('You need to answer all questions.');
+            } else if(q1 == answers[0] && q2 == answers[1] && q3 == answers[2] && q4 == answers[3]) {
                 // Allow the start
                 alert('You got everything correct! Press "Start!" to begin the experiment.'); 
                 $('#Done').show();
@@ -686,10 +727,6 @@ $(document).ready(function () {
                 $('#comp_q2').prop('selectedIndex', 0);
                 $('#comp_q3').prop('selectedIndex', 0);
                 $('#comp_q4').prop('selectedIndex', 0);
-                // $('#done_comp').hide();
-                // $('#comp_check_btn').show(); 
-                // $('#ins1').show();
-                // $('#comprehension').hide();
 
                 $('#TextBoxDiv').remove();
                 $('#Stage').empty();
@@ -1023,18 +1060,40 @@ $(document).ready(function () {
         createDiv('Stage', 'TextBoxDiv');
 
         $('#TextBoxDiv').css('font-size', '16px');
-        $('#TextBoxDiv').css('padding-top', '10%');
+        $('#TextBoxDiv').css('padding-top', '5%');
 
-        var title = '<h2 align="center">Demographic Information</h2>'; // header
-        var info = '<div>Please answer the following questions:<br><br>' +
-            'In which year were you born? ' + '<input type="number" id="year"><br><br>' +
-            'How many years have you received formal education (counting from elementary school)? ' +
-            '<input type="number" id="edu"><br><br>' +
-            '(Optional) If you have any questions or suggestions on this study, you could write here:<br>' +
-            //    '<input type="text" id="feedback" ' + 
-            //    'style="width:' + dispWidth + 'px; height:' + dispWidth / 3 + 'px; word-break:break-all"></div>';
-            '<textarea id="feedback" style="width:' + dispWidth + 'px; height:' + dispWidth / 3 + 'px"></textarea></div>'
-            'Click "Next" button below to submit and continue to task instructions.'
+        var title = '<h2 align="center">Questionnaire</h2>'; // header
+        var info = '<div id="form">' + 'Please answer the following questions:<br><br>' +
+                   '<ol>' + 
+                        '<li>In which year were you born?' + '<span style="color: red"> * </span>' +
+                            '<input type="number" id="year">' +
+                        '</li>' +
+                        // '<br>' +
+                        '<li>How many years have you received formal education (counted from elementary school)?' +
+                            '<span style="color: red"> * </span>' +
+                            '<input type="number" id="edu">' +
+                        '</li>' +
+                        // '<br>' +
+                        '<li>Please describe briefly how you made choices when there was <b>no demonstrator</b>.' +
+                            '<span style="color: red"> *</span><br>' +
+                            '<textarea id="strategy1" style="width:' + dispWidth + 'px; height:' + dispWidth / 9 + 'px">' + 
+                            '</textarea>' +
+                        '</li>' +
+                        // '<br>' +
+                        '<li>Please describe briefly how you made choices when there was <b>a demonstrator</b>.' +
+                            '<span style="color: red"> *</span><br>' +
+                            '<textarea id="strategy2" style="width:' + dispWidth + 'px; height:' + dispWidth / 9 + 'px">' + 
+                            '</textarea>' +
+                        '</li>' +
+                        // '<br>' +
+                        '<li>(Optional) If you have any questions, suggestions, or comments, you could write here:<br>' +
+                            '<textarea id="feedback" style="width:' + dispWidth + 'px; height:' + dispWidth / 9 + 'px">' + 
+                            '</textarea>' +
+                        '</li>' +
+                        // '<br>' +
+                   '</ol>' + 'Click "Submit" button below to submit and end this experiment.' + '</div>';
+
+        
         $('#Title').html(title);
         $('#TextBoxDiv').html(info);
 
@@ -1049,51 +1108,54 @@ $(document).ready(function () {
         // };
 
         var endTime = new Date();
-        var money = 1 + Math.round(sumReward / 2) * 0.01;
+        money = 1 + Math.round(sumReward / 2) * 0.01;
 
         $('#submitFeedback').click(function () {
             year = $("#year").val();
             edu = $("#edu").val();
+            feedback = $("#feedback").val();
+            strategy1 = $("#strategy1").val();
+            strategy2 = $("#strategy2").val();
 
-            if (isNaN(year) || isNaN(edu) || year === "" || edu === "") {
-                alert('Please enter a number.');
-            } else if (year % 1 !== 0 || edu % 1 !== 0) {
-                alert('Please enter an integer.');
-            } else if (year < 1900 || year > 2003 || edu < 0 || edu > 50) {
-                alert('Please enter a valid number.');
+            if (isNaN(year) || year === "" || year % 1 !== 0 || year < 1900 || year > 2003) {
+                alert('Please enter your birth year correctly.');
+            } else if (isNaN(edu) || edu === "" || edu % 1 !== 0 || edu < 0 || edu > 50) {
+                alert('Please correctly enter the number of years that you received formal education.');
+            } else if (strategy1 === "" || strategy2 === "") {
+                alert('Please briefly describe the strategies you used in the task.')
             } else {
                 $('#Title').remove();
                 $('#TextBoxDiv').remove();
                 $('#Stage').empty();
                 $('#Bottom').empty();
 
+                if (feedback == "") {
+                    feedback = "NULL";
+                };
+
                 jQuery.ajax({ // save data
                     url: 'static/php/save_data.php',
                     type:'POST',
-                    data:{
-                        token:subID,
-                        date:String(endTime.getFullYear()) + '_' +
-                            String(endTime.getMonth() + 1).padStart(2, '0') + '_' +
-                            String(endTime.getDate() + 1).padStart(2, '0'),
-                        time:String(endTime.getHours()+ 1).padStart(2, '0') + '_' +
-                            String(endTime.getMinutes() + 1).padStart(2, '0')+ '_' +
-                            String(endTime.getSeconds() + 1).padStart(2, '0'),
-                        instructions_duration:startTaskTime - startTime,
-                        task_duration:endTime - startTaskTime,
+                    data:{subID:subID,
                         age:2020 - year,
                         education:edu,
-                        feedback:$("#feedback").val(),
-                        choices_2No:subChoiceReorder["2No"],
-                        choices_4No:subChoiceReorder["4No"],
-                        choices_8No:subChoiceReorder["8No"],
-                        choices_2Low:subChoiceReorder["2Low"],
-                        choices_4Low:subChoiceReorder["4Low"],
-                        choices_8Low:subChoiceReorder["8Low"],
-                        choices_2High:subChoiceReorder["2High"],
-                        choices_4High:subChoiceReorder["4High"],
-                        choices_8High:subChoiceReorder["8High"],
-                        // choices:subChoiceReorder,
-                        sum_reward:sumReward, // sum of reward in each game !!!!!!!
+                        strategy1:strategy1,
+                        strategy2:strategy2,
+                        feedback:feedback,
+                        choices_2No:String(subChoiceReorder["2No"]),
+                        choices_4No:String(subChoiceReorder["4No"]),
+                        choices_8No:String(subChoiceReorder["8No"]),
+                        choices_2Low:String(subChoiceReorder["2Low"]),
+                        choices_4Low:String(subChoiceReorder["4Low"]),
+                        choices_8Low:String(subChoiceReorder["8Low"]),
+                        choices_2Mid:String(subChoiceReorder["2Mid"]),
+                        choices_4Mid:String(subChoiceReorder["4Mid"]),
+                        choices_8Mid:String(subChoiceReorder["8Mid"]),
+                        choices_2High:String(subChoiceReorder["2High"]),
+                        choices_4High:String(subChoiceReorder["4High"]),
+                        choices_8High:String(subChoiceReorder["8High"]),
+                        conditions:String(conditions),
+                        sum_reward:String(trialReward), // sum of reward in each game !!!!!!!
                         money:money},
                     success:function(data)
                     {
@@ -1156,7 +1218,7 @@ $(document).ready(function () {
         var title = '<h2 align="center">Error<br><br></h2>';
         var info = '<div>Your reference code is: ' + subID + '<br><br>' +
             '<span style="color: red">Error: the data might not upload to database successfully. ' + 
-            'Please contact the experimenter.</span>' + '</div>';
+            'Please SCREENSHOT this page and contact the experimenter.</span>' + '</div>';
 
         $('#Title').html(title);
         $('#TextBoxDiv').html(info);
@@ -1199,14 +1261,13 @@ $(document).ready(function () {
             x[i] = eval(tempPsNew.join("+")) / parseInt(conditions[i].substring(0, 1)); // average over tempPsNew in each condition
         };
 
-        console.log(eval(x.join("+")));
-        // 63.4831875 // expected rewards for random policy
+        console.log(eval(x.join("+"))); // expected rewards for random policy
     };
 
-    function expRewardsBest() {
-        console.log(conditions.length * numTrials);
-        // 135 // total rewards if all choices get a reward
-    };
+    // function expRewardsBest() {
+    //     console.log(conditions.length * numTrials);
+    //     // total rewards if all choices get a reward
+    // };
 
     function expRewardsOpt() {
         var tempPsNew;
@@ -1218,7 +1279,20 @@ $(document).ready(function () {
         };
 
         console.log(eval(y.join("+")));
-        // 96.36149999999999 // expected rewards if all choices have the highest reward rate in the game
+        // expected rewards if all choices have the highest reward rate in the game
+    };
+
+    function expRewardsMin() {
+        var tempPsNew;
+        var y = Array(conditions.length);
+        var i;
+        for (i = 0; i < conditions.length; i++) {
+            tempPsNew = Math.min.apply(null, ps[conditions[i]]);
+            y[i] = tempPsNew * numTrials;
+        };
+
+        console.log(eval(y.join("+")));
+        // expected rewards if all choices have the lowest reward rate in the game
     };
 
 
