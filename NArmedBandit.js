@@ -57,6 +57,7 @@ $(document).ready(function () {
     var order = new Array(); // doors' order array
     var sumReward = 0; // total rewards a participant already gets
     var tempReward = 0; // rewards in a single game
+    var money = 0; // money paid to the participant
 
     var startTime = new Date(); // the time the experiment starts
     var startTaskTime; // the time the task starts
@@ -146,6 +147,8 @@ $(document).ready(function () {
             order.sort(function () { // randomising doors' order in a game
                 return Math.random() - 0.5;
             });
+            console.log(conditions[numGames - 1]);
+            console.log(order);
 
             for (i = 0; i < numArms; i++) {
                 p[i] = ps[conditions[numGames - 1]][order[i] - 1]; // reordering the reward rates
