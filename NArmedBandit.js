@@ -155,7 +155,8 @@ $(document).ready(function () {
         expRewardsOpt(); // calculating the expected rewards of optimal policy 
         expRewardsMin(); // calculating the min expected rewards  
         // (always choosing the option with the highest reward rate)
-        information(); // start the entire experiment
+        // information(); // start the entire experiment
+        end();
     }
 
 
