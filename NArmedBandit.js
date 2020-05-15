@@ -7,11 +7,11 @@ $(document).ready(function () {
     // initialising variables ------------------------------------------------------------------------------------------------
     // adjustable
     var numTrials = 15; // number of trials
-    var fadeTime = 200; // fade out time (after reward being displayed in each trial)
-    var stayTime = 200; // result stay time (after reward being displayed in each trial)
+    var fadeTime = 500; // fade out time (after reward being displayed in each trial)
+    var stayTime = 500; // result stay time (after reward being displayed in each trial)
     var movePoint = 500; // moving time for the point
-    var stayPoint = 100; // point stay time
-    var fadePoint = 100; // point fade out time
+    var stayPoint = 250; // point stay time
+    var fadePoint = 250; // point fade out time
 
     // var teacher = { // numArms + teacherPerform (see matlab file experiment.m)
     //     "2Low": [2, 1, 2, 2, 1, 1, 1, 2, 2, 1, 1, 2, 1, 1, 2],
@@ -155,29 +155,23 @@ $(document).ready(function () {
         expRewardsOpt(); // calculating the expected rewards of optimal policy 
         expRewardsMin(); // calculating the min expected rewards  
         // (always choosing the option with the highest reward rate)
-        // information(); // start the entire experiment
-        end();
-    }
+        information(); // start the entire experiment
+        // options(1);
+    };
 
 
     // full games -----------------------------------------------------------------------------------------------------------
-    // var numGames = 1; // initialising; interation inside options()
-    function ran() { // used inside instructions()
-        if (numGames >= 2) {
-            trialReward[numGames - 2] = tempReward;
-            sumReward = sumReward + tempReward;
-            tempReward = 0;
+    function control() { 
+        $('#Top').css('height', thisHeight / 20);
+        $('#Stage').css('width', dispWidth);
+        $('#Stage').css('height', thisHeight * 17 / 20);
+        $('#Bottom').css('min-height', thisHeight / 20);
 
-            for (i = 0; i < numTrials; i++) { // re-ordering participants' choices
-                var temp = subChoice[numArms + teacherPerform][i];
-                subChoiceReorder[numArms + teacherPerform][i] = order[temp - 1];
-            };
-            console.log(subChoiceReorder[numArms + teacherPerform]);
-        };
+        createDiv('Stage', 'TextBoxDiv0');
+        $('#TextBoxDiv0').css('font-size', '16px');
+        $('#TextBoxDiv0').css('padding-top', '20%');
 
-        if (numGames > conditions.length) {
-            end();
-        } else {
+        if (numGames == 1) { // before the first trial
             numArms = parseInt(conditions[numGames - 1].substring(0, 1));
             isTeacher = conditions[numGames - 1].substring(1) !== "No";
             teacherPerform = conditions[numGames - 1].substring(1);
@@ -197,153 +191,87 @@ $(document).ready(function () {
                 for (i = 0; i < numTrials; i++) {
                     t[i] = order.indexOf(teacher[conditions[numGames - 1]][i]) + 1; // reordering the choices of the teacher
                 };
-                // isTeacherDisplay = "Yes";
-            } else {
-                // isTeacherDisplay = "No";
             };
             isTeacherDisplay = names[conditions[numGames - 1]];
 
-
-
-            $('#Top').css('height', thisHeight / 20);
-            $('#Stage').css('width', dispWidth);
-            $('#Stage').css('height', thisHeight * 17 / 20);
-            $('#Bottom').css('min-height', thisHeight / 20);
-
-            createDiv('Stage', 'TextBoxDiv0');
-            $('#TextBoxDiv0').css('font-size', '16px');
-            $('#TextBoxDiv0').css('padding-top', '20%');
-
-            // var title = '<div id="Title"><h2 align="center">' + 'Game No. ' +
-            //     '<span style="color:red;">' + numGames + '</span><br>' +
-            //     'Number of doors: ' + '<span style="color:red;">' + numArms + '</span><br>' +
-            //     'Is there a demonstrator: ' + '<span style="color:red;">' + isTeacherDisplay + '</span><br><br>' +
-            //     'You already got ' + '<span style="color:red;">' +
-            //     sumReward + '</span> coins in this experiment!' + '</h2><div>';
-            var title = '<div id="Title"><h2 align="center">' + 'Game No. <b>' + numGames + '</b><br>' +
+            var title = '<div id="Title"><h2 align="center">' + 'Game No. <b>' + numGames + '</b>' + 
+                        ' of ' + conditions.length + '<br>' +
                         'Number of doors: <b>' + numArms + '</b><br>' +
-                        'Demonstrator: <b>' + isTeacherDisplay + '</b><br><br>' +
-                        'You\'ve got <b>' + sumReward + '</b> coins in this study!' + '</h2><div>';
-            $('#TextBoxDiv0').html(title);
-
+                        'Demonstrator: <b>' + isTeacherDisplay + '</b>' + '</h2><div>';
             var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
-                ' id="toTrial" value="Start!"></div>';
-            $('#Bottom').html(buttons); // click button to proceed
+                          ' id="toTrial" value="Start!"></div>';
+        } else {
+            // rewards in each game
+            trialReward[numGames - 2] = tempReward;
+            sumReward = sumReward + tempReward;
+            tempReward = 0;
 
-            $('#toTrial').click(function () {
-                $('#TextBoxDiv0').remove();
-                $('#Stage').empty();
-                $('#Bottom').empty();
-                options(1);
-            });
+            for (i = 0; i < numTrials; i++) { // re-ordering participants' choices in the last game
+                var temp = subChoice[numArms + teacherPerform][i];
+                subChoiceReorder[numArms + teacherPerform][i] = order[temp - 1];
+            };
+            console.log(subChoiceReorder[numArms + teacherPerform]);
 
-            // setTimeout(function() {
-            //     $('#TextBoxDiv0').empty();
-            //     $('#TextBoxDiv0').remove();
-            //     options(1);
-            // }, 1500); 
+            if (numGames <= conditions.length) {
+                numArms = parseInt(conditions[numGames - 1].substring(0, 1));
+                isTeacher = conditions[numGames - 1].substring(1) !== "No";
+                teacherPerform = conditions[numGames - 1].substring(1);
+
+                order = Array.from({ length: numArms }, (item, index) => index + 1); // generating an array like [1, 2, 3, 4]
+                order.sort(function () { // randomising doors' order in a game
+                    return Math.random() - 0.5;
+                });
+                console.log(conditions[numGames - 1]);
+                console.log(order);
+
+                for (i = 0; i < numArms; i++) {
+                    p[i] = ps[conditions[numGames - 1]][order[i] - 1]; // reordering the reward rates
+                };
+
+                if (isTeacher) {
+                    for (i = 0; i < numTrials; i++) {
+                        t[i] = order.indexOf(teacher[conditions[numGames - 1]][i]) + 1; // reordering the choices of the teacher
+                    };
+                };
+                isTeacherDisplay = names[conditions[numGames - 1]];
+                
+                var title = '<div id="Title"><h2 align="center">' + 'Game No. <b>' + numGames + '</b>' + 
+                            ' of ' + conditions.length + '<br>' +
+                            'Number of doors: <b>' + numArms + '</b><br>' +
+                            'Demonstrator: <b>' + isTeacherDisplay + '</b><br><br>' +
+                            'You have collected <b>' + sumReward + '</b> coins (' + 
+                            sumReward + ' cents) in this study so far!' +
+                            '</h2><div>';
+                var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
+                            ' id="toTrial" value="Start!"></div>';
+            } else { // after the last trial
+                var title = '<div id="Title"><h2 align="center">' + 
+                            'You have completed all the games.' + '<br><br>' +
+                            'You have collected <b>' + sumReward + '</b> coins (' + 
+                            sumReward + ' cents) in this study so far!' +
+                            '</h2><div>';
+                var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
+                            ' id="toEnd" value="Continue"></div>';
+            };
         };
+
+        $('#TextBoxDiv0').html(title);
+        $('#Bottom').html(buttons); 
+
+        $('#toTrial').click(function () {
+            $('#TextBoxDiv0').remove();
+            $('#Stage').empty();
+            $('#Bottom').empty();
+            options(1);
+        });
+
+        $('#toEnd').click(function () {
+            $('#TextBoxDiv0').remove();
+            $('#Stage').empty();
+            $('#Bottom').empty();
+            end();
+        });
     };
-
-
-    // choosing parametres ---------------------------------------------------------------------------------------------------
-    function para(pageNum) {
-        $('#Top').css('height', thisHeight / 20);
-        $('#Stage').css('width', dispWidth);
-        $('#Stage').css('min-height', thisHeight * 17 / 20);
-        $('#Bottom').css('min-height', thisHeight / 20);
-        createDiv('Stage', 'Title');
-        createDiv('Stage', 'TextBoxDiv');
-        $('#TextBoxDiv').css('font-size', '16px');
-        $('#TextBoxDiv').css('padding-top', '20%');
-
-        var title = '<h3 align="center">Choosing parameters for testing the experiment</h3>';
-
-        switch (pageNum) {
-            case 1:
-                var info1 = '<p align="center">Number of arms<br></p>';
-
-                var buttons = '<div align="center">' +
-                    '<input align="center" type="button" class="btn btn-default" id="num2" value="2">' +
-                    '<input align="center" type="button" class="btn btn-default" id="num4" value="4">' +
-                    '<input align="center" type="button" class="btn btn-default" id="num8" value="8">' +
-                    '</div>';
-
-                // var info2 = '<p align="center"><br>Other parameters (under development...)</p>'; 
-                $('#Title').html(title)
-                $('#TextBoxDiv').html(info1 + buttons);
-
-                $('#num2').click(function () {
-                    numArms = 2;
-                    $('#TextBoxDiv').remove();
-                    $('#Stage').empty();
-                    $('#Bottom').empty();
-                    para(2);
-                });
-
-                $('#num4').click(function () {
-                    numArms = 4;
-                    $('#TextBoxDiv').remove();
-                    $('#Stage').empty();
-                    $('#Bottom').empty();
-                    para(2);
-                });
-
-                $('#num8').click(function () {
-                    numArms = 8;
-                    $('#TextBoxDiv').remove();
-                    $('#Stage').empty();
-                    $('#Bottom').empty();
-                    para(2);
-                });
-                break;
-
-            case 2:
-                var info1 = '<p align="center">Demonstrator<br>' +
-                    '(currently the choices of demonstrators are not properly defined)<br>' +
-                    '(and there might be some bug in the first trial)<br>' +
-                    '</p>';
-
-                var buttons = '<div align="center">' +
-                    '<input align="center" type="button" class="btn btn-default" id="tea0" value="No demonstrator">' +
-                    '<input align="center" type="button" class="btn btn-default" id="tea1" value="Low performance">' +
-                    '<input align="center" type="button" class="btn btn-default" id="tea2" value="High performance">' +
-                    '</div>';
-
-                var info2 = '<p align="center"><br>Other parameters (under development...)</p>';
-                $('#Title').html(title)
-                $('#TextBoxDiv').html(info1 + buttons + info2);
-
-                $('#tea0').click(function () {
-                    isTeacher = false;
-                    $('#TextBoxDiv').remove();
-                    $('#Stage').empty();
-                    $('#Bottom').empty();
-                    information();
-                });
-
-                $('#tea1').click(function () {
-                    isTeacher = true;
-                    teacherPerform = 'Low';
-                    $('#TextBoxDiv').remove();
-                    $('#Stage').empty();
-                    $('#Bottom').empty();
-                    information();
-                });
-
-                $('#tea2').click(function () {
-                    isTeacher = true;
-                    teacherPerform = 'High';
-                    $('#TextBoxDiv').remove();
-                    $('#Stage').empty();
-                    $('#Bottom').empty();
-                    information();
-                });
-
-                break;
-        };
-    };
-
 
     // information page ------------------------------------------------------------------------------------------------------
     function information() {
@@ -362,35 +290,14 @@ $(document).ready(function () {
         $('#TextBoxDiv').css('font-size', '16px');
         $('#TextBoxDiv').css('padding-top', '5%');
 
-        var title = '<h2 align="center">Information for Participants</h2>'; // header
-        // var info = 'Thanks for participating in this experiment!<br><br>' +
-        //     'In this experiment, you will be asked to choose repeatedly among multiple options, each of which is associated ' +
-        //     'a certain probability of getting additional rewards. Your final compensation will be dependent on your choices. ' +
-        //     'More instructions on the task could be found on next pages.<br><br>' +
-        //     'Your session should last for up to 10 minutes. You will be paid ￡1~1.5 (based on your choices in the task) ' +
-        //     'for your participation. ' +
-        //     'You need to be over 18 years old to participate in this study.<br><br>' +
-        //     'Please check <a href="webexperiment_consent_gdpr_filled.pdf" target="_blank">this pdf file</a> ' +
-        //     'for more information on how your data will be stored and used and your rights to withdraw. ' +
-        //     // 'Your personal data will not be shared outside the research team. You have the right to withdraw ' +
-        //     // 'at any time, and you can contact the research team after completing this study to withdraw ' +
-        //     // 'before August 1st 2020. Your data will be deleted if you withdraw. ' +
-        //     'If you have any question about this study, please feel free to contact Y.Zhang-327@sms.ed.ac.uk<br><br><br>' +
-        //     'By continuing to next pages, you consent to the following: <br><br>'
-        // var ticks = '<input type="checkbox" name="consent" value="consent">I agree to participate in this study.<br>' +
-        //     '<input type="checkbox" name="consent" value="consent">' +
-        //     'I confirm that I have read and understood how my data will be stored and used.<br>' +
-        //     '<input type="checkbox" name="consent" value="consent">' +
-        //     'I understand that I have the right to terminate this session at any point. ' +
-        //     'If I choose to withdraw after completing the study (before August 1st 2020), ' +
-        //     'my data will be deleted at that time.<br>'
+        var title = '<h2 align="center">Information for Participants</h2>'; 
         var info = '<div class="scroll_text" id="consent-info">' +
                    '<p><b>Nature of the study.&nbsp;</b>You are invited to participate in a study which involves choosing ' +
                        'repeatedly among multiple pictures, each of which is associated with a certain probability of ' + 
                        'getting additional rewards. Your final compensation in this experiment will be dependent on your ' + 
                        'choices. After the experiment, we will ask you you to provide some basic demographics (e.g., age). ' + 
                        'Your session should last for up to 10 minutes. You will be given full instructions shortly.</p>' +
-                    '<p><b>Compensation.&nbsp;</b>You will be paid $1.30~1.70 for your participation.</p>' + 
+                    '<p><b>Compensation.&nbsp;</b>You will be paid $1.00~2.20 for your participation.</p>' + 
                     '<p><b>Risks and benefits.&nbsp;</b>There are no known risks to participation in this study. ' + 
                         'Other than the payment mentioned, there no tangible benefits to you, however you will be ' + 
                         'contributing to our knowledge about reasoning and information integration.</p>' +
@@ -457,7 +364,6 @@ $(document).ready(function () {
             ' id="toReminder" value="Accept HIT" disabled></div>';
         var buttons2 = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
             ' id="startExp" value="Understood"></div>';
-        // '<a class="button" href="flask_bel_updating"><span>Understood</span></a>'
         $('#Bottom').html(buttons); // click button to proceed
 
         $('#consent-info').scroll(function() {
@@ -479,65 +385,11 @@ $(document).ready(function () {
                 $('#TextBoxDiv').remove();
                 $('#Stage').empty();
                 $('#Bottom').empty();
-                // form();
                 instructions(1); // move to the first page of instrcutions
             });
-
-        });
-
-        
+        });        
     };
-
-    // form page -------------------------------------------------------------------------------------------------------------
-    function form() { //!!!!!!put at the end of the experiment
-        $('#Top').css('height', thisHeight / 20);
-        $('#Stage').css('width', dispWidth);
-        $('#Stage').css('min-height', thisHeight * 17 / 20);
-        $('#Bottom').css({
-            'height': thisHeight / 20,
-            'position': 'absolute',
-            'width': thisWidth,
-            'top': bottomPos
-        });
-        createDiv('Stage', 'Title');
-        createDiv('Stage', 'TextBoxDiv');
-
-        $('#TextBoxDiv').css('font-size', '16px');
-        $('#TextBoxDiv').css('padding-top', '20%');
-
-        var title = '<h2 align="center">Demographic Information</h2>'; // header
-        var info = 'Please answer the following questions. This data will not be shared outside the research team.<br><br>' +
-            'In which year were you born? ' + '<input type="number" id="year"><br><br>' +
-            'How many years have you received formal education (counting from elementary school)? ' +
-            '<input type="number" id="edu"><br><br>' +
-            'Click "Next" button below to submit and continue to task instructions.'
-        $('#Title').html(title);
-        $('#TextBoxDiv').html(info);
-
-        var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
-            ' id="toInstructions" value="Next"></div>';
-        $('#Bottom').html(buttons); // click button to proceed
-
-        $('#toInstructions').click(function () {
-            year = $("#year").val();
-            edu = $("#edu").val();
-
-            if (isNaN(year) || isNaN(edu) || year === "" || edu === "") {
-                alert('Please enter a number.');
-            } else if (year % 1 !== 0 || edu % 1 !== 0) {
-                alert('Please enter an integer.');
-            } else if (year < 1900 || year > 2003 || edu < 0 || edu > 50) {
-                alert('Please enter a valid number.');
-            } else {
-                $('#Title').remove();
-                $('#TextBoxDiv').remove();
-                $('#Stage').empty();
-                $('#Bottom').empty();
-                instructions(1); // move to the first page of instrcutions
-            };
-        });
-    };
-
+    
     var bottomPos = $('#Bottom').position().top; // to align the position of the buttons
 
     // instructions ----------------------------------------------------------------------------------------------------------
@@ -566,28 +418,37 @@ $(document).ready(function () {
                 var info = '<i>***Please remember to read all instructions <b>carefully</b>. ' + 
                     'You will have to complete a <b>comprehension quiz</b> at the end of the instructions.***</i><br><br>' +
                     'Thanks for participanting!<br><br>' + 
-                    'In this experiment, you will choose among 2 (or 4 or 8) doors, each of which ' +
-                    'has a <b>fixed</b> but <b>different</b> probability of hiding a coin.' +
-                    'You can choose the door by clicking on it with your mouse.<br><br>' +
-                    'Your goal is to collect as many coins as possible. ' +
-                    'For every 2 coins you collect in the task, you will earn additional $0.01.<br>'
+                    'In this experiment, you will play ' + conditions.length + ' short games. ' + 
+                    'In each game you will have ' + numTrials + ' shots ' + 
+                    'where you select one out of the <b>2 (4 or 8 ) doors</b> to open using your mouse.<br><br>' + 
+                    'For a given game, ' + 
+                    'each door has a fixed chance of having a <b>coin</b> behind it every time that you select it. ' + 
+                    'Different doors may be more or less likely than one another to produce a coin. ' + 
+                    'Your goal is to <b>collect as many coins as possible.</b> ' + 
+                    'For every coin you collect in the task, you will earn additional $0.01 ' + 
+                    'meaning you can make up to $1.20 in bonus.';
                 break;
             case 2:
-                var info = 'There are ' + conditions.length + ' different games in this experiment, ' + 
-                    'and in some of the games, before making your decision, you can see the choice ' + 
-                    'of a previous player (<b>demonstrator</b>) ' +
-                    'who has played <b>exactly the same game</b> as you are playing.<br><br>' +
-                    'The demonstrator\'s choice will be shown as the cartoon finger.<br><br>' +
-                    'Each game has a <b>different demonstrator</b>, who might perform well or badly. ' + 
-                    'The surname of the demonstrator will be displayed before each game starts.';
+                var info = '<i>***Please remember to read all instructions <b>carefully</b>. ' + 
+                           'You will have to complete a <b>comprehension quiz</b> at the end of ' + 
+                           'the instructions.***</i><br><br>' +
+                           'In some of the games, before making your decision, you can see the choice of a previous player ' + 
+                           '(<b>demonstrator</b>) who has played <b>exactly the same game</b> as you are playing. ' + 
+                           'The demonstrator’s choice will be shown as a cartoon finger (see image below).<br><br>' + 
+                           'For each game you will see a <b>different demonstrator</b>, ' + 
+                           'who might <b>perform well or badly.</b> ' + 
+                           'However you will <b>not</b> be able to see what outcomes they get ' + 
+                           'but only the choices they made. ' + 
+                           'The name of the demonstrator will be displayed before each game starts ' + 
+                           '(names have been changed to preserve anonymity).'
                 break;
             case 3:
-                var info = 'After each decision, you will see the outcome of your choice - coin or nothing. ' +
-                    'You will then continue directly to the next trial. ' +
+                var info = '<i>***Please remember to read all instructions <b>carefully</b>. ' + 
+                    'You will have to complete a <b>comprehension quiz</b> at the end of the instructions.***</i><br><br>' +
+                    'After each decision, you will see the outcome of your choice (1 coin or nothing). ' +
+                    'You will then continue directly to the next shot. ' +
                     'At the end of each game, you will see how many coins you have earned in total.<br><br>' +
-                    'There are ' + numTrials + ' trials in each game, ' +
-                    conditions.length + ' games in this experiment.' +
-                    'This experiment takes around 10 minutes to complete on average.<br><br>' +
+                    'This experiment takes around 15 minutes to complete on average.<br><br>' +
                     'Click "Continue" to start the comprehension quiz.';
                 break;
             default:
@@ -656,7 +517,7 @@ $(document).ready(function () {
         $('#TextBoxDiv').css('padding-top', '5%');
 
         // correct answers for the comprehension quiz
-        var answers = ["true", "false", "false", "true"];
+        var answers = ["true", "false", "false", "true", "true"];
 
         var title = '<h2 align="center">Comprehension Quiz</h2>';
         var info = '<div id="comprehension">' + 'Please answer the following questions before starting the task. ' +
@@ -694,16 +555,22 @@ $(document).ready(function () {
                                 '<option value="false">False</option>' +
                             '</select>' +
                         '</li>' +
+                        '<br>' +
+                        '<li>You cannot see the outcome that the demonstrators got, but only the choices they made.<br>' +
+                            '<select id="comp_q5" class="comp_questions">' +
+                                '<option value="noresp" SELECTED></option>' +
+                                '<option value="true">True</option>' +
+                                '<option value="false">False</option>' +
+                            '</select>' +
+                        '</li>' +
                    '</ol>' + '</div>';
         $('#Title').html(title);
         $('#TextBoxDiv').html(info);
 
         var buttons = '<div align="center">' + 
                       '<input align="center" type="button" class="btn btn-default" id="Check" value="Check answers">' + 
-                      '<input align="center" type="button" class="btn btn-default" id="Done" style="color:red" ' + 
-                      'value="Start!"></div>';
+                      '</div>';
         $('#Bottom').html(buttons);
-        $('#Done').hide();
 
         $('#Check').click(function () {
             
@@ -711,14 +578,19 @@ $(document).ready(function () {
             var q2 = $('#comp_q2').val();
             var q3 = $('#comp_q3').val();
             var q4 = $('#comp_q4').val();
+            var q5 = $('#comp_q5').val();
 
-            if (q1 == "noresp" || q2 == "noresp" || q3 == "noresp" || q4 == "noresp") {
+            if (q1 == "noresp" || q2 == "noresp" || q3 == "noresp" || q4 == "noresp" || q5 == "noresp") {
                 alert('You need to answer all questions.');
-            } else if(q1 == answers[0] && q2 == answers[1] && q3 == answers[2] && q4 == answers[3]) {
+            } else if(q1 == answers[0] && q2 == answers[1] && q3 == answers[2] && q4 == answers[3] && q5 == answers[4]) {
                 // Allow the start
-                alert('You got everything correct! Press "Start!" to begin the experiment.'); 
-                $('#Done').show();
-                $('#Check').hide();
+                alert('You got everything correct! Press "OK" to begin the experiment.'); 
+                $('#TextBoxDiv').remove();
+                $('#Stage').empty();
+                $('#Bottom').empty();
+
+                startTaskTime = new Date();
+                control(); // multiple conditions
             } else {
                 // Throw them back to the start of the instructions
                 // Remove their answers and have them go through again
@@ -728,6 +600,7 @@ $(document).ready(function () {
                 $('#comp_q2').prop('selectedIndex', 0);
                 $('#comp_q3').prop('selectedIndex', 0);
                 $('#comp_q4').prop('selectedIndex', 0);
+                $('#comp_q5').prop('selectedIndex', 0);
 
                 $('#TextBoxDiv').remove();
                 $('#Stage').empty();
@@ -735,34 +608,7 @@ $(document).ready(function () {
                 instructions(1);
             };
         });
-
-        $('#Done').click(function () { // game start!
-            $('#TextBoxDiv').remove();
-            $('#Stage').empty();
-            $('#Bottom').empty();
-
-            startTaskTime = new Date();
-            ran(); // multiple conditions
-
-            // setTimeout(function() { // displaying "ready" "steady" "go!"
-            //     $('#Stage').html('<h1 align="center">Ready</h1>');
-            //     setTimeout(function() {
-            //         $('#Stage').html('<h1 align="center">Steady</h1>');
-            //         setTimeout(function() {
-            //             $('#Stage').html('<h1 align="center">Go!</h1>');
-            //             setTimeout(function() {
-            //                 $('#Stage').html('<h1 align="center"></h1>');
-            //                 $('#Stage').css('margin-top', 'auto');
-            //                 $('#Stage').empty();
-            //                 // options(1); // start with the first trial
-            //                 ran(); // multiple conditions
-            //             }, 1000);
-            //         }, 1000);
-            //     }, 1000);
-            // }, 10);
-        });
-    };
-        
+    }; 
 
     // options ---------------------------------------------------------------------------------------------------------------    
     function options(trialNum) {
@@ -775,12 +621,17 @@ $(document).ready(function () {
             $('#Middle').empty();
             // end(); // for testing
             numGames++;
-            ran();
+            control();
 
         } else {
-            $('#Top').css('height', thisHeight / 20);
-            $('#Stage').css('width', dispWidth);
-            $('#Stage').css('height', thisHeight * 17 / 20);
+            $('#Top').css({
+                'height': thisHeight / 20,
+                'width': dispWidth
+            });
+            $('#Stage').css({
+                'height': thisHeight * 17 / 20,
+                'width': dispWidth
+            });
             $('#Bottom').css('min-height', thisHeight / 20);
 
             createDiv('Stage', 'TextBoxDiv');
@@ -794,14 +645,23 @@ $(document).ready(function () {
             });
 
 
-            var infoTrial1 = '<div id="info1" align="left">Coins already got in the current game: ' + tempReward + '<br>' +
-                'Coins got in previous games in total: ' + sumReward + '<div>';
-            var infoTrial2 = '<div id="info2" align="left">Trial ' + trialNum + ' of ' + numTrials + '<br>' +
-                'Game ' + numGames + ' of ' + conditions.length + '<div>';
-            $('#info1').css('position', 'absolute');
-            $('#info2').css('position', 'absolute');
+            var infoTrial1 = '<div id="info1" align="left">Coins already collected in the current game: ' + tempReward + '<br>' +
+                'Coins collected in previous games in total: ' + sumReward + '</div>';
+            var infoTrial2 = '<div id="info2" align="right">Trial ' + trialNum + ' of ' + numTrials + '<br>' +
+                'Game ' + numGames + ' of ' + conditions.length + '</div>';
+            
             $('#Top').html(infoTrial1 + infoTrial2);
-            $('#Top').css('font-size', '16px');
+            $('#info1').css({
+                'position': 'absolute',
+                'top': '0px',
+                'left': (document.body.clientWidth - $('#Main').width()) / 2 + 10
+            });
+            $('#info2').css({
+                'position': 'absolute',
+                'top': '0px',
+                'right': (document.body.clientWidth - $('#Main').width()) / 2 + 10
+            });
+            $('#Top').css('font-size', '20px');
 
             var title = '<div id="Title"><h2 align="center">Choose a door:' + spacing + '</h2></div>';
 
