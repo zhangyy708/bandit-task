@@ -1,27 +1,14 @@
-$(document).ready(function () {
-    // only for debugging ----------------------------------------------------------------------------------------------------
-    // var imageSrc = '/bandit-task/static/images'; // Github
-    var imageSrc = 'static/images'; // local testing
-    // var imageSrc = 'experiments/yuyan/bandit-task/static/images'; // server (wrong)
-    
+$(document).ready(function () {    
     // initialising variables ------------------------------------------------------------------------------------------------
     // adjustable
     var numTrials = 15; // number of trials
-    var fadeTime = 500; // fade out time (after reward being displayed in each trial)
+    var fadeTime = 250; // fade out time (after reward being displayed in each trial)
     var stayTime = 500; // result stay time (after reward being displayed in each trial)
     var movePoint = 500; // moving time for the point
-    var stayPoint = 250; // point stay time
-    var fadePoint = 250; // point fade out time
+    var stayPoint = 200; // point stay time
+    var fadePoint = 100; // point fade out time
 
-    // var teacher = { // numArms + teacherPerform (see matlab file experiment.m)
-    //     "2Low": [2, 1, 2, 2, 1, 1, 1, 2, 2, 1, 1, 2, 1, 1, 2],
-    //     "2High": [2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-    //     "4Low": [4, 1, 4, 3, 4, 1, 3, 1, 2, 3, 1, 1, 2, 3, 1],
-    //     "4High": [4, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
-    //     "8Low": [6, 1, 5, 2, 7, 2, 5, 6, 5, 5, 1, 7, 7, 7, 4],
-    //     "8High": [2, 2, 3, 7, 7, 7, 7, 7, 8, 7, 2, 2, 6, 5, 5]
-    // };
-    var teacher = {
+    var teacher = { // numArms + teacherPerform (see matlab file experiment_added.m)
         "2Low" : [1, 1, 2, 1, 2, 2, 1, 2, 2, 1, 1, 2, 1, 1, 1],
         "4Low" : [3, 2, 3, 3, 1, 2, 4, 2, 4, 1, 3, 3, 4, 2, 1],
         "8Low" : [6, 4, 8, 7, 8, 7, 3, 4, 3, 5, 6, 6, 1, 1, 7],
@@ -49,18 +36,6 @@ $(document).ready(function () {
         "8High": "Bennett"
     };
 
-    // var ps = { // generated from Beta(2, 2) (see matlab file experiment.m)
-    //     "2No": [0.6587, 0.0749],
-    //     "4No": [0.7287, 0.4253, 0.6671, 0.1911],
-    //     "8No": [0.2965, 0.6915, 0.4265, 0.2132, 0.3079, 0.2206, 0.3604, 0.4732],
-    //     "2Low": [0.7091, 0.5989],
-    //     "4Low": [0.3495, 0.2870, 0.6070, 0.3308],
-    //     "8Low": [0.3553, 0.4551, 0.4378, 0.5093, 0.6155, 0.4025, 0.3933, 0.7649],
-    //     "2High": [0.4356, 0.6446],
-    //     "4High": [0.5069, 0.7603, 0.8165, 0.1660],
-    //     "8High": [0.8031, 0.2143, 0.2514, 0.1146, 0.3846, 0.2437, 0.6357, 0.1272]
-    // }
-
     var ps = { // generated from Beta(2, 2) (see matlab file experiment.m)
         "2No"  : [0.6587, 0.0749],
         "4No"  : [0.2921, 0.6607, 0.5861, 0.6737],
@@ -87,12 +62,11 @@ $(document).ready(function () {
     var sumReward = 0; // total rewards a participant already gets
     var tempReward = 0;
     var money = 0; // money paid to the participant
-
-    var startTime = new Date(); // the time the experiment starts
-    var startTaskTime; // the time the task starts
+    
     var subID = generateToken(10); // random ID for each participant
     var year; // birth year of the subject
     var edu; // years of formal education that the subject has received
+    var gender; // gender of the subject
     var feedback; // feedback
     var strategy1;
     var strategy2;
@@ -137,26 +111,19 @@ $(document).ready(function () {
     var spacing = '<br><br>'; // in trials, the spacing between title and images
 
     // checking pc or phone/pad
-    if (isMobile() || isMobileOrTablet()) {
-        alert('Unfortunately, you need to be on a desktop or laptop computer in order to take part in this experiment.' + 
-              ' In any case thank you very much for the interest.')
+    if (isMobile() || isMobileOrTablet()) { // not working in pad?
+        alert('Unfortunately, you need to be on a desktop or laptop computer in order to take part in this experiment.');
+    } else if (isEdge || isIE || isOpera || isBlink){
+        alert('Sorry, but this experiment is only supported in Chrome/Firefox/Safari.');
     } else {
-        // alert('pc端');
-        // para(1); // for testing; changing parameters
-
-        // for testing; fixed parameters
-        // numArms = 2; 
-        // isTeacher = true;
-        // teacherPerform = 'Low';
-        // options(1);
-
-        // formal
         expRewardsRandom(); // calculating the expected rewards of random policy
         expRewardsOpt(); // calculating the expected rewards of optimal policy 
         expRewardsMin(); // calculating the min expected rewards  
         // (always choosing the option with the highest reward rate)
         information(); // start the entire experiment
         // options(1);
+        // end();
+        // comprehension();
     };
 
 
@@ -273,6 +240,8 @@ $(document).ready(function () {
         });
     };
 
+    var bottomPos = $('#Bottom').position().top; // to align the position of the buttons
+
     // information page ------------------------------------------------------------------------------------------------------
     function information() {
         $('#Top').css('height', thisHeight / 20);
@@ -345,11 +314,17 @@ $(document).ready(function () {
                         '<ul>' +
                             '<li>You will have to complete a comprehension quiz before you can start the experiment.</li>' +
                             '<li>Please minimize the chances of possible distractions -' +
-                            ' switch off messengers, music, etc.</li>' +
-                            '<li>Please use full-screen mode.</li>' +
+                            ' <b>switch off</b> messengers, music, etc.</li>' +
+                            '<li>Please use ' + 
+                                '<abbr title="For Windows, press F11 (or Fn + F11)\n' + 
+                                'For Mac, press Ctrl + Cmd + F">' + 
+                                '<b>full-screen</b></abbr>' + ' mode.</li>' +
                             '<li>You <b>can not</b> use a mobile phone or tablet.</li>' + 
-                            // '<li>You <b>can only</b> participate if you use Google Chrome.</li>' +
-                            '<li>Do not refresh this page during the experiment.</li>' +
+                            '<li>You <b>can only</b> participate if you use Google Chrome, Firefox, or Safari.</li>' +
+                            '<li>You can <abbr title="For Windows, press F5 (or Fn + F5)\n' + 
+                                'For Mac, press Cmd + R">' + 
+                                'refresh</abbr> this page if you switch on the full-screen mode. ' + 
+                                'But <b>do not</b> refresh in the following pages.</li>' +
                         '</ul>' +
                     '</div>';
 
@@ -390,7 +365,7 @@ $(document).ready(function () {
         });        
     };
     
-    var bottomPos = $('#Bottom').position().top; // to align the position of the buttons
+    // var bottomPos = $('#Bottom').position().top; // to align the position of the buttons
 
     // instructions ----------------------------------------------------------------------------------------------------------
     function instructions(pageNum) {
@@ -456,7 +431,7 @@ $(document).ready(function () {
                 break;
         };
 
-        var thisImage = '<div align="center"><img src="' + imageSrc + '/instruction' + pageNum + '.png" alt="house" height="' +
+        var thisImage = '<div align="center"><img src="static/images/instruction' + pageNum + '.png" alt="house" height="' +
             picHeight + '" align="center"></div>'
         $('#Title').html(title);
         $('#TextBoxDiv').html(info + thisImage);
@@ -520,12 +495,13 @@ $(document).ready(function () {
         var answers = ["true", "false", "false", "true", "true"];
 
         var title = '<h2 align="center">Comprehension Quiz</h2>';
-        var info = '<div id="comprehension">' + 'Please answer the following questions before starting the task. ' +
+        var info = '<div id="comprehension" class="form-horizontal">' + 
+                   'Please answer the following questions before starting the task. ' +
                    'These are necessary for ensuring that you read and understood the instructions.<br><br>' +
                    '<ol>' + 
                         '<li>Each door has a fixed but different probability of hiding a coin. ' +
                             'Some doors are more likely to hide a coin than the others.<br>' +
-                            '<select id="comp_q1" class="comp_questions">' +
+                            '<select id="comp_q1" class="form-control">' +
                                 '<option value="noresp" SELECTED></option>' +
                                 '<option value="true">True</option>' +
                                 '<option value="false">False</option>' +
@@ -533,7 +509,7 @@ $(document).ready(function () {
                         '</li>' +
                         '<br>' +
                         '<li>The demonstrator is the same person in all '+ conditions.length + ' games.<br>' +
-                            '<select id="comp_q2" class="comp_questions">' +
+                            '<select id="comp_q2" class="form-control">' +
                                 '<option value="noresp" SELECTED></option>' +
                                 '<option value="true">True</option>' +
                                 '<option value="false">False</option>' +
@@ -541,7 +517,7 @@ $(document).ready(function () {
                         '</li>' +
                         '<br>' +
                         '<li>The demonstrators always perform better than you.<br>' +
-                            '<select id="comp_q3" class="comp_questions">' +
+                            '<select id="comp_q3" class="form-control">' +
                                 '<option value="noresp" SELECTED></option>' +
                                 '<option value="true">True</option>' +
                                 '<option value="false">False</option>' +
@@ -549,7 +525,7 @@ $(document).ready(function () {
                         '</li>' +
                         '<br>' +
                         '<li>The demonstrators have played exactly the same game as you will be playing.<br>' +
-                            '<select id="comp_q4" class="comp_questions">' +
+                            '<select id="comp_q4" class="form-control">' +
                                 '<option value="noresp" SELECTED></option>' +
                                 '<option value="true">True</option>' +
                                 '<option value="false">False</option>' +
@@ -557,7 +533,7 @@ $(document).ready(function () {
                         '</li>' +
                         '<br>' +
                         '<li>You cannot see the outcome that the demonstrators got, but only the choices they made.<br>' +
-                            '<select id="comp_q5" class="comp_questions">' +
+                            '<select id="comp_q5" class="form-control">' +
                                 '<option value="noresp" SELECTED></option>' +
                                 '<option value="true">True</option>' +
                                 '<option value="false">False</option>' +
@@ -667,7 +643,7 @@ $(document).ready(function () {
 
             var door = new Array();
             for (let i = 1; i <= numArms; i++) {
-                door[i - 1] = '<img id="Door' + i + '" src="' + imageSrc + '/door.png">';
+                door[i - 1] = '<img id="Door' + i + '" src="static/images/door.png">';
             }
 
             switch (numArms) {
@@ -809,7 +785,7 @@ $(document).ready(function () {
                 // var whichTeacher = t; // which teacher
                 var whichDemo = t[trialNum - 1]; // which door does the teacher choose in the current trial
 
-                $('#TextBoxDiv').append('<img id="Point" src="' + imageSrc + '/point.png">');
+                $('#TextBoxDiv').append('<img id="Point" src="static/images/point.png">');
                 $('#Point').css({
                     'position': 'absolute',
                     'left': '48%',
@@ -880,11 +856,11 @@ $(document).ready(function () {
 
         if (thisReward === 1) { // coin
             $('#MessageBox').html('<h2 align="center" id="Message">You got a coin!!' + spacing + '</h2>');
-            $('#TextBoxDiv2').html('<img id="Reward" src="' + imageSrc + '/coin.png">');
+            $('#TextBoxDiv2').html('<img id="Reward" src="static/images/coin.png">');
             tempReward = tempReward + 1;
         } else { // no coin
             $('#MessageBox').html('<h2 align="center" id="Message">You got nothing...' + spacing + '</h2>');
-            $('#TextBoxDiv2').html('<img id="Reward" src="' + imageSrc + '/frowny.png">');
+            $('#TextBoxDiv2').html('<img id="Reward" src="static/images/frowny.png">');
         };
 
         $('#Reward').css({
@@ -920,68 +896,103 @@ $(document).ready(function () {
         createDiv('Stage', 'Title');
         createDiv('Stage', 'TextBoxDiv');
 
-        $('#TextBoxDiv').css('font-size', '16px');
-        $('#TextBoxDiv').css('padding-top', '5%');
+        $('#TextBoxDiv').css({
+            'font-size': '16px',
+            'padding-top': '5%'
+        });
 
         var title = '<h2 align="center">Questionnaire</h2>'; // header
-        var info = '<div id="form">' + 'Please answer the following questions:<br><br>' +
-                   '<ol>' + 
-                        '<li>In which year were you born?' + '<span style="color: red"> * </span>' +
-                            '<input type="number" id="year">' +
+        var valueYear = '<option value="noresp" SELECTED></option>';
+        for (i = 2003; i >= 1920; i--) {
+            valueYear = valueYear + '<option value="' + i + '">' + i + '</option>';
+        };
+        var valueEdu = '<option value="noresp" SELECTED></option>';
+        for (i = 0; i <= 30; i++) {
+            valueEdu = valueEdu + '<option value="' + i + '">' + i + '</option>';
+        };
+
+        var info = 'Please answer the following questions:<br><br>' +
+                   '<div class="scroll_text">' + 
+                   '<ol id="form-text">' + 
+                        '<li>In which year were you born?' + '<span style="color: red"> *  </span>' +
+                            '<select id="year" class="form-control" style="width:' + dispWidth * 4 / 5 + 'px">' + 
+                                valueYear +
+                            '</select>' +
                         '</li>' +
-                        // '<br>' +
+                        '<br>' +
+                        '<li>What is your gender?' + '<span style="color: red"> *  </span>' +
+                            '<select id="gender" class="form-control" style="width:' + dispWidth * 4 / 5 + 'px">' + 
+                                '<option value="noresp" SELECTED></option>' +
+                                '<option value="female">female</option>' +
+                                '<option value="male">male</option>' +
+                                '<option value="other">other</option>' +
+                                '<option value="nottosay">prefer not to say</option>' +
+                            '</select>' +
+                        '</li>' +
+                        '<br>' +
                         '<li>How many years have you received formal education (counted from elementary school)?' +
                             '<span style="color: red"> * </span>' +
-                            '<input type="number" id="edu">' +
+                            '<select id="edu" class="form-control" style="width:' + dispWidth * 4 / 5 + 'px">' + 
+                                valueEdu +
+                            '</select>' +
                         '</li>' +
-                        // '<br>' +
+                        '<br>' +
                         '<li>Please describe briefly how you made choices when there was <b>no demonstrator</b>.' +
                             '<span style="color: red"> *</span><br>' +
-                            '<textarea id="strategy1" style="width:' + dispWidth + 'px; height:' + dispWidth / 9 + 'px">' + 
+                            '<textarea class="form-control" id="strategy1" style="width:' +
+                                dispWidth * 4 / 5 + 'px; height:' + dispWidth / 6 + 'px">' + 
                             '</textarea>' +
                         '</li>' +
-                        // '<br>' +
+                        '<br>' +
                         '<li>Please describe briefly how you made choices when there was <b>a demonstrator</b>.' +
                             '<span style="color: red"> *</span><br>' +
-                            '<textarea id="strategy2" style="width:' + dispWidth + 'px; height:' + dispWidth / 9 + 'px">' + 
+                            '<textarea class="form-control" id="strategy2" style="width:' + 
+                                dispWidth * 4 / 5 + 'px; height:' + dispWidth / 6 + 'px">' + 
+                            '</textarea>' +
+                        '</li>' +
+                        '<br>' +
+                        '<li>[Optional] If you have any questions, suggestions, or comments, you could write here:<br>' +
+                            '<textarea class="form-control" id="feedback" style="width:' + 
+                                dispWidth * 4 / 5 + 'px; height:' + dispWidth / 6 + 'px">' + 
                             '</textarea>' +
                         '</li>' +
                         // '<br>' +
-                        '<li>(Optional) If you have any questions, suggestions, or comments, you could write here:<br>' +
-                            '<textarea id="feedback" style="width:' + dispWidth + 'px; height:' + dispWidth / 9 + 'px">' + 
-                            '</textarea>' +
-                        '</li>' +
-                        // '<br>' +
-                   '</ol>' + 'Click "Submit" button below to submit and end this experiment.' + '</div>';
+                   '</ol>' + '</div>' +
+                   '<br>Click "Submit" button below to submit and end this experiment.';
 
         
         $('#Title').html(title);
         $('#TextBoxDiv').html(info);
 
+        $('.scroll_text').css({ // styling the scrolled area (text & scrollbar)
+            'height': thisHeight * 12 / 20,
+            'width': dispWidth,
+            'overflow': 'auto'
+        });
+        $('#form-text').css({ // styling the scrolled text (text only)
+            'width': dispWidth * 5 / 6
+        });
+
         var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
             ' id="submitFeedback" value="Submit"></div>';
         $('#Bottom').html(buttons); // click button to submit
-
-        // year = $("#year").val();
-        // edu = $("#edu").val();
-        // if (year % 1 === 0 && edu % 1 === 0 && year > 1900 && year < 2004 && edu >= 0 && edu <= 50) {
-        //     $('#submitFeedback').prop('disabled', false);
-        // };
-
-        var endTime = new Date();
+        
         money = 1 + Math.round(sumReward / 2) * 0.01;
 
         $('#submitFeedback').click(function () {
-            year = $("#year").val();
-            edu = $("#edu").val();
+            year = $('#year').val();
+            gender = $('#gender').val();
+            edu = $('#edu').val();
             feedback = $("#feedback").val();
             strategy1 = $("#strategy1").val();
             strategy2 = $("#strategy2").val();
 
-            if (isNaN(year) || year === "" || year % 1 !== 0 || year < 1900 || year > 2003) {
-                alert('Please enter your birth year correctly.');
-            } else if (isNaN(edu) || edu === "" || edu % 1 !== 0 || edu < 0 || edu > 50) {
-                alert('Please correctly enter the number of years that you received formal education.');
+            if (year === "noresp") {
+                alert('Please select your birth year.');
+            } else if (gender === "noresp") {
+                alert('Please select your gender.')
+            } else if (edu === "noresp") {
+                alert('Please select the number of years that you received formal education.');
             } else if (strategy1 === "" || strategy2 === "") {
                 alert('Please briefly describe the strategies you used in the task.')
             } else {
@@ -998,8 +1009,9 @@ $(document).ready(function () {
                     url: 'static/php/save_data.php',
                     type:'POST',
                     data:{subID:subID,
-                        age:2020 - year,
-                        education:edu,
+                        age:2020 - Number(year),
+                        gender:gender,
+                        education:Number(edu),
                         strategy1:strategy1,
                         strategy2:strategy2,
                         feedback:feedback,
@@ -1119,7 +1131,8 @@ $(document).ready(function () {
         var i;
         for (i = 0; i < conditions.length; i++) {
             tempPsNew = ps[conditions[i]].map(multiply); // in each condition, each door' reward rate * number of trials
-            x[i] = eval(tempPsNew.join("+")) / parseInt(conditions[i].substring(0, 1)); // average over tempPsNew in each condition
+            x[i] = eval(tempPsNew.join("+")) / parseInt(conditions[i].substring(0, 1)); 
+            // average over tempPsNew in each condition
         };
 
         console.log(eval(x.join("+"))); // expected rewards for random policy

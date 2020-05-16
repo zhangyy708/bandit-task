@@ -12,6 +12,7 @@
     $subjectID = $_POST['subID'];
     $date_submit = date('Y-m-d');
     $age_year = $_POST['age'];
+    $gender = $_POST['gender'];
     $education_year = $_POST['education'];
     $strategy1 = $_POST['strategy1'];
     $strategy2 = $_POST['strategy2'];
@@ -34,7 +35,7 @@
 
 	//Create a query
 
-	$query = "INSERT INTO yuyan_sl (ip, subjectID, date_submit, age_year, education_year, strategy1, strategy2, feedback, choices_2No, choices_4No, choices_8No, choices_2Low, choices_4Low, choices_8Low, choices_2Mid, choices_4Mid, choices_8Mid, choices_2High, choices_4High, choices_8High, conditions, sum_reward, money) VALUES ('{$ip}', '{$subjectID}', '{$date_submit}', '{$age_year}', '{$education_year}', '{$strategy1}', '{$strategy2}', '{$feedback}', '{$choices_2No}', '{$choices_4No}', '{$choices_8No}', '{$choices_2Low}', '{$choices_4Low}', '{$choices_8Low}', '{$choices_2Mid}', '{$choices_4Mid}', '{$choices_8Mid}', '{$choices_2High}', '{$choices_4High}', '{$choices_8High}', '{$conditions}', '{$sum_reward}', '{$money}')";
+	$query = "INSERT INTO yuyan_sl (ip, subjectID, date_submit, age_year, gender, education_year, strategy1, strategy2, feedback, choices_2No, choices_4No, choices_8No, choices_2Low, choices_4Low, choices_8Low, choices_2Mid, choices_4Mid, choices_8Mid, choices_2High, choices_4High, choices_8High, conditions, sum_reward, money) VALUES ('{$ip}', '{$subjectID}', '{$date_submit}', '{$age_year}', '{$gender}', '{$education_year}', '{$strategy1}', '{$strategy2}', '{$feedback}', '{$choices_2No}', '{$choices_4No}', '{$choices_8No}', '{$choices_2Low}', '{$choices_4Low}', '{$choices_8Low}', '{$choices_2Mid}', '{$choices_4Mid}', '{$choices_8Mid}', '{$choices_2High}', '{$choices_4High}', '{$choices_8High}', '{$conditions}', '{$sum_reward}', '{$money}')";
 	
 	//Do it
 	mysqli_query($mysqli, $query);
