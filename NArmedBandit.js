@@ -71,6 +71,11 @@ $(document).ready(function () {
     var strategy1;
     var strategy2;
 
+    var timeOpen = new Date(); // timestamp - open the link
+    var timeStart; // timestamp - start the task
+    var timeEnd; // timestamp - task end
+    var timeSubmit; // timestamp - submit the final form
+
     var subChoice = { // numArms + teacherPerform
         "2Low": [],
         "4Low": [],
@@ -170,7 +175,7 @@ $(document).ready(function () {
             sumReward = sumReward + tempReward;
             tempReward = 0;
 
-            for (i = 0; i < numTrials; i++) { // re-ordering participants' choices in the last game
+            for (i = 0; i < numTrials; i++) { // re-ordering participants' choices in the previous game
                 var temp = subChoice[numArms + teacherPerform][i];
                 subChoiceReorder[numArms + teacherPerform][i] = order[temp - 1];
             };
@@ -209,6 +214,7 @@ $(document).ready(function () {
                 var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
                             ' id="toTrial" value="Start!"></div>';
             } else { // after the last trial
+                timeEnd = new Date();
                 var title = '<div id="Title"><h2 align="center">' + 
                             'You have completed all the games.' + '<br><br>' +
                             'You have collected <b>' + sumReward + '</b> coins (' + 
@@ -562,8 +568,8 @@ $(document).ready(function () {
                 $('#Stage').empty();
                 $('#Bottom').empty();
 
-                startTaskTime = new Date();
-                control(); // multiple conditions
+                timeStart = new Date();
+                control(); // start
             } else {
                 // Throw them back to the start of the instructions
                 // Remove their answers and have them go through again
@@ -996,6 +1002,8 @@ $(document).ready(function () {
                 // only allowing English alphabets and punctuations
                 alert('Please only enter English words and punctuations in the text area.');
             } else {
+                timeSubmit = new Date();
+
                 $('#Title').remove();
                 $('#TextBoxDiv').remove();
                 $('#Stage').empty();
@@ -1038,6 +1046,9 @@ $(document).ready(function () {
                         strategy1:strategy1,
                         strategy2:strategy2,
                         feedback:feedback,
+                        duration_read:timeStart.getTime() - timeOpen.getTime(), // time of reading instructions
+                        duration_task:timeEnd.getTime() - timeStart.getTime(), // time of completing the task
+                        duration_fill:timeSubmit.getTime() - timeEnd.getTime(), // time of filling the final form
                         choices_2No:String(subChoiceReorder["2No"]),
                         choices_4No:String(subChoiceReorder["4No"]),
                         choices_8No:String(subChoiceReorder["8No"]),
