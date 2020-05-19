@@ -121,9 +121,6 @@ $(document).ready(function () {
         expRewardsMin(); // calculating the min expected rewards  
         // (always choosing the option with the highest reward rate)
         information(); // start the entire experiment
-        // options(1);
-        // end();
-        // comprehension();
     };
 
 
@@ -136,7 +133,7 @@ $(document).ready(function () {
 
         createDiv('Stage', 'TextBoxDiv0');
         $('#TextBoxDiv0').css('font-size', '16px');
-        $('#TextBoxDiv0').css('padding-top', '20%');
+        $('#TextBoxDiv0').css('padding-top', '30%');
 
         if (numGames == 1) { // before the first trial
             numArms = parseInt(conditions[numGames - 1].substring(0, 1));
@@ -333,7 +330,7 @@ $(document).ready(function () {
 
         $('.scroll_text').css({
             'height': thisHeight * 14 / 20,
-            'overflow': 'scroll'});
+            'overflow': 'auto'});
 
         var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
             ' id="toReminder" value="Accept HIT" disabled></div>';
@@ -371,7 +368,7 @@ $(document).ready(function () {
     function instructions(pageNum) {
         $('#Top').css('height', thisHeight / 20);
         $('#Stage').css('width', dispWidth);
-        $('#Stage').css('min-height', thisHeight * 7 / 20);
+        // $('#Stage').css('min-height', thisHeight * 7 / 20);
         $('#Bottom').css({
             'height': thisHeight / 20,
             'position': 'absolute',
@@ -990,11 +987,14 @@ $(document).ready(function () {
             if (year === "noresp") {
                 alert('Please select your birth year.');
             } else if (gender === "noresp") {
-                alert('Please select your gender.')
+                alert('Please select your gender.');
             } else if (edu === "noresp") {
                 alert('Please select the number of years that you received formal education.');
             } else if (strategy1 === "" || strategy2 === "") {
-                alert('Please briefly describe the strategies you used in the task.')
+                alert('Please briefly describe the strategies you used in the task.');
+            } else if (RegExp("[^\u0020-\u007E\u000A]").test(strategy1) || RegExp("[^\u0020-\u007E\u000A]").test(strategy2)) {
+                // only allowing English alphabets and punctuations
+                alert('Please only enter English words and punctuations in the text area.');
             } else {
                 $('#Title').remove();
                 $('#TextBoxDiv').remove();
@@ -1004,6 +1004,29 @@ $(document).ready(function () {
                 if (feedback == "") {
                     feedback = "NULL";
                 };
+
+                // replacing special punctuations
+                strategy1 = strategy1.replace(/[\`\~\@\#\$\%\^\&\*\(\)\_\+\-\=\{\}\[\]\|\<\>\u000A]/g, '');
+                strategy1 = strategy1.replace(/[\'\"]/g, '\\\'');
+                strategy1 = strategy1.replace(/[\,]/g, '\\\,');
+                strategy1 = strategy1.replace(/[\.]/g, '\\\.');
+                strategy1 = strategy1.replace(/[\\]/g, '\\\\');
+                strategy1 = strategy1.replace(/[\/]/g, '\\\/');
+                strategy1 = strategy1.replace(/[\!]/g, '\\\!');
+                strategy1 = strategy1.replace(/[\?]/g, '\\\?');
+                strategy1 = strategy1.replace(/[\:]/g, '\\\:');
+                strategy1 = strategy1.replace(/[\;]/g, '\\\;');
+
+                strategy2 = strategy2.replace(/[\`\~\@\#\$\%\^\&\*\(\)\_\+\-\=\{\}\[\]\|\<\>\u000A]/g, '');
+                strategy2 = strategy2.replace(/[\'\"]/g, '\\\'');
+                strategy2 = strategy2.replace(/[\,]/g, '\\\,');
+                strategy2 = strategy2.replace(/[\.]/g, '\\\.');
+                strategy2 = strategy2.replace(/[\\]/g, '\\\\');
+                strategy2 = strategy2.replace(/[\/]/g, '\\\/');
+                strategy2 = strategy2.replace(/[\!]/g, '\\\!');
+                strategy2 = strategy2.replace(/[\?]/g, '\\\?');
+                strategy2 = strategy2.replace(/[\:]/g, '\\\:');
+                strategy2 = strategy2.replace(/[\;]/g, '\\\;');
 
                 jQuery.ajax({ // save data
                     url: 'static/php/save_data.php',
@@ -1097,9 +1120,6 @@ $(document).ready(function () {
         $('#TextBoxDiv').html(info);
     };
 
-
-
-
     // utility functions -----------------------------------------------------------------------------------------------------
 
     // generating toke displayed to participant (stolen from tia stolen from bonan)
@@ -1169,5 +1189,4 @@ $(document).ready(function () {
         // expected rewards if all choices have the lowest reward rate in the game
     };
 
-
-})
+});
