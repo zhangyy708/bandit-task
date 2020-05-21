@@ -90,7 +90,34 @@ $(document).ready(function () {
         "4No": [],
         "8No": []
     };
-    var subChoiceReorder = subChoice; // re-ordered subject choices; this will be sent to database
+    var subChoiceReorder = { // re-ordered subject choices; this will be sent to database
+        "2Low": [],
+        "4Low": [],
+        "8Low": [],
+        "2Mid": [],
+        "4Mid": [],
+        "8Mid": [],
+        "2High": [],
+        "4High": [],
+        "8High": [],
+        "2No": [],
+        "4No": [],
+        "8No": []
+    };
+    var subReward = { // subject reward in each trial
+        "2Low": [],
+        "4Low": [],
+        "8Low": [],
+        "2Mid": [],
+        "4Mid": [],
+        "8Mid": [],
+        "2High": [],
+        "4High": [],
+        "8High": [],
+        "2No": [],
+        "4No": [],
+        "8No": []
+    };
 
     var conditions = ["2Low", "4Low", "8Low", "2Mid", "4Mid", "8Mid", "2High", "4High", "8High", "2No", "4No", "8No"];
     conditions.sort(function () { // randomising conditions
@@ -149,8 +176,6 @@ $(document).ready(function () {
             order.sort(function () { // randomising doors' order in a game
                 return Math.random() - 0.5;
             });
-            console.log(conditions[numGames - 1]);
-            console.log(order);
 
             for (i = 0; i < numArms; i++) {
                 p[i] = ps[conditions[numGames - 1]][order[i] - 1]; // reordering the reward rates
@@ -179,19 +204,16 @@ $(document).ready(function () {
                 var temp = subChoice[numArms + teacherPerform][i];
                 subChoiceReorder[numArms + teacherPerform][i] = order[temp - 1];
             };
-            console.log(subChoiceReorder[numArms + teacherPerform]);
 
             if (numGames <= conditions.length) {
-                numArms = parseInt(conditions[numGames - 1].substring(0, 1));
-                isTeacher = conditions[numGames - 1].substring(1) !== "No";
-                teacherPerform = conditions[numGames - 1].substring(1);
+                numArms = parseInt(conditions[numGames - 1].substring(0, 1)); // 2, 4, or 8
+                isTeacher = conditions[numGames - 1].substring(1) !== "No"; // whether there is demonstrator or not
+                teacherPerform = conditions[numGames - 1].substring(1); // "No", "Low", "Mid", or "High"
 
                 order = Array.from({ length: numArms }, (item, index) => index + 1); // generating an array like [1, 2, 3, 4]
                 order.sort(function () { // randomising doors' order in a game
                     return Math.random() - 0.5;
                 });
-                console.log(conditions[numGames - 1]);
-                console.log(order);
 
                 for (i = 0; i < numArms; i++) {
                     p[i] = ps[conditions[numGames - 1]][order[i] - 1]; // reordering the reward rates
@@ -242,8 +264,6 @@ $(document).ready(function () {
             end();
         });
     };
-
-    var bottomPos = $('#Bottom').position().top; // to align the position of the buttons
 
     // information page ------------------------------------------------------------------------------------------------------
     function information() {
@@ -368,7 +388,7 @@ $(document).ready(function () {
         });        
     };
     
-    // var bottomPos = $('#Bottom').position().top; // to align the position of the buttons
+    var bottomPos = $('#Bottom').position().top; // to align the position of the buttons
 
     // instructions ----------------------------------------------------------------------------------------------------------
     function instructions(pageNum) {
@@ -598,7 +618,6 @@ $(document).ready(function () {
             $('#Top').empty();
             $('#Title').empty();
             $('#Middle').empty();
-            // end(); // for testing
             numGames++;
             control();
 
@@ -732,7 +751,6 @@ $(document).ready(function () {
                     });
                     $('#Door2').css({
                         'position': 'absolute',
-                        //  'left': $('#Stage').position().left + dispWidth / 2,
                         'left': leftMar + a + b + x,
                         'top': h[0],
                         'width': b,
@@ -785,7 +803,6 @@ $(document).ready(function () {
             };
 
             if (isTeacher) {
-                // var whichTeacher = t; // which teacher
                 var whichDemo = t[trialNum - 1]; // which door does the teacher choose in the current trial
 
                 $('#TextBoxDiv').append('<img id="Point" src="static/images/point.png">');
@@ -850,7 +867,10 @@ $(document).ready(function () {
             if (choice === i) {
                 if (randomNum < p[i - 1]) {
                     thisReward = 1;
-                };
+                    subReward[numArms + teacherPerform][trialNum - 1] = 1;
+                } else {
+                    subReward[numArms + teacherPerform][trialNum - 1] = 0;
+                }
             };
         };
 
@@ -1014,27 +1034,9 @@ $(document).ready(function () {
                 };
 
                 // replacing special punctuations
-                strategy1 = strategy1.replace(/[\`\~\@\#\$\%\^\&\*\(\)\_\+\-\=\{\}\[\]\|\<\>\u000A]/g, '');
-                strategy1 = strategy1.replace(/[\'\"]/g, '\\\'');
-                strategy1 = strategy1.replace(/[\,]/g, '\\\,');
-                strategy1 = strategy1.replace(/[\.]/g, '\\\.');
-                strategy1 = strategy1.replace(/[\\]/g, '\\\\');
-                strategy1 = strategy1.replace(/[\/]/g, '\\\/');
-                strategy1 = strategy1.replace(/[\!]/g, '\\\!');
-                strategy1 = strategy1.replace(/[\?]/g, '\\\?');
-                strategy1 = strategy1.replace(/[\:]/g, '\\\:');
-                strategy1 = strategy1.replace(/[\;]/g, '\\\;');
+                strategy1 = strategy1.replace(/[\`\~\@\#\$\%\^\&\*\(\)\_\+\-\=\{\}\[\]\|\<\>\\\/\'\"\u000A]/g, '');
 
-                strategy2 = strategy2.replace(/[\`\~\@\#\$\%\^\&\*\(\)\_\+\-\=\{\}\[\]\|\<\>\u000A]/g, '');
-                strategy2 = strategy2.replace(/[\'\"]/g, '\\\'');
-                strategy2 = strategy2.replace(/[\,]/g, '\\\,');
-                strategy2 = strategy2.replace(/[\.]/g, '\\\.');
-                strategy2 = strategy2.replace(/[\\]/g, '\\\\');
-                strategy2 = strategy2.replace(/[\/]/g, '\\\/');
-                strategy2 = strategy2.replace(/[\!]/g, '\\\!');
-                strategy2 = strategy2.replace(/[\?]/g, '\\\?');
-                strategy2 = strategy2.replace(/[\:]/g, '\\\:');
-                strategy2 = strategy2.replace(/[\;]/g, '\\\;');
+                strategy2 = strategy2.replace(/[\`\~\@\#\$\%\^\&\*\(\)\_\+\-\=\{\}\[\]\|\<\>\\\/\'\"\u000A]/g, '');
 
                 jQuery.ajax({ // save data
                     url: 'static/php/save_data.php',
@@ -1061,6 +1063,18 @@ $(document).ready(function () {
                         choices_2High:String(subChoiceReorder["2High"]),
                         choices_4High:String(subChoiceReorder["4High"]),
                         choices_8High:String(subChoiceReorder["8High"]),
+                        rewards_2No:String(subReward["2No"]),
+                        rewards_4No:String(subReward["4No"]),
+                        rewards_8No:String(subReward["8No"]),
+                        rewards_2Low:String(subReward["2Low"]),
+                        rewards_4Low:String(subReward["4Low"]),
+                        rewards_8Low:String(subReward["8Low"]),
+                        rewards_2Mid:String(subReward["2Mid"]),
+                        rewards_4Mid:String(subReward["4Mid"]),
+                        rewards_8Mid:String(subReward["8Mid"]),
+                        rewards_2High:String(subReward["2High"]),
+                        rewards_4High:String(subReward["4High"]),
+                        rewards_8High:String(subReward["8High"]),
                         conditions:String(conditions),
                         sum_reward:String(trialReward), // sum of reward in each game !!!!!!!
                         money:money},
