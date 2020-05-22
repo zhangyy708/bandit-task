@@ -519,9 +519,10 @@ $(document).ready(function () {
 
         var title = '<h2 align="center">Comprehension Quiz</h2>';
         var info = '<div id="comprehension" class="form-horizontal">' + 
-                   'Please answer the following questions before starting the task. ' +
-                   'These are necessary for ensuring that you read and understood the instructions.<br><br>' +
-                   '<ol>' + 
+                   '<p>Please answer the following questions before starting the task. ' +
+                   'These are necessary for ensuring that you read and understood the instructions.<br><br></p>' +
+                   '<div class="scroll_text">' +
+                   '<ol id="quiz-text">' + 
                         '<li>Each door has a fixed but different probability of hiding a coin. ' +
                             'Some doors are more likely to hide a coin than the others.<br>' +
                             '<select id="comp_q1" class="form-control">' +
@@ -562,9 +563,17 @@ $(document).ready(function () {
                                 '<option value="false">False</option>' +
                             '</select>' +
                         '</li>' +
-                   '</ol>' + '</div>';
+                   '</ol>' + '</div>' + '</div>';
         $('#Title').html(title);
         $('#TextBoxDiv').html(info);
+
+        $('.scroll_text').css({
+            'height': thisHeight * 12 / 20,
+            'width': dispWidth,
+            'overflow': 'auto'});
+        $('#quiz-text').css({ // styling the scrolled text (text only)
+            'width': dispWidth * 9 / 10
+        });
 
         var buttons = '<div align="center">' + 
                       '<input align="center" type="button" class="btn btn-default" id="Check" value="Check answers">' + 
@@ -993,7 +1002,7 @@ $(document).ready(function () {
             'overflow': 'auto'
         });
         $('#form-text').css({ // styling the scrolled text (text only)
-            'width': dispWidth * 5 / 6
+            'width': dispWidth * 9 / 10
         });
 
         var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
