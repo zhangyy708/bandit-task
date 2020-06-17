@@ -11,18 +11,6 @@ $(document).ready(function () {
     
     var numPages = 4; // number of pages of instructions
 
-    // var teacher = { // numArms + teacherPerform (see matlab file experiment_added.m)
-    //     "2Low" : [1, 1, 2, 1, 2, 2, 1, 2, 2, 1, 1, 2, 1, 1, 1],
-    //     "4Low" : [3, 2, 3, 3, 1, 2, 4, 2, 4, 1, 3, 3, 4, 2, 1],
-    //     "8Low" : [6, 4, 8, 7, 8, 7, 3, 4, 3, 5, 6, 6, 1, 1, 7],
-    //     "2Mid" : [2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 1, 2, 1, 2],
-    //     "4Mid" : [3, 1, 3, 3, 3, 2, 3, 3, 3, 4, 4, 4, 4, 4, 4],
-    //     "8Mid" : [4, 5, 4, 5, 5, 5, 8, 5, 8, 4, 4, 4, 4, 4, 5],
-    //     "2High": [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-    //     "4High": [2, 2, 2, 4, 3, 1, 4, 4, 4, 4, 3, 4, 4, 4, 4],
-    //     "8High": [5, 4, 4, 4, 4, 4, 4, 7, 7, 7, 7, 7, 7, 7, 7]
-    // };
-
     var teacher = { // numArms + teacherPerform (see matlab file experiment_modified.m)
         "2Low" : [2, 2, 1, 2, 1, 2, 1, 1, 2, 1, 1, 2, 2, 1, 2],
         "4Low" : [3, 1, 3, 1, 4, 1, 3, 1, 1, 2, 1, 3, 1, 3, 1],
@@ -50,21 +38,6 @@ $(document).ready(function () {
         "4High": "Fisher",
         "8High": "Bennett"
     };
-
-    // var ps = { // generated from Beta(2, 2) (see matlab file experiment_added.m)
-    //     "2No"  : [0.6587, 0.0749],
-    //     "4No"  : [0.2921, 0.6607, 0.5861, 0.6737],
-    //     "8No"  : [0.3653, 0.5430, 0.6756, 0.6901, 0.3553, 0.4551, 0.4378, 0.5093],
-    //     "2Low" : [0.7091, 0.5989],
-    //     "4Low" : [0.7595, 0.3684, 0.1898, 0.6393],
-    //     "8Low" : [0.3663, 0.7822, 0.3878, 0.3492, 0.8031, 0.2143, 0.2514, 0.1146],
-    //     "2Mid" : [0.4356, 0.6446],
-    //     "4Mid" : [0.6042, 0.1958, 0.4415, 0.8789],
-    //     "8Mid" : [0.9619, 0.4056, 0.8665, 0.8836, 0.4739, 0.8596, 0.8702, 0.7446],
-    //     "2High": [0.3651, 0.6211],
-    //     "4High": [0.2052, 0.2406, 0.4109, 0.2506],
-    //     "8High": [0.4613, 0.4383, 0.5122, 0.7120, 0.6893, 0.7409, 0.7462, 0.4496]
-    // };
 
     var ps = { // generated from Beta(2, 2) (see matlab file experiment_modified.m)
         "2No"  : [0.6587, 0.0749],
@@ -182,11 +155,11 @@ $(document).ready(function () {
     }
     var dispWidth = thisHeight * 5 / 6;
     var dispHeight = dispWidth / 2;
-    $('#Main').css('min-height', thisHeight);
-    $('#Main').css('width', thisWidth);
-
-    var spacing = '<br><br>'; // in trials, the spacing between title and images
-
+    $('#Main').css({
+        'height': thisHeight,
+        'width': thisWidth
+    });
+    
     // checking pc or phone/pad
     if (isMobile() || isMobileOrTablet()) { // not working in pad?
         alert('Unfortunately, you need to be on a desktop or laptop computer in order to take part in this experiment.');
@@ -199,6 +172,7 @@ $(document).ready(function () {
         // (always choosing the option with the highest reward rate)
 
         information(); // start the entire experiment
+        // ipcheck();
     };
 
 
@@ -210,12 +184,12 @@ $(document).ready(function () {
         $('#Bottom').css({
             'height': thisHeight / 20,
             'width': thisWidth,
-            'position': 'absolute',
+            // 'position': 'absolute',
             'bottom': document.body.clientHeight - thisHeight + thisHeight /20
         });
 
         createDiv('Stage', 'TextBoxDiv0');
-        $('#TextBoxDiv0').css('font-size', '16px');
+        $('#TextBoxDiv0').css('font-size', thisWidth / 60 + 'px');
         $('#TextBoxDiv0').css('padding-top', '30%');
 
         if (numGames > 1) { // except the first trial
@@ -256,8 +230,8 @@ $(document).ready(function () {
             isTeacherDisplay = names[conditions[numGames - 1]];
             
             var title = '<div id="Title"><h2 align="center">' + 'Game No. <b>' + numGames + '</b>' + 
-                        ' of ' + conditions.length + '<br>' +
-                        'Number of doors: <b>' + numArms + '</b><br>' +
+                        ' of ' + conditions.length + '<br><br>' +
+                        'Number of slot machines: <b>' + numArms + '</b><br>' +
                         'Demonstrator: <b>' + isTeacherDisplay + '</b><br><br>' +
                         'You have collected <b>' + sumReward + '</b> coins (' + 
                         sumReward + ' cents) in this study so far!' +
@@ -295,21 +269,21 @@ $(document).ready(function () {
         });
     };
 
-    // information page ------------------------------------------------------------------------------------------------------
+    // information page -----------------------------------------------------------------------------------------------------
     function information() {
         $('#Top').css('height', thisHeight / 20);
         $('#Stage').css('width', dispWidth);
-        $('#Stage').css('min-height', thisHeight * 17 / 20);
+        $('#Stage').css('height', thisHeight * 17 / 20);
         $('#Bottom').css({
             'height': thisHeight / 20,
             'width': thisWidth,
-            'position': 'absolute',
+            // 'position': 'absolute',
             'bottom': document.body.clientHeight - thisHeight + thisHeight /20
         });
         createDiv('Stage', 'Title');
         createDiv('Stage', 'TextBoxDiv');
 
-        $('#TextBoxDiv').css('font-size', '16px');
+        $('#TextBoxDiv').css('font-size', thisWidth / 60 + 'px');
         $('#TextBoxDiv').css('padding-top', '5%');
 
         var title = '<h2 align="center">Information for Participants</h2>'; 
@@ -373,7 +347,7 @@ $(document).ready(function () {
                                 'For Mac, press Ctrl + Cmd + F">' + 
                                 '<b>full-screen</b></abbr>' + ' mode.</li>' +
                             '<li>You <b>can not</b> use a mobile phone or tablet.</li>' + 
-                            '<li>You <b>can only</b> participate if you use Google Chrome, Firefox, or Safari.</li>' +
+                            '<li>You <b>can only</b> participate if you use Google Chrome.</li>' +
                             '<li>You can <abbr title="For Windows, press F5 (or Fn + F5)\n' + 
                                 'For Mac, press Cmd + R">' + 
                                 'refresh</abbr> this page if you switch on the full-screen mode. ' + 
@@ -410,6 +384,12 @@ $(document).ready(function () {
             $('#Bottom').html(buttons2);
 
             $('#startExp').click(function () {
+                // if (!isFullScreen()) {
+                //     alert('Please use the full-screen mode if possible.\n' + 
+                //           'For Windows, press F11 (or Fn + F11).\n' + 
+                //           'For Mac, press Ctrl + Cmd + F');
+                // };
+
                 $('#Title').remove();
                 $('#TextBoxDiv').remove();
                 $('#Stage').empty();
@@ -420,23 +400,23 @@ $(document).ready(function () {
         });        
     };
 
-    // instructions ----------------------------------------------------------------------------------------------------------
+    // instructions ---------------------------------------------------------------------------------------------------------
     function instructions(pageNum) {
         $('#Top').css('height', thisHeight / 20);
         $('#Stage').css('width', dispWidth);
-        // $('#Stage').css('min-height', thisHeight * 7 / 20);
-        $('#Bottom').css({
-            'height': thisHeight / 20,
-            'width': thisWidth,
-            'position': 'absolute',
-            'bottom': document.body.clientHeight - thisHeight + thisHeight /20
-        });
+        // $('#Stage').css('height', thisHeight * 17 / 20);
+        // $('#Bottom').css({
+        //     'height': thisHeight / 20,
+        //     'width': thisWidth,
+        //     // 'position': 'absolute',
+        //     'bottom': document.body.clientHeight - thisHeight + thisHeight /20
+        // });
         var picHeight = dispWidth / 2;
         createDiv('Stage', 'Title');
         createDiv('Stage', 'TextBoxDiv');
 
-        $('#TextBoxDiv').css('font-size', '16px');
-        $('#TextBoxDiv').css('padding-top', '5%');
+        // $('#TextBoxDiv').css('font-size', thisWidth / 60 + 'px');
+        // $('#TextBoxDiv').css('padding-top', '5%');
 
 
         var title = '<h2 align="center">Instructions</h2>';
@@ -495,7 +475,7 @@ $(document).ready(function () {
                 break;
             case 4:
                 var info1 = '';
-                var info2 = '<p>You will play two practice games before the comprehension quiz. ' + 
+                var info2 = '<br><br><br><p>You will play two practice games before the comprehension quiz. ' + 
                     'You have 5 shots in each practice game, ' + 
                     'and you can see the probability of each slot machine generating a coin.</p>' + 
                     '<p>(Remember that in the experiment session, games are longer and ' + 
@@ -506,13 +486,13 @@ $(document).ready(function () {
                 break;
             case 5:
                 var info1 = '';
-                var info2 = '<p>You\'ve completed the first practice game!</p>' +
+                var info2 = '<br><br><br><p>You\'ve completed the first practice game!</p>' +
                     '<p>Click "Continue" to start the second practice game. This time, there will be a demonstrator.</p>';
                 var thisImage = '';
                 break;
             case 6:
                 var info1 = '';
-                var info2 = '<p>You\'ve completed the second practice game!</p>' +
+                var info2 = '<br><br><br><p>You\'ve completed the second practice game!</p>' +
                     '<p>Click "Continue" to start the comprehension quiz. ' + 
                     'Or you can click "Back" to read the instructions again.</p>';
                 var thisImage = '';
@@ -522,6 +502,11 @@ $(document).ready(function () {
         $('#Title').html(title);
         $('#TextBoxDiv').html('<div>' + info1 + 
                                 '<div id="inst-text" class="scroll_text">' + info2 + thisImage + '</div>' + '</div>');
+
+        $('#TextBoxDiv').css({
+            'font-size': thisWidth / 60 + 'px',
+            'padding-top': '5%'
+        });
 
         $('.scroll_text').css({
             'height': thisHeight * 12 / 20,
@@ -542,6 +527,11 @@ $(document).ready(function () {
                 'value="Continue" disabled>' + 
             '</div>';
         $('#Bottom').html(buttons);
+        $('#Bottom').css({
+            'height': thisHeight / 20,
+            'width': thisWidth,
+            'bottom': document.body.clientHeight - thisHeight + thisHeight /20
+        });
 
         if (pageNum === 1 || pageNum === numPages + 1) {
             $('#Back').hide();
@@ -554,13 +544,13 @@ $(document).ready(function () {
         };
 
         $('#inst-text').scroll(function() {
-            if ($(this)[0].scrollHeight - $(this).scrollTop() <= $(this).outerHeight()) {
+            if ($(this)[0].scrollHeight - $(this).scrollTop() - $(this).outerHeight() < 5) {
                    $('#Next').prop('disabled', false);
                    $('#Start').prop('disabled', false);
             };
         });
 
-        if ($('#inst-text')[0].scrollHeight - $('#inst-text').scrollTop() <= $('#inst-text').outerHeight()) {
+        if ($('#inst-text')[0].scrollHeight - $('#inst-text').scrollTop() - $('#inst-text').outerHeight() < 5) {
             $('#Next').prop('disabled', false);
             $('#Start').prop('disabled', false);
         };
@@ -608,7 +598,7 @@ $(document).ready(function () {
         });
     };
 
-    // practice --------------------------------------------------------------------------------------------------------------
+    // practice -------------------------------------------------------------------------------------------------------------
     function practice(numArmsTemp, isTeacherTemp) {
         $('#Top').css('height', thisHeight / 20);
         $('#Stage').css('width', dispWidth);
@@ -616,12 +606,12 @@ $(document).ready(function () {
         $('#Bottom').css({
             'height': thisHeight / 20,
             'width': thisWidth,
-            'position': 'absolute',
+            // 'position': 'absolute',
             'bottom': document.body.clientHeight - thisHeight + thisHeight /20
         });
 
         createDiv('Stage', 'TextBoxDiv0');
-        $('#TextBoxDiv0').css('font-size', '16px');
+        $('#TextBoxDiv0').css('font-size', thisWidth / 60 + 'px');
         $('#TextBoxDiv0').css('padding-top', '30%');
 
         numArms = numArmsTemp;
@@ -667,8 +657,8 @@ $(document).ready(function () {
             isTeacherDisplay = "None";
         };
 
-        var title = '<div id="Title"><h2 align="center">' + 'Practice Game<br>' +
-                    'Number of doors: <b>' + numArms + '</b><br>' +
+        var title = '<div id="Title"><h2 align="center">' + 'Practice Game<br><br>' +
+                    'Number of slot machines: <b>' + numArms + '</b><br>' +
                     'Demonstrator: <b>' + isTeacherDisplay + '</b>' + '</h2><div>';
         var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
                         ' id="toTrial" value="Start!"></div>';
@@ -682,23 +672,23 @@ $(document).ready(function () {
             $('#Bottom').empty();
             options(1);
         });
-    }
+    };
 
-    // comprehension checking ------------------------------------------------------------------------------------------------
+    // comprehension checking -----------------------------------------------------------------------------------------------
     function comprehension() {
         $('#Top').css('height', thisHeight / 20);
         $('#Stage').css('width', dispWidth);
-        $('#Stage').css('min-height', thisHeight * 7 / 20);
+        $('#Stage').css('height', thisHeight * 17 / 20);
         $('#Bottom').css({
             'height': thisHeight / 20,
             'width': thisWidth,
-            'position': 'absolute',
+            // 'position': 'absolute',
             'bottom': document.body.clientHeight - thisHeight + thisHeight /20
         });
         createDiv('Stage', 'Title');
         createDiv('Stage', 'TextBoxDiv');
 
-        $('#TextBoxDiv').css('font-size', '16px');
+        $('#TextBoxDiv').css('font-size', thisWidth / 60 + 'px');
         $('#TextBoxDiv').css('padding-top', '5%');
 
         // correct answers for the comprehension quiz
@@ -804,9 +794,8 @@ $(document).ready(function () {
             };
         });
     }; 
-
-    // options ---------------------------------------------------------------------------------------------------------------    
-    function options_disabled(trialNum) {
+    // options --------------------------------------------------------------------------------------------------------------
+    function options(trialNum) {
         if (trialNum > numTrials) {
             $('#TextBoxDiv').remove();
             $('#Stage').empty();
@@ -815,7 +804,14 @@ $(document).ready(function () {
             $('#Title').empty();
             $('#Middle').empty();
             numGames++;
-            control();
+
+            if (isPractice === 1) {
+                instructions(numPages + 1);
+            } else if (isPractice === 2) {
+                instructions(numPages + 2);
+            } else {
+                control();
+            };
 
         } else {
             $('#Top').css({
@@ -826,174 +822,174 @@ $(document).ready(function () {
                 'height': thisHeight * 17 / 20,
                 'width': dispWidth
             });
-            $('#Bottom').css('min-height', thisHeight / 20);
+            $('#Bottom').css({
+                'height': thisHeight / 20,
+                'width': thisWidth,
+                // 'position': 'absolute',
+                'bottom': document.body.clientHeight - thisHeight + thisHeight /20
+            });
 
             createDiv('Stage', 'TextBoxDiv');
             $('#TextBoxDiv').css('margin-top', '10%');
 
-            createDiv('Stage', 'MessageBox');
-            $('#MessageBox').css({
-                'position': 'absolute',
-                'left': '10%',
-                'width': '80%'
-            });
-
-
-            var infoTrial1 = '<div id="info1" align="left">Coins already collected in the current game: ' + tempReward + '<br>' +
-                'Coins collected in previous games in total: ' + sumReward + '</div>';
-            var infoTrial2 = '<div id="info2" align="right">Trial ' + trialNum + ' of ' + numTrials + '<br>' +
-                'Game ' + numGames + ' of ' + conditions.length + '</div>';
+            if (isPractice === 0) {
+                var infoTrial1 = '<div id="info1" align="left">Coins already collected in the current game: ' + 
+                        tempReward + '<br>' +
+                        'Coins collected in previous games in total: ' + sumReward + '</div>';
+                var infoTrial2 = '<div id="info2" align="right">Trial ' + trialNum + ' of ' + numTrials + '<br>' +
+                        'Game ' + numGames + ' of ' + conditions.length + '</div>';
+            } else {
+                var infoTrial1 = '<div id="info1" align="left">Coins already collected in the current game: ' + 
+                        tempReward + '</div>';
+                var infoTrial2 = '<div id="info2" align="right">Trial ' + trialNum + ' of ' + numTrials + '<br>' +
+                        'Practice Game ' + isPractice + '</div>';
+            };
             
             $('#Top').html(infoTrial1 + infoTrial2);
             $('#info1').css({
                 'position': 'absolute',
                 'top': '0px',
-                'left': (document.body.clientWidth - $('#Main').width()) / 2 + 10
+                'left': (document.body.clientWidth - thisWidth) / 2 + 10
             });
             $('#info2').css({
                 'position': 'absolute',
                 'top': '0px',
-                'right': (document.body.clientWidth - $('#Main').width()) / 2 + 10
+                'right': (document.body.clientWidth - thisWidth) / 2 + 10
             });
-            $('#Top').css('font-size', '20px');
+            $('#Top').css('font-size', thisWidth / 45 + 'px');
 
-            var title = '<div id="Title"><h2 align="center">Choose a door:' + spacing + '</h2></div>';
+            var title = '<div id="Title"><h2 align="center">Make a choice:</h2></div>';
+            $('#Stage').append(title);
+            $('#Title').css({
+                'position': 'absolute',
+                'left': '10%',
+                'top': '15%',
+                'width': '80%',
+                'font-size': thisWidth / 36 + 'px'
+            });
 
-            var door = new Array();
-            for (let i = 1; i <= numArms; i++) {
-                door[i - 1] = '<img id="Door' + i + '" src="static/images/door.png">';
-            }
+            var machines = '';
+            for (let i = 1; i <= numArms; i++) { // roll-able slot machines
+                if (isPractice === 1) {
+                    slotNum = 100 + i;
+                    var slotInfo = '<p id="slot_info' + i + '" align="center">No. ' +
+                                   (Array(3).join("0") + slotNum).slice(-3) + '<br>p = ' + p[i-1] + '</p>';
+                };
+                if (isPractice === 2) {
+                    slotNum = 200 + i;
+                    var slotInfo = '<p id="slot_info' + i + '" align="center">No. ' +
+                                   (Array(3).join("0") + slotNum).slice(-3) + '<br>p = ' + p[i-1] + '</p>';
+                };
+                if (isPractice === 0) {
+                    slotNum = slotSum + i;
+                    var slotInfo = '<p id="slot_info' + i + '" align="center">No. ' +
+                                   (Array(3).join("0") + slotNum).slice(-3) + '</p>';
+                };
+                machines = machines + '<div class="container" id="randomize' + i + '">' +
+                '<div class="row">' +
+                    '<div class="col-xs-12">' +  
+                    '<div><img src="static/images/slot_background_onclick.png" id="slot_background_white' + i + '"></div>' + 
+                        '<div class="row">' +                 
+                            '<div class="col-xs-4">' +
+                                '<div>' +
+                                '<div id="machine1' + i + '" class="randomizeMachine">' +
+                                '<div><img src="static/images/icon0.png" width="100%" /></div>' +
+                                '<div><img src="static/images/icon1.png" width="100%" /></div>' +
+                                '<div><img src="static/images/icon2.png" width="100%" /></div>' +
+                                '<div><img src="static/images/icon3.png" width="100%" /></div>' +
+                                '<div><img src="static/images/icon4.png" width="100%" /></div>' +
+                                '<div><img src="static/images/icon5.png" width="100%" /></div>' +
+                                '</div>' +
+                                '</div>' +
+                            '</div>' +
+                            '<div class="col-xs-4">' +
+                                '<div>' +
+                                '<div id="machine2' + i + '" class="randomizeMachine">' +
+                                '<div><img src="static/images/icon0.png" width="100%" /></div>' +
+                                '<div><img src="static/images/icon1.png" width="100%" /></div>' +
+                                '<div><img src="static/images/icon2.png" width="100%" /></div>' +
+                                '<div><img src="static/images/icon3.png" width="100%" /></div>' +
+                                '<div><img src="static/images/icon4.png" width="100%" /></div>' +
+                                '<div><img src="static/images/icon5.png" width="100%" /></div>' +
+                                '</div>' +
+                                '</div>' +
+                            '</div>' +
+                            '<div class="col-xs-4">' +
+                                '<div>' +
+                                '<div id="machine3' + i + '" class="randomizeMachine">' +
+                                '<div><img src="static/images/icon0.png" width="100%" /></div>' +
+                                '<div><img src="static/images/icon1.png" width="100%" /></div>' +
+                                '<div><img src="static/images/icon2.png" width="100%" /></div>' +
+                                '<div><img src="static/images/icon3.png" width="100%" /></div>' +
+                                '<div><img src="static/images/icon4.png" width="100%" /></div>' +
+                                '<div><img src="static/images/icon5.png" width="100%" /></div>' +
+                                '</div>' +
+                                '</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div>' + 
+                            '<img src="static/images/slot_background_preclick.png" id="slot_background' + i + '">' + 
+                            slotInfo + '</div>' + 
+                        // '<div id="slot_info' + i + '" style="font-size:20px" align="center"><p>' + 
+                        //     'No. 1<br>p = ' + p[i-1] + '</p></div>' + 
+                    '</div>' +
+                '</div>' +
+                '</div>';
+            };
+            
+            $('#TextBoxDiv').html(machines);
 
-            $('#MessageBox').html(title);
-            switch (numArms) {
-                case 2:
-                    //  | screen | Stage(left) - a - | Door1 - b - | background - x - | ...
-                    var leftMar = (document.body.clientWidth - $('#Main').width()) / 2;
-                    var a = $('#Main').width() / 4;
-                    var b = $('#Main').width() / 9;
-                    var h = [$('#Main').height() * 0.45];
-                    $('#TextBoxDiv').html(door[0] + door[1]);
-                    $('#Door1').css({
-                        'position': 'absolute',
-                        'left': leftMar + a,
-                        'top': h[0],
-                        'width': b,
-                        'cursor': 'pointer'
-                    });
-                    $('#Door2').css({
-                        'position': 'absolute',
-                        'right': leftMar + a,
-                        'top': h[0],
-                        'width': b,
-                        'cursor': 'pointer'
-                    });
-                    break;
+            for (let i = 1; i <= numArms; i++) { // css styles of slot machines
+                $('#slot_background' + i).css({ // position of one slot machine
+                    'position': 'absolute', 
+                    'left': posLeft[i - 1],
+                    'top': posTop[i - 1],
+                    'width': b,
+                    'height': hm,
+                    'cursor': 'pointer'
+                });
 
-                case 4:
-                    //  | screen | Stage(left) - a - | Door1 - b - | background - x - | ...
-                    var leftMar = (document.body.clientWidth - $('#Main').width()) / 2;
-                    var a = $('#Main').width() / 6;
-                    var b = $('#Main').width() / 9;
-                    var x = ($('#Main').width() - 2 * a - 4 * b) / 3;
-                    var h = [$('#Main').height() * 0.45];
-                    $('#TextBoxDiv').html(door[0] + door[1] + door[2] + door[3]);
-                    $('#Door1').css({
-                        'position': 'absolute',
-                        'left': leftMar + a,
-                        'top': h[0],
-                        'width': b,
-                        'cursor': 'pointer'
-                    });
-                    $('#Door2').css({
-                        'position': 'absolute',
-                        'left': leftMar + a + b + x,
-                        'top': h[0],
-                        'width': b,
-                        'cursor': 'pointer'
-                    });
-                    $('#Door3').css({
-                        'position': 'absolute',
-                        'right': leftMar + a + b + x,
-                        'top': h[0],
-                        'width': b,
-                        'cursor': 'pointer'
-                    });
-                    $('#Door4').css({
-                        'position': 'absolute',
-                        'right': leftMar + a,
-                        'top': h[0],
-                        'width': b,
-                        'cursor': 'pointer'
-                    });
+                $('#slot_background_white' + i).css({ // white layer (bottom layer)
+                    'position': 'absolute', 
+                    'left': posLeft[i - 1],
+                    'top': posTop[i - 1],
+                    'width': b,
+                    'height': hm
+                });
 
-                    break;
+                $('#slot_info' + i).css({ // text (information) under slot machines
+                    'position': 'absolute',
+                    'left': posLeft[i - 1] + b * 0.12,
+                    'top': posTop[i - 1] + hm * 1.05,
+                    'font-size': thisWidth / 45 + 'px',
+                    'line-height':'120%'
+                });
 
-                case 8:
-                    //  | screen | Stage(left) - a - | Door1 - b - | background - x - | ...
-                    var leftMar = (document.body.clientWidth - $('#Main').width()) / 2;
-                    var a = $('#Main').width() / 6;
-                    var b = $('#Main').width() / 9;
-                    var x = ($('#Main').width() - 2 * a - 4 * b) / 3;
-                    var h = [$('#Main').height() * 0.35, $('#Main').height() * 0.65];
-                    $('#TextBoxDiv').html(door[0] + door[1] + door[2] + door[3] + door[4] + door[5] + door[6] + door[7]);
-                    $('#Door1').css({
-                        'position': 'absolute',
-                        'left': leftMar + a,
-                        'top': h[0],
-                        'width': b,
-                        'cursor': 'pointer'
-                    });
-                    $('#Door2').css({
-                        'position': 'absolute',
-                        'left': leftMar + a + b + x,
-                        'top': h[0],
-                        'width': b,
-                        'cursor': 'pointer'
-                    });
-                    $('#Door3').css({
-                        'position': 'absolute',
-                        'right': leftMar + a + b + x,
-                        'top': h[0],
-                        'width': b,
-                        'cursor': 'pointer'
-                    });
-                    $('#Door4').css({
-                        'position': 'absolute',
-                        'right': leftMar + a,
-                        'top': h[0],
-                        'width': b,
-                        'cursor': 'pointer'
-                    });
-                    $('#Door5').css({
-                        'position': 'absolute',
-                        'left': leftMar + a,
-                        'top': h[1],
-                        'width': b,
-                        'cursor': 'pointer'
-                    });
-                    $('#Door6').css({
-                        'position': 'absolute',
-                        'left': leftMar + a + b + x,
-                        'top': h[1],
-                        'width': b,
-                        'cursor': 'pointer'
-                    });
-                    $('#Door7').css({
-                        'position': 'absolute',
-                        'right': leftMar + a + b + x,
-                        'top': h[1],
-                        'width': b,
-                        'cursor': 'pointer'
-                    });
-                    $('#Door8').css({
-                        'position': 'absolute',
-                        'right': leftMar + a,
-                        'top': h[1],
-                        'width': b,
-                        'cursor': 'pointer'
-                    });
+                // three rollers inside the slot machine
+                $('#machine1' + i).css({
+                    'position': 'absolute',
+                    'left': posLeft[i - 1] + b * 0.13,
+                    'top': posTop[i - 1] + hm * 0.3225,
+                    'opacity': 0
+                });
+                $('#machine2' + i).css({
+                    'position': 'absolute',
+                    'left': posLeft[i - 1] + b * 0.3535,
+                    'top': posTop[i - 1] + hm * 0.3225,
+                    'opacity': 0
+                });
+                $('#machine3' + i).css({
+                    'position': 'absolute',
+                    'left': posLeft[i - 1] + b * 0.565,
+                    'top': posTop[i - 1] + hm * 0.3225,
+                    'opacity': 0
+                });
 
-                    break;
+                $('.randomizeMachine').css({ 
+                    /* icons display: randomize-col-div.width = randomizeMachine.width + 2 * col.padding-left */
+                    'width': b * 0.1775,
+                    'height': b / 3
+                });
             };
 
             if (isTeacher) {
@@ -1003,29 +999,23 @@ $(document).ready(function () {
                 $('#Point').css({
                     'position': 'absolute',
                     'left': '48%',
-                    'top': h[0] - $('#Main').height() / 12,
-                    'width': $('#Door1').width() / 2
+                    'top': h[0] - thisHeight / 12,
+                    'width': b / 2
                 });
 
                 $("#Point").animate({
-                    left: $('#Door' + whichDemo).position().left + $('#Door' + whichDemo).width() / 3,
-                    top: h[Number(whichDemo > 4.5)] + $('#Main').height() / 12
+                    left: $('#slot_background' + whichDemo).position().left + $('#slot_background' + whichDemo).width() / 3,
+                    top: h[Number(whichDemo > 4.5)] + thisHeight / 12
                 }, movePoint);
                 $('#Point').delay(stayPoint);
                 $('#Point').fadeOut(fadePoint, function () { // prevent from clicking before the end of demonstration
                     $('#Point').empty(); // clear "point" otherwise user cannot click on the position                
                     var isClick = true; // prevent from clicking too fast / too many times
                     for (let i = 1; i <= numArms; i++) {
-                        $('#Door' + i).click(function () {
+                        $('#slot_background' + i).click(function () {
                             if (isClick) {
                                 isClick = false;
-                                subChoice[numArms + teacherPerform][trialNum - 1] = i;
-                                $(this).css({
-                                    "border-color": "#CCFF33",
-                                    "border-width": "3px",
-                                    "border-style": "solid"
-                                });
-                                reward(trialNum, i);
+                                reward(trialNum, i);                                
                             };
                         });
                     };
@@ -1034,72 +1024,20 @@ $(document).ready(function () {
             } else {
                 var isClick = true; // prevent from clicking too fast / too many times
                 for (let i = 1; i <= numArms; i++) {
-                    $('#Door' + i).click(function () {
+                    $('#slot_background' + i).click(function () {
                         if (isClick) {
                             isClick = false;
-                            subChoice[numArms + "No"][trialNum - 1] = i;
-                            $(this).css({
-                                "border-color": "#CCFF33",
-                                "border-width": "3px",
-                                "border-style": "solid"
-                            });
                             reward(trialNum, i);
                         };
                     });
                 };
             };
+
         };
+
     };
 
-    // rewards ---------------------------------------------------------------------------------------------------------------
-    function reward_disabled(trialNum, choice) {
-        $('#Title').empty();
-        var thisReward = 0;
-        var randomNum = Math.random();
-
-        for (let i = 1; i <= numArms; i++) {
-            if (choice === i) {
-                if (randomNum < p[i - 1]) {
-                    thisReward = 1;
-                    subReward[numArms + teacherPerform][trialNum - 1] = 1;
-                } else {
-                    subReward[numArms + teacherPerform][trialNum - 1] = 0;
-                }
-            };
-        };
-
-        createDiv('Stage', 'TextBoxDiv2');
-
-
-        if (thisReward === 1) { // coin
-            $('#MessageBox').html('<h2 align="center" id="Message">You got a coin!!' + spacing + '</h2>');
-            $('#TextBoxDiv2').html('<img id="Reward" src="static/images/coin.png">');
-            tempReward = tempReward + 1;
-        } else { // no coin
-            $('#MessageBox').html('<h2 align="center" id="Message">You got nothing...' + spacing + '</h2>');
-            $('#TextBoxDiv2').html('<img id="Reward" src="static/images/frowny.png">');
-        };
-
-        $('#Reward').css({
-            'position': 'absolute',
-            'left': '47.5%',
-            'top': '18%',
-            'width': '5%'
-        });
-
-        setTimeout(function () {
-            $('#TextBoxDiv2').fadeOut(fadeTime);
-            $('#TextBoxDiv').fadeOut(fadeTime);
-            $('#MessageBox').fadeOut(fadeTime);
-            setTimeout(function () {
-                $('#Stage').empty();
-                $('#Bottom').empty();
-                options(trialNum + 1);
-            }, fadeTime);
-        }, stayTime);
-    };
-
-    // rewards ---------------------------------------------------------------------------------------------------------------
+    // rewards --------------------------------------------------------------------------------------------------------------
     function reward(trialNum, i) {
 
         document.getElementById('slot_background' + i).src="static/images/slot_background.png";
@@ -1213,16 +1151,16 @@ $(document).ready(function () {
 
             $('#Reward').css({
                 'position': 'absolute',
-                'left': $('#slot_background' + i).position().left + b * 0.2,
-                'top': h[Number(i > 4.5)] + $('#Main').height() * 0.025,
+                'left': $('#slot_background' + i).position().left + thisWidth / 45,
+                'top': h[Number(i > 4.5)] + thisHeight * 0.025,
                 'width': b / 2
             });
 
             $('#outcome_text').css({
                 'position': 'absolute',
-                'left': $('#slot_background' + i).position().left - b * 0.20,
-                'top': h[Number(i > 4.5)] - $('#Main').height() * 0.05,
-                'font-size': b * 0.2 + 'px'
+                'left': $('#slot_background' + i).position().left - thisWidth / 45,
+                'top': h[Number(i > 4.5)] - thisHeight * 0.05,
+                'font-size': thisWidth / 45 + 'px'
             });
 
             setTimeout(function () {
@@ -1240,15 +1178,15 @@ $(document).ready(function () {
         
     };
 
-    // ending -----------------------------------------------------------------------------------------------------------------
+    // ending ---------------------------------------------------------------------------------------------------------------
     function end() {
         $('#Top').css('height', thisHeight / 20);
         $('#Stage').css('width', dispWidth);
-        $('#Stage').css('min-height', thisHeight * 17 / 20);
+        $('#Stage').css('height', thisHeight * 17 / 20);
         $('#Bottom').css({
             'height': thisHeight / 20,
             'width': thisWidth,
-            'position': 'absolute',
+            // 'position': 'absolute',
             'bottom': document.body.clientHeight - thisHeight + thisHeight /20
         });
 
@@ -1256,7 +1194,7 @@ $(document).ready(function () {
         createDiv('Stage', 'TextBoxDiv');
 
         $('#TextBoxDiv').css({
-            'font-size': '16px',
+            'font-size': thisWidth / 60 + 'px',
             'padding-top': '5%'
         });
 
@@ -1433,16 +1371,11 @@ $(document).ready(function () {
     function FinishExp() {
         $('#Top').css('height', thisHeight / 20);
         $('#Stage').css('width', dispWidth);
-        $('#Stage').css('min-height', thisHeight * 17 / 20);
-        $('#Bottom').css({
-            'height': thisHeight / 20,
-            'position': 'absolute',
-            'width': thisWidth
-        });
+        $('#Stage').css('height', thisHeight * 17 / 20);
         createDiv('Stage', 'Title');
         createDiv('Stage', 'TextBoxDiv');
 
-        $('#TextBoxDiv').css('font-size', '16px');
+        $('#TextBoxDiv').css('font-size', thisWidth / 60 + 'px');
         $('#TextBoxDiv').css('padding-top', '20%');
         
 
@@ -1458,16 +1391,11 @@ $(document).ready(function () {
     function FinishError() {
         $('#Top').css('height', thisHeight / 20);
         $('#Stage').css('width', dispWidth);
-        $('#Stage').css('min-height', thisHeight * 17 / 20);
-        $('#Bottom').css({
-            'height': thisHeight / 20,
-            'position': 'absolute',
-            'width': thisWidth
-        });
+        $('#Stage').css('height', thisHeight * 17 / 20);
         createDiv('Stage', 'Title');
         createDiv('Stage', 'TextBoxDiv');
 
-        $('#TextBoxDiv').css('font-size', '16px');
+        $('#TextBoxDiv').css('font-size', thisWidth / 60 + 'px');
         $('#TextBoxDiv').css('padding-top', '20%');
 
         var title = '<h2 align="center">Error<br><br></h2>';
@@ -1478,263 +1406,21 @@ $(document).ready(function () {
         $('#Title').html(title);
         $('#TextBoxDiv').html(info);
     };
-
+    
+    
     // utility functions -----------------------------------------------------------------------------------------------------
-
-    // simulating a slot machine
-    function options(trialNum) {
-        if (trialNum > numTrials) {
-            $('#TextBoxDiv').remove();
-            $('#Stage').empty();
-            $('#Bottom').empty();
-            $('#Top').empty();
-            $('#Title').empty();
-            $('#Middle').empty();
-            numGames++;
-
-            if (isPractice === 1) {
-                instructions(numPages + 1);
-            } else if (isPractice === 2) {
-                instructions(numPages + 2);
-            } else {
-                control();
-            };
-
-        } else {
-            $('#Top').css({
-                'height': thisHeight / 20,
-                'width': dispWidth
-            });
-            $('#Stage').css({
-                'height': thisHeight * 17 / 20,
-                'width': dispWidth
-            });
-            $('#Bottom').css({
-                'height': thisHeight / 20,
-                'width': thisWidth,
-                'position': 'absolute',
-                'bottom': document.body.clientHeight - thisHeight + thisHeight /20
-            });
-
-            createDiv('Stage', 'TextBoxDiv');
-            $('#TextBoxDiv').css('margin-top', '10%');
-
-            if (isPractice === 0) {
-                var infoTrial1 = '<div id="info1" align="left">Coins already collected in the current game: ' + 
-                        tempReward + '<br>' +
-                        'Coins collected in previous games in total: ' + sumReward + '</div>';
-                var infoTrial2 = '<div id="info2" align="right">Trial ' + trialNum + ' of ' + numTrials + '<br>' +
-                        'Game ' + numGames + ' of ' + conditions.length + '</div>';
-            } else {
-                var infoTrial1 = '<div id="info1" align="left">Coins already collected in the current game: ' + 
-                        tempReward + '</div>';
-                var infoTrial2 = '<div id="info2" align="right">Trial ' + trialNum + ' of ' + numTrials + '<br>' +
-                        'Practice Game ' + isPractice + '</div>';
-            };
-            
-            $('#Top').html(infoTrial1 + infoTrial2);
-            $('#info1').css({
-                'position': 'absolute',
-                'top': '0px',
-                'left': (document.body.clientWidth - $('#Main').width()) / 2 + 10
-            });
-            $('#info2').css({
-                'position': 'absolute',
-                'top': '0px',
-                'right': (document.body.clientWidth - $('#Main').width()) / 2 + 10
-            });
-            $('#Top').css('font-size', b * 0.2 + 'px');
-
-            var title = '<div id="Title"><h2 align="center">Make a choice:' + spacing + '</h2></div>';
-            $('#Stage').append(title);
-            $('#Title').css({
-                'position': 'absolute',
-                'left': '10%',
-                'top': '15%',
-                'width': '80%',
-                'font-size': b * 0.25 + 'px'
-            });
-
-            var machines = '';
-            for (let i = 1; i <= numArms; i++) { // roll-able slot machines
-                if (isPractice === 1) {
-                    slotNum = 100 + i;
-                    var slotInfo = '<p id="slot_info' + i + '" align="center">No. ' +
-                                   (Array(3).join("0") + slotNum).slice(-3) + '<br>p = ' + p[i-1] + '</p>';
-                };
-                if (isPractice === 2) {
-                    slotNum = 200 + i;
-                    var slotInfo = '<p id="slot_info' + i + '" align="center">No. ' +
-                                   (Array(3).join("0") + slotNum).slice(-3) + '<br>p = ' + p[i-1] + '</p>';
-                };
-                if (isPractice === 0) {
-                    slotNum = slotSum + i;
-                    var slotInfo = '<p id="slot_info' + i + '" align="center">No. ' +
-                                   (Array(3).join("0") + slotNum).slice(-3) + '</p>';
-                };
-                machines = machines + '<div class="container" id="randomize' + i + '">' +
-                '<div class="row">' +
-                    '<div class="col-xs-12">' +  
-                    '<div><img src="static/images/slot_background_onclick.png" id="slot_background_white' + i + '"></div>' + 
-                        '<div class="row">' +                 
-                            '<div class="col-xs-4">' +
-                                '<div>' +
-                                '<div id="machine1' + i + '" class="randomizeMachine">' +
-                                '<div><img src="static/images/icon0.png" width="100%" /></div>' +
-                                '<div><img src="static/images/icon1.png" width="100%" /></div>' +
-                                '<div><img src="static/images/icon2.png" width="100%" /></div>' +
-                                '<div><img src="static/images/icon3.png" width="100%" /></div>' +
-                                '<div><img src="static/images/icon4.png" width="100%" /></div>' +
-                                '<div><img src="static/images/icon5.png" width="100%" /></div>' +
-                                '</div>' +
-                                '</div>' +
-                            '</div>' +
-                            '<div class="col-xs-4">' +
-                                '<div>' +
-                                '<div id="machine2' + i + '" class="randomizeMachine">' +
-                                '<div><img src="static/images/icon0.png" width="100%" /></div>' +
-                                '<div><img src="static/images/icon1.png" width="100%" /></div>' +
-                                '<div><img src="static/images/icon2.png" width="100%" /></div>' +
-                                '<div><img src="static/images/icon3.png" width="100%" /></div>' +
-                                '<div><img src="static/images/icon4.png" width="100%" /></div>' +
-                                '<div><img src="static/images/icon5.png" width="100%" /></div>' +
-                                '</div>' +
-                                '</div>' +
-                            '</div>' +
-                            '<div class="col-xs-4">' +
-                                '<div>' +
-                                '<div id="machine3' + i + '" class="randomizeMachine">' +
-                                '<div><img src="static/images/icon0.png" width="100%" /></div>' +
-                                '<div><img src="static/images/icon1.png" width="100%" /></div>' +
-                                '<div><img src="static/images/icon2.png" width="100%" /></div>' +
-                                '<div><img src="static/images/icon3.png" width="100%" /></div>' +
-                                '<div><img src="static/images/icon4.png" width="100%" /></div>' +
-                                '<div><img src="static/images/icon5.png" width="100%" /></div>' +
-                                '</div>' +
-                                '</div>' +
-                            '</div>' +
-                        '</div>' +
-                        '<div>' + 
-                            '<img src="static/images/slot_background_preclick.png" id="slot_background' + i + '">' + 
-                            slotInfo + '</div>' + 
-                        // '<div id="slot_info' + i + '" style="font-size:20px" align="center"><p>' + 
-                        //     'No. 1<br>p = ' + p[i-1] + '</p></div>' + 
-                    '</div>' +
-                '</div>' +
-                '</div>';
-            };
-            
-            $('#TextBoxDiv').html(machines);
-
-            for (let i = 1; i <= numArms; i++) { // css styles of slot machines
-                $('#slot_background' + i).css({ // position of one slot machine
-                    'position': 'absolute', 
-                    'left': posLeft[i - 1],
-                    'top': posTop[i - 1],
-                    'width': b,
-                    'height': hm,
-                    'cursor': 'pointer'
-                });
-
-                $('#slot_background_white' + i).css({ // white layer (bottom layer)
-                    'position': 'absolute', 
-                    'left': posLeft[i - 1],
-                    'top': posTop[i - 1],
-                    'width': b,
-                    'height': hm
-                });
-
-                $('#slot_info' + i).css({ // text (information) under slot machines
-                    'position': 'absolute',
-                    'left': posLeft[i - 1] + b * 0.12,
-                    'top': posTop[i - 1] + hm * 1.05,
-                    'font-size': b * 0.2 + 'px',
-                    'line-height':'120%'
-                });
-
-                // three rollers inside the slot machine
-                $('#machine1' + i).css({
-                    'position': 'absolute',
-                    'left': posLeft[i - 1] + b * 0.13,
-                    'top': posTop[i - 1] + hm * 0.3225,
-                    'opacity': 0
-                });
-                $('#machine2' + i).css({
-                    'position': 'absolute',
-                    'left': posLeft[i - 1] + b * 0.3535,
-                    'top': posTop[i - 1] + hm * 0.3225,
-                    'opacity': 0
-                });
-                $('#machine3' + i).css({
-                    'position': 'absolute',
-                    'left': posLeft[i - 1] + b * 0.565,
-                    'top': posTop[i - 1] + hm * 0.3225,
-                    'opacity': 0
-                });
-
-                $('.randomizeMachine').css({ 
-                    /* icons display: randomize-col-div.width = randomizeMachine.width + 2 * col.padding-left */
-                    'width': b * 0.1775,
-                    'height': b / 3
-                });
-            };
-
-            if (isTeacher) {
-                var whichDemo = t[trialNum - 1]; // which door does the teacher choose in the current trial
-
-                $('#TextBoxDiv').append('<img id="Point" src="static/images/point.png">');
-                $('#Point').css({
-                    'position': 'absolute',
-                    'left': '48%',
-                    'top': h[0] - $('#Main').height() / 12,
-                    'width': b / 2
-                });
-
-                $("#Point").animate({
-                    left: $('#slot_background' + whichDemo).position().left + $('#slot_background' + whichDemo).width() / 3,
-                    top: h[Number(whichDemo > 4.5)] + $('#Main').height() / 12
-                }, movePoint);
-                $('#Point').delay(stayPoint);
-                $('#Point').fadeOut(fadePoint, function () { // prevent from clicking before the end of demonstration
-                    $('#Point').empty(); // clear "point" otherwise user cannot click on the position                
-                    var isClick = true; // prevent from clicking too fast / too many times
-                    for (let i = 1; i <= numArms; i++) {
-                        $('#slot_background' + i).click(function () {
-                            if (isClick) {
-                                isClick = false;
-                                reward(trialNum, i);                                
-                            };
-                        });
-                    };
-                });
-
-            } else {
-                var isClick = true; // prevent from clicking too fast / too many times
-                for (let i = 1; i <= numArms; i++) {
-                    $('#slot_background' + i).click(function () {
-                        if (isClick) {
-                            isClick = false;
-                            reward(trialNum, i);
-                        };
-                    });
-                };
-            };
-
-        };
-
-    };
 
     // position alignment of alternatives
     function posAlign(thisNumArms) {
         switch (thisNumArms) { // position numbers setting
             case 2:
                 //  | screen | Stage(left) - a - | Door1 - b - | background - x - | ...
-                leftMar = (document.body.clientWidth - $('#Main').width()) / 2;
-                a = $('#Main').width() / 4;
-                b = $('#Main').width() / 9;
+                leftMar = (document.body.clientWidth - thisWidth) / 2;
+                a = thisWidth / 4;
+                b = thisWidth / 9;
                 hm = b * 1.25;
-                x = ($('#Main').width() - 2 * a - 2 * b);
-                h = [$('#Main').height() * 0.5];
+                x = (thisWidth - 2 * a - 2 * b);
+                h = [thisHeight * 0.5];
 
                 posLeft = [leftMar + a, leftMar + a + b + x];
                 posTop = [h[0], h[0]];
@@ -1742,12 +1428,12 @@ $(document).ready(function () {
 
             case 4:
                 //  | screen | Stage(left) - a - | Door1 - b - | background - x - | ...
-                leftMar = (document.body.clientWidth - $('#Main').width()) / 2;
-                a = $('#Main').width() / 6;
-                b = $('#Main').width() / 9;
+                leftMar = (document.body.clientWidth - thisWidth) / 2;
+                a = thisWidth / 6;
+                b = thisWidth / 9;
                 hm = b * 1.25;
-                x = ($('#Main').width() - 2 * a - 4 * b) / 3;
-                h = [$('#Main').height() * 0.5];
+                x = (thisWidth - 2 * a - 4 * b) / 3;
+                h = [thisHeight * 0.5];
 
                 posLeft = [leftMar + a, leftMar + a + b + x, leftMar + a + 2 * (b + x), leftMar + a + 3 * (b + x)];
                 posTop = [h[0], h[0], h[0], h[0]];
@@ -1755,44 +1441,18 @@ $(document).ready(function () {
 
             case 8:
                 //  | screen | Stage(left) - a - | Door1 - b - | background - x - | ...
-                leftMar = (document.body.clientWidth - $('#Main').width()) / 2;
-                a = $('#Main').width() / 6;
-                b = $('#Main').width() / 9;
+                leftMar = (document.body.clientWidth - thisWidth) / 2;
+                a = thisWidth / 6;
+                b = thisWidth / 9;
                 hm = b * 1.25;
-                x = ($('#Main').width() - 2 * a - 4 * b) / 3;
-                h = [$('#Main').height() * 0.35, $('#Main').height() * 0.7];
+                x = (thisWidth - 2 * a - 4 * b) / 3;
+                h = [thisHeight * 0.35, thisHeight * 0.7];
 
                 posLeft = [leftMar + a, leftMar + a + b + x, leftMar + a + 2 * (b + x), leftMar + a + 3 * (b + x),
                         leftMar + a, leftMar + a + b + x, leftMar + a + 2 * (b + x), leftMar + a + 3 * (b + x)];
                 posTop = [h[0], h[0], h[0], h[0], h[1], h[1], h[1], h[1]];
                 break;
         };
-    };
-
-    // entering full screen
-    function enterFullScreen(ele) {
-        if (ele.requestFullscreen) {
-            ele.requestFullscreen();
-        } else if (ele.mozRequestFullScreen) {
-            ele.mozRequestFullScreen();
-        } else if (ele.webkitRequestFullscreen) {
-            ele.webkitRequestFullscreen();
-        } else if (ele.msRequestFullscreen) {
-            ele.msRequestFullscreen();
-        }
-    };
-
-    // exiting full screen
-    function exitFullscreen() {
-        if(document.exitFullScreen) {
-            document.exitFullScreen();
-        } else if(document.mozCancelFullScreen) {
-            document.mozCancelFullScreen();
-        } else if(document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-        } else if(element.msExitFullscreen) {
-            element.msExitFullscreen();
-        }
     };
 
     // judging if full screen
@@ -1803,8 +1463,55 @@ $(document).ready(function () {
             document.webkitIsFullScreen ||       
             document.webkitFullScreen || 
             document.msFullScreen 
-         );
-      };
+        );
+    };
+
+    // checking whether the current ip is already in the database (participated the experiment before)
+    // copied from Tia!
+    function ipcheck () {
+        console.log('test');
+
+        jQuery.ajax({
+            url: 'static/php/check_id.php',
+            type:'POST',
+            success:function(data)
+            {
+                if (data==1)
+                {
+                    Oops();
+                } else if (data==0)
+                {
+                    information();
+                } else {
+                    alert('answer was not 1 or 0!');
+                }
+                
+            },
+            error:function()
+            {
+                alert('failed to connect to ip')
+            }
+        })
+    };
+    
+    function Oops(){
+        $('#Top').css('height', thisHeight / 20);
+        $('#Stage').css('width', dispWidth);
+        $('#Stage').css('height', thisHeight * 17 / 20);
+        createDiv('Stage', 'TextBoxDiv');
+
+        $('#TextBoxDiv').css('font-size', thisWidth / 60 + 'px');
+        $('#TextBoxDiv').css('padding-top', '20%');
+
+        var HIT = '3C8QQOM6JQSODD6QQ7XZ098QZ3NILM';
+
+        var info = '<p>Unfortunately, you cannot do this experiment because you (or someone in your household) have ' + 
+                   'participated in this experiment or a similar experiment before ' + 
+                   '(the HIT ID of the experiment is ' + HIT + ').</p>' +
+                   '<p>Please close the window. Thank you!</p>';
+        
+        $('#TextBoxDiv').html(info);
+    };
     
     // generating toke displayed to participant (stolen from tia stolen from bonan)
     function generateToken(length) {
