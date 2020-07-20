@@ -164,7 +164,7 @@ $(document).ready(function () {
     // checking pc or phone/pad
     if (isMobile() || isMobileOrTablet()) { // not working in pad?
         alert('Unfortunately, you need to be on a desktop or laptop computer in order to take part in this experiment.');
-    } else if (isEdge || isIE || isOpera || isBlink){
+    } else if (isEdge || isIE || isOpera){
         alert('Sorry, but this experiment is only supported in Chrome/Firefox/Safari.');
     } else {
         expRewardsRandom(); // calculating the expected rewards of random policy
@@ -617,7 +617,7 @@ $(document).ready(function () {
             };
             if (pageNum === numPages + 2) {
                 isPractice = 0;
-                numTrials = 15;
+                numTrials = 20;
                 comprehension();
             };
         });
@@ -628,7 +628,7 @@ $(document).ready(function () {
             $('#Bottom').empty();
 
             isPractice = 0;
-            numTrials = 15;
+            numTrials = 20;
             comprehension();
         });
     };
