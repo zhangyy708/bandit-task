@@ -1,7 +1,8 @@
 $(document).ready(function () {    
     // initialising variables ------------------------------------------------------------------------------------------------
     // adjustable
-    var numTrials = 20; // number of trials
+    var numTrialsExp = 20; // number of trials in the experiment
+    var numTrialsPrac = 5; // number of trials in the practice session
     var fadeTime = 500; // fade out time (after reward being displayed in each trial)
     var stayTime = 500; // result stay time (after reward being displayed in each trial)
     var movePoint = 500; // moving time for the point
@@ -55,6 +56,7 @@ $(document).ready(function () {
     };
 
     // system
+    var numTrials = numTrialsExp; // number of trials; defined at the top
     var isTeacher; // whether their is a demonstrator
     var teacherPerform; // which teacher
 
@@ -169,8 +171,9 @@ $(document).ready(function () {
     } else {
         expRewardsRandom(); // calculating the expected rewards of random policy
         expRewardsOpt(); // calculating the expected rewards of optimal policy 
-        expRewardsMin(); // calculating the min expected rewards  
+        expRewardsMin(); // calculating the min expected rewards
         // (always choosing the option with the highest reward rate)
+        console.log(minTime());
 
         information(); // start the entire experiment
         // isPractice = 0;
@@ -205,8 +208,8 @@ $(document).ready(function () {
                 var temp = subChoice[numArms + teacherPerform][i];
                 subChoiceReorder[numArms + teacherPerform][i] = order[temp - 1];
             };
-            console.log('actual choices = [' + String(subChoice[numArms + teacherPerform]) + ']');
-            console.log('re-ordered choices = [' + String(subChoiceReorder[numArms + teacherPerform]) + ']');
+            // console.log('actual choices = [' + String(subChoice[numArms + teacherPerform]) + ']');
+            // console.log('re-ordered choices = [' + String(subChoiceReorder[numArms + teacherPerform]) + ']');
         };
 
         if (numGames <= conditions.length) { // all games
@@ -220,21 +223,21 @@ $(document).ready(function () {
             order.sort(function () { // randomising doors' order in a game
                 return Math.random() - 0.5;
             });
-            console.log('order = [' + String(order) + ']');
+            // console.log('order = [' + String(order) + ']');
 
             for (i = 0; i < numArms; i++) {
                 p[i] = ps[conditions[numGames - 1]][order[i] - 1]; // reordering the reward rates
             };
-            console.log('actual ps = [' + String(ps[conditions[numGames - 1]]) + ']');
-            console.log('re-ordered ps = [' + String(p) + ']');
+            // console.log('actual ps = [' + String(ps[conditions[numGames - 1]]) + ']');
+            // console.log('re-ordered ps = [' + String(p) + ']');
 
             if (isTeacher) {
                 for (i = 0; i < numTrials; i++) {
                     t[i] = order.indexOf(teacher[conditions[numGames - 1]][i]) + 1; // reordering the choices of the teacher
                 };
             };
-            console.log('actual demos = [' + String(teacher[conditions[numGames - 1]]) + ']');
-            console.log('re-ordered demos = [' + String(t) + ']');
+            // console.log('actual demos = [' + String(teacher[conditions[numGames - 1]]) + ']');
+            // console.log('re-ordered demos = [' + String(t) + ']');
             isTeacherDisplay = names[conditions[numGames - 1]];
             
             if (numGames === 1) { // the first game
@@ -308,8 +311,9 @@ $(document).ready(function () {
                        'repeatedly among multiple pictures, each of which is associated with a certain probability of ' + 
                        'getting additional rewards. Your final compensation in this experiment will be dependent on your ' + 
                        'choices. After the experiment, we will ask you you to provide some basic demographics (e.g., age). ' + 
-                       'Your session should last for around 15 minutes. You will be given full instructions shortly.</p>' +
-                    '<p><b>Compensation.&nbsp;</b>You will be paid $1.00~2.30 for your participation.</p>' + 
+                       'Your session should last for around 20 minutes. You will be given full instructions shortly.</p>' +
+                    '<p><b>Compensation.&nbsp;</b>You will be paid $1.00~' + 
+                        (1 + Math.floor(expRewardsOpt()) / 100) + ' for your participation.</p>' + 
                     '<p><b>Risks and benefits.&nbsp;</b>There are no known risks to participation in this study. ' + 
                         'Other than the payment mentioned, there no tangible benefits to you, however you will be ' + 
                         'contributing to our knowledge about reasoning and information integration.</p>' +
@@ -439,7 +443,7 @@ $(document).ready(function () {
                     'Different slot machines may be more or less likely than one another to produce a coin. ' + 
                     'Your goal is to <b>collect as many coins as possible.</b> ' + 
                     'For every coin you collect in the task, you will earn additional $0.01 ' + 
-                    'meaning you can make up to $1.30 in bonus.</p>';
+                    'meaning you can make up to $' + Math.floor(expRewardsOpt()) / 100 + ' in bonus.</p>';
                 var thisImage = '<div align="center"><img class="pics" src="static/images/instruction1.png" ' + 
                     'alt="picture for instructions" height="' + picHeight + '" align="center">' + 
                     '<p><i>An example of a game in the experiment.</i></p>' + '</div>';
@@ -607,17 +611,17 @@ $(document).ready(function () {
 
             if (pageNum === numPages) {
                 isPractice = 1;
-                numTrials = 5;
+                numTrials = numTrialsPrac;
                 practice(2, false); // practice game - no demonstrator
             };
             if (pageNum === numPages + 1) {
                 isPractice = 2;
-                numTrials = 5;
+                numTrials = numTrialsExp;
                 practice(4, true); // practice game - demonstrator
             };
             if (pageNum === numPages + 2) {
                 isPractice = 0;
-                numTrials = 20;
+                numTrials = numTrialsExp;
                 comprehension();
             };
         });
@@ -628,7 +632,7 @@ $(document).ready(function () {
             $('#Bottom').empty();
 
             isPractice = 0;
-            numTrials = 20;
+            numTrials = numTrialsExp;
             comprehension();
         });
     };
@@ -1617,6 +1621,7 @@ $(document).ready(function () {
         };
 
         console.log(eval(y.join("+")));
+        return eval(y.join("+"));
         // expected rewards if all choices have the highest reward rate in the game
     };
 
@@ -1631,6 +1636,19 @@ $(document).ready(function () {
 
         console.log(eval(y.join("+")));
         // expected rewards if all choices have the lowest reward rate in the game
+    };
+
+    function minTime() {
+        var timePrac; // time of the practice session
+        var timeExp; // time of the experiment
+        var timeTask; // converted from ms to s
+
+        timePrac = numTrialsPrac * (fadeTime + stayTime + 4 * delayTime) +
+                   numTrialsPrac * (fadeTime + stayTime + 4 * delayTime + movePoint + stayPoint + fadePoint);
+        timeExp = conditions.length * numTrialsExp * (fadeTime + stayTime + 4 * delayTime) + 
+                  Object.keys(teacher).length * numTrialsExp * (movePoint + stayPoint + fadePoint);
+        timeTask = timePrac + timeExp;
+        return timeTask / 1000;
     };
 
 });
