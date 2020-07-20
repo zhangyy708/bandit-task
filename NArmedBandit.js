@@ -1,26 +1,26 @@
 $(document).ready(function () {    
     // initialising variables ------------------------------------------------------------------------------------------------
     // adjustable
-    var numTrials = 15; // number of trials
-    var fadeTime = 150; // fade out time (after reward being displayed in each trial)
-    var stayTime = 1000; // result stay time (after reward being displayed in each trial)
+    var numTrials = 20; // number of trials
+    var fadeTime = 500; // fade out time (after reward being displayed in each trial)
+    var stayTime = 500; // result stay time (after reward being displayed in each trial)
     var movePoint = 500; // moving time for the point
-    var stayPoint = 200; // point stay time
+    var stayPoint = 400; // point stay time
     var fadePoint = 100; // point fade out time
     var delayTime = 75; // slot machine run time (total = 4 * delayTime)
     
     var numPages = 4; // number of pages of instructions
 
     var teacher = { // numArms + teacherPerform (see matlab file experiment_modified.m)
-        "2Low" : [2, 2, 1, 2, 1, 2, 1, 1, 2, 1, 1, 2, 2, 1, 2],
-        "4Low" : [3, 1, 3, 1, 4, 1, 3, 1, 1, 2, 1, 3, 1, 3, 1],
-        "8Low" : [2, 3, 3, 1, 6, 2, 3, 4, 4, 6, 3, 8, 4, 5, 7],
-        "2Mid" : [1, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        "4Mid" : [1, 2, 4, 4, 1, 2, 3, 4, 1, 1, 4, 1, 1, 1, 1],
-        "8Mid" : [1, 5, 7, 3, 8, 7, 1, 3, 3, 3, 3, 3, 3, 3, 1],
-        "2High": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        "4High": [2, 4, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 1, 1],
-        "8High": [7, 7, 7, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
+        "2Low" : [2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 1, 1, 1, 2, 2, 2, 1, 1, 2],
+        "4Low" : [3, 2, 3, 3, 2, 2, 3, 2, 1, 4, 3, 1, 1, 3, 1, 2, 1, 1, 4, 3],
+        "8Low" : [6, 5, 5, 5, 6, 3, 3, 3, 3, 3, 1, 3, 3, 2, 3, 3, 5, 4, 3, 3],
+        "2Mid" : [1, 2, 1, 2, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 2],
+        "4Mid" : [3, 2, 3, 1, 1, 1, 3, 1, 1, 4, 2, 4, 1, 4, 1, 1, 1, 1, 1, 1],
+        "8Mid" : [8, 4, 3, 4, 1, 3, 3, 2, 6, 3, 3, 3, 3, 3, 8, 1, 3, 3, 3, 3],
+        "2High": [1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1],
+        "4High": [1, 1, 1, 3, 4, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1],
+        "8High": [3, 3, 3, 2, 7, 3, 7, 3, 3, 3, 3, 3, 3, 5, 3, 3, 3, 3, 3, 3]
     };
 
     // random surnames from https://en.geneanet.org/genealogy/ popularity around 1,000,000
@@ -28,15 +28,15 @@ $(document).ready(function () {
         "2No": "None",
         "4No": "None",
         "8No": "None",
-        "2Low": "Foster",
-        "4Low": "Russell",
-        "8Low": "Reed",
-        "2Mid": "Collins",
-        "4Mid": "Hughes",
-        "8Mid": "Carter",
-        "2High": "Hamilton",
-        "4High": "Fisher",
-        "8High": "Bennett"
+        "2Low": "A",
+        "4Low": "C",
+        "8Low": "F",
+        "2Mid": "H",
+        "4Mid": "B",
+        "8Mid": "E",
+        "2High": "I",
+        "4High": "D",
+        "8High": "G"
     };
 
     var ps = { // generated from Beta(2, 2) (see matlab file experiment_modified.m)
@@ -59,6 +59,7 @@ $(document).ready(function () {
     var teacherPerform; // which teacher
 
     var isPractice; // whether the current game is practice
+    var skipPractice = false; // able to skip practice session if having done it once
     var slotNum = 0; // id of each slot machine
     var slotSum = 0; // temp
 
@@ -172,7 +173,8 @@ $(document).ready(function () {
         // (always choosing the option with the highest reward rate)
 
         information(); // start the entire experiment
-        // ipcheck();
+        // isPractice = 0;
+        // control();
     };
 
 
@@ -184,7 +186,6 @@ $(document).ready(function () {
         $('#Bottom').css({
             'height': thisHeight / 20,
             'width': thisWidth,
-            // 'position': 'absolute',
             'bottom': document.body.clientHeight - thisHeight + thisHeight /20
         });
 
@@ -192,7 +193,7 @@ $(document).ready(function () {
         $('#TextBoxDiv0').css('font-size', thisWidth / 60 + 'px');
         $('#TextBoxDiv0').css('padding-top', '30%');
 
-        if (numGames > 1) { // except the first trial
+        if (numGames > 1) { // except the first game
             // rewards in each game
             trialReward[numGames - 2] = tempReward;
             sumReward = sumReward + tempReward;
@@ -204,9 +205,11 @@ $(document).ready(function () {
                 var temp = subChoice[numArms + teacherPerform][i];
                 subChoiceReorder[numArms + teacherPerform][i] = order[temp - 1];
             };
+            console.log('actual choices = [' + String(subChoice[numArms + teacherPerform]) + ']');
+            console.log('re-ordered choices = [' + String(subChoiceReorder[numArms + teacherPerform]) + ']');
         };
 
-        if (numGames <= conditions.length) { // all trials
+        if (numGames <= conditions.length) { // all games
             numArms = parseInt(conditions[numGames - 1].substring(0, 1)); // 2, 4, or 8
             posAlign(numArms);
 
@@ -217,37 +220,50 @@ $(document).ready(function () {
             order.sort(function () { // randomising doors' order in a game
                 return Math.random() - 0.5;
             });
+            console.log('order = [' + String(order) + ']');
 
             for (i = 0; i < numArms; i++) {
                 p[i] = ps[conditions[numGames - 1]][order[i] - 1]; // reordering the reward rates
             };
+            console.log('actual ps = [' + String(ps[conditions[numGames - 1]]) + ']');
+            console.log('re-ordered ps = [' + String(p) + ']');
 
             if (isTeacher) {
                 for (i = 0; i < numTrials; i++) {
                     t[i] = order.indexOf(teacher[conditions[numGames - 1]][i]) + 1; // reordering the choices of the teacher
                 };
             };
+            console.log('actual demos = [' + String(teacher[conditions[numGames - 1]]) + ']');
+            console.log('re-ordered demos = [' + String(t) + ']');
             isTeacherDisplay = names[conditions[numGames - 1]];
             
-            var title = '<div id="Title"><h2 align="center">' + 'Game No. <b>' + numGames + '</b>' + 
-                        ' of ' + conditions.length + '<br><br>' +
-                        'Number of slot machines: <b>' + numArms + '</b><br>' +
-                        'Demonstrator: <b>' + isTeacherDisplay + '</b><br><br>' +
-                        'You have collected <b>' + sumReward + '</b> coins (' + 
-                        sumReward + ' cents) in this study so far!' +
-                        '</h2><div>';
-            var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
+            if (numGames === 1) { // the first game
+                var title = '<div id="Title"><h2 align="center">' + 'Game No. <b>' + numGames + '</b>' + 
+                            ' of ' + conditions.length + '<br><br>' +
+                            'Number of slot machines: <b>' + numArms + '</b><br>' +
+                            'Demonstrator: <b>' + isTeacherDisplay + '</b>' +
+                            '</h2><div>';
+            } else {
+                var title = '<div id="Title"><h2 align="center">' + 'Game No. <b>' + numGames + '</b>' + 
+                            ' of ' + conditions.length + '<br><br>' +
+                            'Number of slot machines: <b>' + numArms + '</b><br>' +
+                            'Demonstrator: <b>' + isTeacherDisplay + '</b><br><br>' +
+                            'You have collected <b>' + sumReward + '</b> coins (' + 
+                            sumReward + ' cents) in this study so far!' +
+                            '</h2><div>';
+            };
+            var buttons = '<div align="center"><input align="center" type="button" class="btn btn-outline-dark"' +
                         ' id="toTrial" value="Start!"></div>';
         };
 
-        if (numGames > conditions.length) { // after the last trial
+        if (numGames > conditions.length) { // after the last game
             timeEnd = new Date();
             var title = '<div id="Title"><h2 align="center">' + 
                         'You have completed all the games.' + '<br><br>' +
                         'You have collected <b>' + sumReward + '</b> coins (' + 
                         sumReward + ' cents) in this study so far!' +
                         '</h2><div>';
-            var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
+            var buttons = '<div align="center"><input align="center" type="button" class="btn btn-outline-dark"' +
                         ' id="toEnd" value="Continue"></div>';
         };
 
@@ -360,17 +376,17 @@ $(document).ready(function () {
 
         $('.scroll_text').css({
             'height': thisHeight * 14 / 20,
-            'overflow': 'auto'
+            'overflow-y': 'scroll'
         });
 
-        var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
+        var buttons = '<div align="center"><input align="center" type="button" class="btn btn-outline-dark"' +
             ' id="toReminder" value="Accept HIT" disabled></div>';
-        var buttons2 = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
+        var buttons2 = '<div align="center"><input align="center" type="button" class="btn btn-outline-dark"' +
             ' id="startExp" value="Understood"></div>';
         $('#Bottom').html(buttons); // click button to proceed
 
         $('#consent-info').scroll(function() {
-            if ($(this)[0].scrollHeight - $(this).scrollTop() <= $(this).outerHeight()) {
+            if ($(this)[0].scrollHeight - $(this).scrollTop() - $(this).outerHeight() < 5) {
                    $('#toReminder').prop('disabled', false);
             };
         });
@@ -404,20 +420,9 @@ $(document).ready(function () {
     function instructions(pageNum) {
         $('#Top').css('height', thisHeight / 20);
         $('#Stage').css('width', dispWidth);
-        // $('#Stage').css('height', thisHeight * 17 / 20);
-        // $('#Bottom').css({
-        //     'height': thisHeight / 20,
-        //     'width': thisWidth,
-        //     // 'position': 'absolute',
-        //     'bottom': document.body.clientHeight - thisHeight + thisHeight /20
-        // });
         var picHeight = dispWidth / 2;
         createDiv('Stage', 'Title');
         createDiv('Stage', 'TextBoxDiv');
-
-        // $('#TextBoxDiv').css('font-size', thisWidth / 60 + 'px');
-        // $('#TextBoxDiv').css('padding-top', '5%');
-
 
         var title = '<h2 align="center">Instructions</h2>';
         switch (pageNum) {
@@ -429,8 +434,8 @@ $(document).ready(function () {
                     '(excluding the practice session). ' +
                     'In each game you will have ' + numTrials + ' shots ' + 
                     'where you select one out of the <b>2 (4 or 8 ) slot machines</b> using your mouse.</p>' + 
-                    '<p>For a given game, ' + 
-                    'each slot machine has a <b>fixed</b> chance of giving you a <b>coin</b> every time that you select it. ' + 
+                    '<p>For a given game, each slot machine has a <b>fixed</b> chance ' + 
+                    'of giving you a <b>coin</b> every time that you select it. ' + 
                     'Different slot machines may be more or less likely than one another to produce a coin. ' + 
                     'Your goal is to <b>collect as many coins as possible.</b> ' + 
                     'For every coin you collect in the task, you will earn additional $0.01 ' + 
@@ -446,13 +451,15 @@ $(document).ready(function () {
                 var info2 = '<p>In some of the games, before making your decision, you can see the choice of ' + 
                     'a <b>previous player</b> ' + 
                     '(demonstrator) who has played <b>exactly the same game</b> as you are playing. ' + 
+                    'That is, for each slot machine, the <b>chance of producing a coin</b> is the same for ' +
+                    'the demonstrator and for you. ' +
                     'The demonstrator\'s choice will be shown as a cartoon finger (see image below).</p>' + 
                     '<p>For each game you will see a <b>different demonstrator</b>, ' + 
                     'who might <b>perform well or badly.</b> ' + 
                     'However you will <b>not</b> be able to see what outcomes they get ' + 
                     'but only the choices they made. ' + 
-                    'The name of the demonstrator will be displayed before each game starts ' + 
-                    '(names have been changed to preserve anonymity).</p>';
+                    'The code of the demonstrator will be displayed before each game starts ' + 
+                    '(codes, instead of names, are used in this experiment to preserve anonymity).</p>';
                 var thisImage = '<div align="center"><img class="pics" src="static/images/instruction2.png" ' + 
                     'alt="picture for instructions" height="' + picHeight + '" align="center">' + 
                     '<p><i>The cartoon finger shows the choice made by the demonstrator.</i></p>' + '</div>';
@@ -482,6 +489,10 @@ $(document).ready(function () {
                     'the probability information will not be provided.)</p>' +
                     '<p>Click "Continue" to start the first practice game. ' +
                     'There is no demonstrator in the first practice game.</p>';
+                if (skipPractice) {
+                    info2 = info2 + '<p>You can click "Skip" to skip the practice session and ' +
+                            'continue to the comprehension quiz.</p>';
+                };
                 var thisImage = '';
                 break;
             case 5:
@@ -495,6 +506,7 @@ $(document).ready(function () {
                 var info2 = '<br><br><br><p>You\'ve completed the second practice game!</p>' +
                     '<p>Click "Continue" to start the comprehension quiz. ' + 
                     'Or you can click "Back" to read the instructions again.</p>';
+                skipPractice = true;
                 var thisImage = '';
                 break;
         };
@@ -508,12 +520,6 @@ $(document).ready(function () {
             'padding-top': '5%'
         });
 
-        $('.scroll_text').css({
-            'height': thisHeight * 12 / 20,
-            'width': dispWidth,
-            'overflow': 'auto'
-        });
-
         $('.pics').css({
             "border-color": "#000000",
             "border-width": "2px",
@@ -521,10 +527,12 @@ $(document).ready(function () {
         });
 
         var buttons = '<div align="center">' + 
-            '<input align="center" type="button" class="btn btn-default" id="Back" value="Back">' + 
-            '<input align="center" type="button" class="btn btn-default" id="Next" value="Next" disabled>' +
-            '<input align="center" type="button" class="btn btn-default" id="Start" style="color:red" ' + 
+            '<input align="center" type="button" class="btn btn-outline-dark" id="Back" value="Back">' + 
+            '<input align="center" type="button" class="btn btn-outline-dark" id="Next" value="Next" disabled>' +
+            '<input align="center" type="button" class="btn btn-outline-danger" id="Start" ' + 
                 'value="Continue" disabled>' + 
+            '<input align="center" type="button" class="btn btn-outline-danger" id="Skip" ' + 
+                'value="Skip">' + 
             '</div>';
         $('#Bottom').html(buttons);
         $('#Bottom').css({
@@ -533,16 +541,33 @@ $(document).ready(function () {
             'bottom': document.body.clientHeight - thisHeight + thisHeight /20
         });
 
+        $('#Skip').hide();
+        if (skipPractice && pageNum === numPages) {
+            $('#Skip').show();
+        };
+
         if (pageNum === 1 || pageNum === numPages + 1) {
             $('#Back').hide();
         };
         if (pageNum >= numPages) {
             $('#Next').hide();
+
+            $('.scroll_text').css({
+                'height': thisHeight * 12 / 20,
+                'width': dispWidth,
+                'overflow-y': 'auto'
+            });
         };
         if (pageNum < numPages) {
             $('#Start').hide();
-        };
 
+            $('.scroll_text').css({
+                'height': thisHeight * 12 / 20,
+                'width': dispWidth,
+                'overflow-y': 'scroll'
+            });
+        };
+    
         $('#inst-text').scroll(function() {
             if ($(this)[0].scrollHeight - $(this).scrollTop() - $(this).outerHeight() < 5) {
                    $('#Next').prop('disabled', false);
@@ -596,6 +621,16 @@ $(document).ready(function () {
                 comprehension();
             };
         });
+
+        $('#Skip').click(function() {
+            $('#TextBoxDiv').remove();
+            $('#Stage').empty();
+            $('#Bottom').empty();
+
+            isPractice = 0;
+            numTrials = 15;
+            comprehension();
+        });
     };
 
     // practice -------------------------------------------------------------------------------------------------------------
@@ -606,7 +641,6 @@ $(document).ready(function () {
         $('#Bottom').css({
             'height': thisHeight / 20,
             'width': thisWidth,
-            // 'position': 'absolute',
             'bottom': document.body.clientHeight - thisHeight + thisHeight /20
         });
 
@@ -644,13 +678,13 @@ $(document).ready(function () {
         if (isTeacher) {
             switch (numArms) {
                 case 2:
-                    isTeacherDisplay = "Turner";
+                    isTeacherDisplay = "J";
                     break;
                 case 4:
-                    isTeacherDisplay = "Ward";
+                    isTeacherDisplay = "K";
                     break;
                 case 8:
-                    isTeacherDisplay = "Bell";
+                    isTeacherDisplay = "L";
                     break;
             };
         } else {
@@ -660,7 +694,7 @@ $(document).ready(function () {
         var title = '<div id="Title"><h2 align="center">' + 'Practice Game<br><br>' +
                     'Number of slot machines: <b>' + numArms + '</b><br>' +
                     'Demonstrator: <b>' + isTeacherDisplay + '</b>' + '</h2><div>';
-        var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
+        var buttons = '<div align="center"><input align="center" type="button" class="btn btn-outline-dark"' +
                         ' id="toTrial" value="Start!"></div>';
 
         $('#TextBoxDiv0').html(title);
@@ -682,7 +716,6 @@ $(document).ready(function () {
         $('#Bottom').css({
             'height': thisHeight / 20,
             'width': thisWidth,
-            // 'position': 'absolute',
             'bottom': document.body.clientHeight - thisHeight + thisHeight /20
         });
         createDiv('Stage', 'Title');
@@ -725,7 +758,9 @@ $(document).ready(function () {
                             '</select>' +
                         '</li>' +
                         '<br>' +
-                        '<li>The demonstrators have played exactly the same game as you will be playing.<br>' +
+                        '<li>The demonstrators have played exactly the same game as you will be playing. ' + 
+                            'For each slot machine, the chance of producing a coin is the same for ' +
+                            'the demonstrator and for you.<br>' +
                             '<select id="comp_q4" class="form-control">' +
                                 '<option value="noresp" SELECTED></option>' +
                                 '<option value="true">True</option>' +
@@ -747,27 +782,28 @@ $(document).ready(function () {
         $('.scroll_text').css({
             'height': thisHeight * 12 / 20,
             'width': dispWidth,
-            'overflow': 'auto'});
+            'overflow-y': 'scroll'});
         $('#quiz-text').css({ // styling the scrolled text (text only)
             'width': dispWidth * 9 / 10
         });
 
         var buttons = '<div align="center">' + 
-                      '<input align="center" type="button" class="btn btn-default" id="Check" value="Check answers">' + 
+                      '<input align="center" type="button" class="btn btn-outline-dark" id="Check" value="Check answers">' + 
+                      '<input align="center" type="button" class="btn btn-outline-dark" id="back_to_ins" value="Back">' + 
                       '</div>';
         $('#Bottom').html(buttons);
+        $('#back_to_ins').hide();
 
         $('#Check').click(function () {
-            
-            var q1 = $('#comp_q1').val();
-            var q2 = $('#comp_q2').val();
-            var q3 = $('#comp_q3').val();
-            var q4 = $('#comp_q4').val();
-            var q5 = $('#comp_q5').val();
 
-            if (q1 == "noresp" || q2 == "noresp" || q3 == "noresp" || q4 == "noresp" || q5 == "noresp") {
+            var qs = new Array(5);
+            for (let i = 1; i <= 5; i ++) {
+                qs[i - 1] = $('#comp_q' + i).val();
+            };
+
+            if (qs.indexOf("noresp") !== -1) {
                 alert('You need to answer all questions.');
-            } else if(q1 == answers[0] && q2 == answers[1] && q3 == answers[2] && q4 == answers[3] && q5 == answers[4]) {
+            } else if (String(qs) === String(answers)) {
                 // Allow the start
                 alert('You got everything correct! Press "OK" to begin the experiment.'); 
                 $('#TextBoxDiv').remove();
@@ -779,20 +815,37 @@ $(document).ready(function () {
             } else {
                 // Throw them back to the start of the instructions
                 // Remove their answers and have them go through again
-                alert('You answered at least one question incorrectly! Please try again.');
-        
-                $('#comp_q1').prop('selectedIndex', 0);
-                $('#comp_q2').prop('selectedIndex', 0);
-                $('#comp_q3').prop('selectedIndex', 0);
-                $('#comp_q4').prop('selectedIndex', 0);
-                $('#comp_q5').prop('selectedIndex', 0);
+                var wrongs = new Array();
+                var j = 0;
+                for (let i = 1; i <= 5; i ++) {
+                    if (qs[i - 1] !== answers[i - 1]) {
+                        wrongs[j] = i;
+                        j ++;
+                    };
+                };
 
-                $('#TextBoxDiv').remove();
-                $('#Stage').empty();
-                $('#Bottom').empty();
-                instructions(1);
+                alert('You answered at least one question (No. ' + wrongs.join(', ') +
+                      ') incorrectly! Please try again.');
+                
+                $('#Check').hide();
+                $('#back_to_ins').show();
             };
         });
+
+        $('#back_to_ins').click(function() {  
+            skipPractice = true;         
+        
+            $('#comp_q1').prop('selectedIndex', 0);
+            $('#comp_q2').prop('selectedIndex', 0);
+            $('#comp_q3').prop('selectedIndex', 0);
+            $('#comp_q4').prop('selectedIndex', 0);
+            $('#comp_q5').prop('selectedIndex', 0);
+
+            $('#TextBoxDiv').remove();
+            $('#Stage').empty();
+            $('#Bottom').empty();
+            instructions(1);
+        })
     }; 
     // options --------------------------------------------------------------------------------------------------------------
     function options(trialNum) {
@@ -825,7 +878,6 @@ $(document).ready(function () {
             $('#Bottom').css({
                 'height': thisHeight / 20,
                 'width': thisWidth,
-                // 'position': 'absolute',
                 'bottom': document.body.clientHeight - thisHeight + thisHeight /20
             });
 
@@ -833,14 +885,22 @@ $(document).ready(function () {
             $('#TextBoxDiv').css('margin-top', '10%');
 
             if (isPractice === 0) {
-                var infoTrial1 = '<div id="info1" align="left">Coins already collected in the current game: ' + 
-                        tempReward + '<br>' +
-                        'Coins collected in previous games in total: ' + sumReward + '</div>';
+                // var infoTrial1 = '<div id="info1" align="left">Coins already collected in the current game: ' + 
+                //         tempReward + '<br>' +
+                //         'Coins collected in previous games in total: ' + sumReward + '</div>';
+                var infoTrial1 = '<div id="info1" align="left">' + 
+                        'Coins collected in the current game / in total: ' + 
+                        tempReward + ' / ' + (tempReward + sumReward) + '<br>' + 
+                        'Demonstrator : ' + isTeacherDisplay + '</div>';
                 var infoTrial2 = '<div id="info2" align="right">Trial ' + trialNum + ' of ' + numTrials + '<br>' +
                         'Game ' + numGames + ' of ' + conditions.length + '</div>';
             } else {
-                var infoTrial1 = '<div id="info1" align="left">Coins already collected in the current game: ' + 
-                        tempReward + '</div>';
+                // var infoTrial1 = '<div id="info1" align="left">Coins already collected in the current game: ' + 
+                //         tempReward + '</div>';
+                var infoTrial1 = '<div id="info1" align="left">' + 
+                        'Coins collected in the current game: ' + 
+                        tempReward + '<br>' + 
+                        'Demonstrator : ' + isTeacherDisplay + '</div>';
                 var infoTrial2 = '<div id="info2" align="right">Trial ' + trialNum + ' of ' + numTrials + '<br>' +
                         'Practice Game ' + isPractice + '</div>';
             };
@@ -872,13 +932,17 @@ $(document).ready(function () {
             for (let i = 1; i <= numArms; i++) { // roll-able slot machines
                 if (isPractice === 1) {
                     slotNum = 100 + i;
-                    var slotInfo = '<p id="slot_info' + i + '" align="center">No. ' +
-                                   (Array(3).join("0") + slotNum).slice(-3) + '<br>p = ' + p[i-1] + '</p>';
+                    var slotInfo = '<p id="slot_info' + i + '" align="center">' + 
+                                   'No. ' + (Array(3).join("0") + slotNum).slice(-3) + '<br><br>' + 
+                                   p[i-1] * 100 + '% chance' + '<br>' +
+                                   'of a coin' + '</p>';
                 };
                 if (isPractice === 2) {
                     slotNum = 200 + i;
-                    var slotInfo = '<p id="slot_info' + i + '" align="center">No. ' +
-                                   (Array(3).join("0") + slotNum).slice(-3) + '<br>p = ' + p[i-1] + '</p>';
+                    var slotInfo = '<p id="slot_info' + i + '" align="center">' + 
+                                   'No. ' + (Array(3).join("0") + slotNum).slice(-3) + '<br><br>' + 
+                                   p[i-1] * 100 + '% chance' + '<br>' +
+                                   'of a coin' + '</p>';
                 };
                 if (isPractice === 0) {
                     slotNum = slotSum + i;
@@ -930,8 +994,6 @@ $(document).ready(function () {
                         '<div>' + 
                             '<img src="static/images/slot_background_preclick.png" id="slot_background' + i + '">' + 
                             slotInfo + '</div>' + 
-                        // '<div id="slot_info' + i + '" style="font-size:20px" align="center"><p>' + 
-                        //     'No. 1<br>p = ' + p[i-1] + '</p></div>' + 
                     '</div>' +
                 '</div>' +
                 '</div>';
@@ -957,13 +1019,23 @@ $(document).ready(function () {
                     'height': hm
                 });
 
-                $('#slot_info' + i).css({ // text (information) under slot machines
-                    'position': 'absolute',
-                    'left': posLeft[i - 1] + b * 0.12,
-                    'top': posTop[i - 1] + hm * 1.05,
-                    'font-size': thisWidth / 45 + 'px',
-                    'line-height':'120%'
-                });
+                if (isPractice === 0) {
+                    $('#slot_info' + i).css({ // text (information) under slot machines
+                        'position': 'absolute',
+                        'left': posLeft[i - 1] + b * 0.12,
+                        'top': posTop[i - 1] + hm * 1.05,
+                        'font-size': thisWidth / 45 + 'px',
+                        'line-height':'120%'
+                    });
+                } else {
+                    $('#slot_info' + i).css({ // text (information) under slot machines
+                        'position': 'absolute',
+                        'left': posLeft[i - 1] - b * 0.075,
+                        'top': posTop[i - 1] + hm * 1.05,
+                        'font-size': thisWidth / 45 + 'px',
+                        'line-height':'120%'
+                    });
+                }
 
                 // three rollers inside the slot machine
                 $('#machine1' + i).css({
@@ -1052,13 +1124,6 @@ $(document).ready(function () {
                 'opacity': 1
             });
         };
-
-        // // frame
-        // $('#slot_background' + i).css({
-        //     "outline-color": "#808080",
-        //     "outline-width": "5px",
-        //     "outline-style": "solid"
-        // });
 
         // generating an outcome
         randomNum = Math.random();
@@ -1186,7 +1251,6 @@ $(document).ready(function () {
         $('#Bottom').css({
             'height': thisHeight / 20,
             'width': thisWidth,
-            // 'position': 'absolute',
             'bottom': document.body.clientHeight - thisHeight + thisHeight /20
         });
 
@@ -1264,13 +1328,13 @@ $(document).ready(function () {
         $('.scroll_text').css({ // styling the scrolled area (text & scrollbar)
             'height': thisHeight * 12 / 20,
             'width': dispWidth,
-            'overflow': 'auto'
+            'overflow-y': 'scroll'
         });
         $('#form-text').css({ // styling the scrolled text (text only)
             'width': dispWidth * 9 / 10
         });
 
-        var buttons = '<div align="center"><input align="center" type="button" class="btn btn-default"' +
+        var buttons = '<div align="center"><input align="center" type="button" class="btn btn-outline-dark"' +
             ' id="submitFeedback" value="Submit"></div>';
         $('#Bottom').html(buttons); // click button to submit
         
@@ -1453,17 +1517,6 @@ $(document).ready(function () {
                 posTop = [h[0], h[0], h[0], h[0], h[1], h[1], h[1], h[1]];
                 break;
         };
-    };
-
-    // judging if full screen
-    function isFullScreen() {
-        return  !! (
-            document.fullscreen || 
-            document.mozFullScreen ||                         
-            document.webkitIsFullScreen ||       
-            document.webkitFullScreen || 
-            document.msFullScreen 
-        );
     };
 
     // checking whether the current ip is already in the database (participated the experiment before)
