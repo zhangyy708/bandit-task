@@ -1,6 +1,8 @@
 $(document).ready(function () {    
     // initialising variables ------------------------------------------------------------------------------------------------
     // adjustable
+    var showTeacher = true; // whether displaying the performance of teacher
+
     var numTrialsExp = 20; // number of trials in the experiment
     var numTrialsPrac = 5; // number of trials in the practice session
     var fadeTime = 500; // fade out time (after reward being displayed in each trial)
@@ -238,7 +240,22 @@ $(document).ready(function () {
             };
             // console.log('actual demos = [' + String(teacher[conditions[numGames - 1]]) + ']');
             // console.log('re-ordered demos = [' + String(t) + ']');
-            isTeacherDisplay = names[conditions[numGames - 1]];
+            if (showTeacher) {
+                switch (teacherPerform) {
+                    case 'Low':
+                        isTeacherDisplay = ' (bad)';
+                        break;
+                    case 'Mid':
+                        isTeacherDisplay = ' (medium)';
+                        break;
+                    case 'High':
+                        isTeacherDisplay = ' (good)';
+                        break;
+                };
+                isTeacherDisplay = names[conditions[numGames - 1]] + isTeacherDisplay;
+            } else {
+                isTeacherDisplay = names[conditions[numGames - 1]];
+            };
             
             if (numGames === 1) { // the first game
                 var title = '<div id="Title"><h2 align="center">' + 'Game No. <b>' + numGames + '</b>' + 
@@ -459,8 +476,14 @@ $(document).ready(function () {
                     'the demonstrator and for you. ' +
                     'The demonstrator\'s choice will be shown as a cartoon finger (see image below).</p>' + 
                     '<p>For each game you will see a <b>different demonstrator</b>, ' + 
-                    'who might <b>perform well or badly.</b> ' + 
-                    'However you will <b>not</b> be able to see what outcomes they get ' + 
+                    'who might <b>perform well or badly.</b> ';
+                if (showTeacher) {
+                    info2 = info2 + '</p><p>A <b>"good"</b> demonstrator selects the best choice ' + 
+                    '(the slot machine that is most likely to produce a coin) for <b>80%</b> of the time, ' + 
+                    'while the chance is <b>60%</b> for <b>"medium"</b> demonstrators and ' + 
+                    '<b>40%</b> for <b>"bad"</b> demonstrators.</p><p>'
+                };
+                info2 = info2 + 'However you will <b>not</b> be able to see what outcomes they get ' + 
                     'but only the choices they made. ' + 
                     'The code of the demonstrator will be displayed before each game starts ' + 
                     '(codes, instead of names, are used in this experiment to preserve anonymity).</p>';
@@ -482,7 +505,7 @@ $(document).ready(function () {
                     '<img class="pics" src="static/images/instruction4.png" ' + 
                     'alt="picture for instructions" height="' + picHeight + '" align="center">' + 
                     '</div>' +
-                    '<p align="left"><br>This experiment takes around 15 minutes to complete on average.</p>';
+                    '<p align="left"><br>This experiment takes around 20 minutes to complete on average.</p>';
                 break;
             case 4:
                 var info1 = '';
@@ -616,7 +639,7 @@ $(document).ready(function () {
             };
             if (pageNum === numPages + 1) {
                 isPractice = 2;
-                numTrials = numTrialsExp;
+                numTrials = numTrialsPrac;
                 practice(4, true); // practice game - demonstrator
             };
             if (pageNum === numPages + 2) {
@@ -668,7 +691,7 @@ $(document).ready(function () {
             case 4:
                 p = [0.3, 0.7, 0.6, 0.2];
                 if (isTeacher) {
-                    t = [3, 2, 3, 3, 2, 2, 1, 4, 2, 2, 2, 3, 3, 2, 2];
+                    t = [3, 2, 2, 3, 2, 2, 1, 4, 2, 2, 2, 3, 3, 2, 2];
                 };
                 break;
             case 8:
@@ -690,6 +713,9 @@ $(document).ready(function () {
                 case 8:
                     isTeacherDisplay = "L";
                     break;
+            };
+            if (showTeacher) {
+                isTeacherDisplay = isTeacherDisplay + ' (medium)';
             };
         } else {
             isTeacherDisplay = "None";
@@ -1343,6 +1369,7 @@ $(document).ready(function () {
         $('#Bottom').html(buttons); // click button to submit
         
         money = 1 + sumReward * 0.01;
+        money = Math.round(money * 100) / 100;
 
         $('#submitFeedback').click(function () {
             year = $('#year').val();
