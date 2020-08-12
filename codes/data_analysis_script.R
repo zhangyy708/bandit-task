@@ -1,0 +1,667 @@
+# set work directory
+setwd('C:\\Users\\11623\\Documents\\GitHub\\bandit-task\\codes')
+
+# import ----
+library(tidyverse)
+library(stringr)
+library(lme4)
+library(lmerTest)
+library(ggplot2)
+library(RColorBrewer)
+library(effects)
+
+# load data ----
+data1_models <- read.csv('data1_models.csv', header = F)
+names(data1_models) <- c('2no', '4no', '8no', '2low', '4low', '8low',
+                         '2mid', '4mid', '8mid', '2high', '4high', '8high')
+raw1 <- read.csv('data1_raw.csv', header = F)
+raw1_trimmed <- raw1[, c(1:3, 5:13, 38)]
+data1_models$age <- raw1[, 8]
+data1_models$gender <- raw1[, 9]
+data1_models$edu <- raw1[, 10]
+data1_models$id <- 1:nrow(raw1)
+
+# tidy
+df1 <- data1_models %>% 
+  pivot_longer(cols = 1:12, names_to = 'conditions',
+               values_to = 'model') %>%
+  mutate(num_arms = substr(conditions, 1, 1),
+         demo = substr(conditions, 2, nchar(conditions)))
+df1$id <- as.factor(df1$id)
+df1$conditions <- factor(df1$conditions, 
+                         levels = names(data1_models))
+df1$model <- as.factor(df1$model)
+levels(df1$model) <- c('Asocial RL', 'Random-choice', 
+                       'Unconditional-copying',
+                       'Copy-the-successful')
+df1$num_arms <- as.factor(df1$num_arms)
+df1$demo <- factor(df1$demo, levels = c('no', 'low', 'mid', 'high'))
+levels(df1$demo) <- c('No', 'Bad', 'Medium', 'Good')
+df1$demonstrator <- df1$demo
+levels(df1$demonstrator) <- c('A. No Demonstrator', 
+                              'B. "Bad" Demonstrator', 
+                              'C. "Medium" Demonstrator', 
+                              'D. "Good" Demonstrator')
+df1 <- df1 %>% mutate(social = as.numeric(as.numeric(df1$model) >= 3))
+df1$sum_rewards <- raw1[, 40] * 100 - 100
+
+# add 'rewards'
+data1_rewards <- raw1[, 39] %>% 
+  as.character() %>%
+  strsplit(',') %>%
+  as.data.frame() %>%
+  t() %>%
+  as.data.frame()
+names(data1_rewards) <- c('2no', '4no', '8no', '2low', '4low', '8low',
+                          '2mid', '4mid', '8mid', '2high', '4high', '8high')
+names(data1_rewards) <- paste(names(data1_rewards), '_r', sep = '')
+rownames(data1_rewards) <- c()
+data1_rewards$id <- data1_models$id
+df1_rewards <- data1_rewards %>%
+  pivot_longer(1:12, names_to = 'conditions', values_to = 'sum_rewards')
+df1_rewards$id <- as.factor(df1_rewards$id)
+df1_rewards$conditions <- as.factor(df1_rewards$conditions)
+df1_rewards$sum_rewards <- as.numeric(df1_rewards$sum_rewards)
+df1$sum_rewards <- df1_rewards$sum_rewards
+str(df1)
+
+# data 2
+data2_models <- read.csv('data2_models.csv', header = F)
+names(data2_models) <- c('2no', '4no', '8no', '2low', '4low', '8low',
+                         '2mid', '4mid', '8mid', '2high', '4high', '8high')
+raw2 <- read.csv('data2_raw.csv', header = F)
+raw2_trimmed <- raw2[, c(1:3, 5:13, 38)]
+data2_models$age <- raw2[, 8]
+data2_models$gender <- raw2[, 9]
+data2_models$edu <- raw2[, 10]
+data2_models$id <- 1:nrow(raw2)
+
+# tidy
+df2 <- data2_models %>% 
+  pivot_longer(cols = 1:12, names_to = 'conditions',
+               values_to = 'model') %>%
+  mutate(num_arms = substr(conditions, 1, 1),
+         demo = substr(conditions, 2, nchar(conditions)))
+df2$id <- as.factor(df2$id)
+df2$conditions <- factor(df2$conditions, 
+                         levels = names(data2_models))
+df2$model <- as.factor(df2$model)
+levels(df2$model) <- c('Asocial RL', 'Random-choice', 
+                       'Unconditional-copying',
+                       'Copy-the-successful')
+df2$num_arms <- as.factor(df2$num_arms)
+df2$demo <- factor(df2$demo, levels = c('no', 'low', 'mid', 'high'))
+levels(df2$demo) <- c('No', 'Bad', 'Medium', 'Good')
+df2$demonstrator <- df2$demo
+levels(df2$demonstrator) <- c('A. No Demonstrator', 
+                              'B. "Bad" Demonstrator', 
+                              'C. "Medium" Demonstrator', 
+                              'D. "Good" Demonstrator')
+df2 <- df2 %>% mutate(social = as.numeric(as.numeric(df2$model) >= 3))
+df2$sum_rewards <- raw2[, 40] * 100 - 100
+
+# add 'rewards'
+data2_rewards <- raw2[, 39] %>% 
+  as.character() %>%
+  strsplit(',') %>%
+  as.data.frame() %>%
+  t() %>%
+  as.data.frame()
+names(data2_rewards) <- c('2no', '4no', '8no', '2low', '4low', '8low',
+                          '2mid', '4mid', '8mid', '2high', '4high', '8high')
+names(data2_rewards) <- paste(names(data2_rewards), '_r', sep = '')
+rownames(data2_rewards) <- c()
+data2_rewards$id <- data2_models$id
+df2_rewards <- data2_rewards %>%
+  pivot_longer(1:12, names_to = 'conditions', values_to = 'sum_rewards')
+df2_rewards$id <- as.factor(df2_rewards$id)
+df2_rewards$conditions <- as.factor(df2_rewards$conditions)
+df2_rewards$sum_rewards <- as.numeric(df2_rewards$sum_rewards)
+df2$sum_rewards <- df2_rewards$sum_rewards
+str(df2)
+
+
+# descriptive statistics ----
+# gender
+tbl1_gender <- data1_models %>% 
+  group_by(gender) %>%
+  summarise(num_gender = n()) %>%
+  as.data.frame()
+knitr::kable(tbl1_gender)
+
+# age
+tbl1_age <- data1_models %>%
+  summarise(mean_age = mean(age),
+            sd_age = sd(age),
+            max_age = max(age),
+            min_age = min(age)) %>%
+  round(2)
+knitr::kable(tbl1_age)
+
+# education year
+tbl1_edu <- data1_models %>%
+  summarise(mean_edu = mean(edu),
+            sd_edu = sd(edu),
+            max_edu = max(edu),
+            min_edu = min(edu)) %>%
+  round(2)
+knitr::kable(tbl1_edu)
+
+# always asocial / social
+df1 %>%
+  group_by(id) %>%
+  filter(sum(social) == 0) %>%
+  select(id) %>%
+  unique() %>%
+  nrow()
+
+df1 %>%
+  group_by(id) %>%
+  filter(sum(social) == 9) %>%
+  select(id) %>%
+  unique() %>%
+  nrow()
+
+# models (descriptive table)
+tbl1_mdl_full <- df1 %>% 
+  group_by(conditions, model) %>%
+  summarise(n = n()) %>%
+  pivot_wider(names_from = model, values_from = n)
+knitr::kable(tbl1_mdl_full)
+
+tbl1_mdl_short <- df1 %>%
+  group_by(conditions, social) %>%
+  summarise(n = n()) %>%
+  pivot_wider(names_from = social, values_from = n)
+names(tbl1_mdl_short)[2:3] <- c('asocial', 'social')
+knitr::kable(tbl1_mdl_short)
+
+# descriptive plot (output: 1350×350)
+ggplot(data = df1, aes(x = num_arms, fill = model)) +
+  geom_bar(position = 'stack') +
+  xlab('Number of Arms') +
+  ylab('Count of Participants') +
+  scale_y_continuous(expand = c(0, 0),
+                     limits = c(0, nrow(data1_models) * 1.04)) +
+  labs(fill = 'Models') + # legend title
+  scale_fill_brewer(palette = 'RdBu', direction = -1) + # colours of bars
+  facet_grid(~demonstrator) +
+  theme_classic() +
+  theme(text = element_text(family = 'serif'), # font setting
+        axis.title = element_text(size = 18, face = 'bold'),
+        axis.text = element_text(size = 16),
+        legend.title = element_text(size = 18, face = 'bold'),
+        legend.text = element_text(size = 16),
+        strip.text = element_text(size = 14, face = 'bold'), # facet title
+        strip.background = element_rect(linetype = 0))
+
+# data 2
+# gender
+tbl2_gender <- data2_models %>% 
+  group_by(gender) %>%
+  summarise(num_gender = n()) %>%
+  as.data.frame()
+knitr::kable(tbl2_gender)
+
+# age
+tbl2_age <- data2_models %>%
+  summarise(mean_age = mean(age),
+            sd_age = sd(age),
+            max_age = max(age),
+            min_age = min(age)) %>%
+  round(2)
+knitr::kable(tbl2_age)
+
+# education year
+tbl2_edu <- data2_models %>%
+  summarise(mean_edu = mean(edu),
+            sd_edu = sd(edu),
+            max_edu = max(edu),
+            min_edu = min(edu)) %>%
+  round(2)
+knitr::kable(tbl2_edu)
+
+# always asocial / social
+df2 %>%
+  group_by(id) %>%
+  filter(sum(social) == 0) %>%
+  select(id) %>%
+  unique() %>%
+  nrow()
+
+df2 %>%
+  group_by(id) %>%
+  filter(sum(social) == 9) %>%
+  select(id) %>%
+  unique() %>%
+  nrow()
+
+# models (descriptive table)
+tbl2_mdl_full <- df2 %>% 
+  group_by(conditions, model) %>%
+  summarise(n = n()) %>%
+  pivot_wider(names_from = model, values_from = n)
+knitr::kable(tbl2_mdl_full)
+
+tbl2_mdl_short <- df2 %>%
+  group_by(conditions, social) %>%
+  summarise(n = n()) %>%
+  pivot_wider(names_from = social, values_from = n)
+names(tbl2_mdl_short)[2:3] <- c('asocial', 'social')
+knitr::kable(tbl2_mdl_short)
+
+# descriptive plot (output: 1350×350)
+ggplot(data = df2, aes(x = num_arms, fill = model)) +
+  geom_bar(position = 'stack') +
+  xlab('Number of Arms') +
+  ylab('Count of Participants') +
+  scale_y_continuous(expand = c(0, 0),
+                     limits = c(0, nrow(data2_models) * 1.04)) +
+  labs(fill = 'Models') + # legend title
+  scale_fill_brewer(palette = 'RdBu', direction = -1) + # colours of bars
+  facet_grid(~demonstrator) +
+  theme_classic() +
+  theme(text = element_text(family = 'serif'), # font setting
+        axis.title = element_text(size = 18, face = 'bold'),
+        axis.text = element_text(size = 16),
+        legend.title = element_text(size = 18, face = 'bold'),
+        legend.text = element_text(size = 16),
+        strip.text = element_text(size = 14, face = 'bold'), # facet title
+        strip.background = element_rect(linetype = 0))
+
+
+# model analysis ----
+# MLR - asocial v.s. social
+m1.main <- glmer(social ~ num_arms + demo + (1 | id),
+                 data = filter(df1, demo != 'No'), family = 'binomial',
+                 control = glmerControl(optimizer = 'bobyqa'))
+summary(m1.main)
+
+# plot (800×500)
+ggplot(data = filter(df1, demo != 'No'), 
+       aes(x = num_arms, y = social, fill = demo)) +
+  stat_summary(fun.data = mean_se, geom = 'bar',
+               position = position_dodge(0.7), width = 0.7) +
+  stat_summary(fun.data = mean_se, geom = 'errorbar', 
+               position = position_dodge(0.7), width = 0.25) +
+  xlab('Number of Arms') +
+  ylab('Proportion of Using Social Strategies') +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(fill = 'Demonstrator', color = 'Demonstrator') +
+  scale_fill_brewer(palette = 'BuGn') + 
+  scale_color_brewer() +
+  theme_classic() +
+  theme(text = element_text(family = 'serif'), # font setting
+        axis.title = element_text(size = 18, face = 'bold'),
+        axis.text = element_text(size = 16),
+        legend.title = element_text(size = 18, face = 'bold'),
+        legend.text = element_text(size = 16))
+
+
+# data 2
+m2.main <- glmer(social ~ num_arms + demo + (1 | id),
+                 data = filter(df2, demo != 'No'), family = 'binomial',
+                 control = glmerControl(optimizer = 'bobyqa'))
+summary(m2.main)
+
+# plot (800×500)
+ggplot(data = filter(df2, demo != 'No'), 
+       aes(x = num_arms, y = social, fill = demo)) +
+  stat_summary(fun.data = mean_se, geom = 'bar',
+               position = position_dodge(0.7), width = 0.7) +
+  stat_summary(fun.data = mean_se, geom = 'errorbar', 
+               position = position_dodge(0.7), width = 0.25) +
+  xlab('Number of Arms') +
+  ylab('Proportion of Using Social Strategies') +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(fill = 'Demonstrator', color = 'Demonstrator') +
+  scale_fill_brewer(palette = 'BuGn') + 
+  scale_color_brewer() +
+  theme_classic() +
+  theme(text = element_text(family = 'serif'), # font setting
+        axis.title = element_text(size = 18, face = 'bold'),
+        axis.text = element_text(size = 16),
+        legend.title = element_text(size = 18, face = 'bold'),
+        legend.text = element_text(size = 16))
+
+# load parameter data ----
+# data 1
+alpha <- read.csv('data1_paras_alpha.csv', header = F)
+names(alpha) <- c('2', '4', '8')
+alpha$id <- 1:50
+paras1_alpha <- alpha %>% 
+  pivot_longer(cols = 1:3, names_to = 'num_arms', values_to = 'alpha')
+paras1_alpha$id <- as.factor(paras1_alpha$id)
+paras1_alpha$num_arms <- as.factor(paras1_alpha$num_arms)
+
+beta <- read.csv('data1_paras_beta.csv', header = F)
+names(beta) <- c('2', '4', '8')
+beta$id <- alpha$id
+paras1_beta <- beta %>% 
+  pivot_longer(cols = 1:3, names_to = 'num_arms', values_to = 'beta')
+paras1_beta$id <- as.factor(paras1_beta$id)
+paras1_beta$num_arms <- as.factor(paras1_beta$num_arms)
+
+eta <- read.csv('data1_paras_eta.csv', header = F)
+names(eta) <- c('2no', '4no', '8no', '2low', '4low', '8low',
+                '2mid', '4mid', '8mid', '2high', '4high', '8high')
+eta$id <- alpha$id
+paras1_eta <- eta %>% 
+  select(4:13) %>%
+  pivot_longer(cols = 1:9, names_to = 'conditions', values_to = 'eta')
+paras1_eta$id <- as.factor(paras1_eta$id)
+paras1_eta$num_arms <- paras1_eta$conditions %>% substr(1, 1)
+paras1_eta$num_arms <- as.factor(paras1_eta$num_arms)
+paras1_eta$demo <- paras1_eta$conditions %>% substr(2, 10)
+paras1_eta$demo <- factor(paras1_eta$demo, 
+                          levels = c('low', 'mid', 'high'))
+levels(paras1_eta$demo) <- c('Bad', 'Medium', 'Good')
+
+# data 2
+alpha <- read.csv('data2_paras_alpha.csv', header = F)
+names(alpha) <- c('2', '4', '8')
+alpha$id <- 51:100
+paras2_alpha <- alpha %>% 
+  pivot_longer(cols = 1:3, names_to = 'num_arms', values_to = 'alpha')
+paras2_alpha$id <- as.factor(paras2_alpha$id)
+paras2_alpha$num_arms <- as.factor(paras2_alpha$num_arms)
+
+beta <- read.csv('data2_paras_beta.csv', header = F)
+names(beta) <- c('2', '4', '8')
+beta$id <- alpha$id
+paras2_beta <- beta %>% 
+  pivot_longer(cols = 1:3, names_to = 'num_arms', values_to = 'beta')
+paras2_beta$id <- as.factor(paras2_beta$id)
+paras2_beta$num_arms <- as.factor(paras2_beta$num_arms)
+
+eta <- read.csv('data2_paras_eta.csv', header = F)
+names(eta) <- c('2no', '4no', '8no', '2low', '4low', '8low',
+                '2mid', '4mid', '8mid', '2high', '4high', '8high')
+eta$id <- alpha$id
+paras2_eta <- eta %>% 
+  select(4:13) %>%
+  pivot_longer(cols = 1:9, names_to = 'conditions', values_to = 'eta')
+paras2_eta$id <- as.factor(paras2_eta$id)
+paras2_eta$num_arms <- paras2_eta$conditions %>% substr(1, 1)
+paras2_eta$num_arms <- as.factor(paras2_eta$num_arms)
+paras2_eta$demo <- paras2_eta$conditions %>% substr(2, 10)
+paras2_eta$demo <- factor(paras2_eta$demo, 
+                          levels = c('low', 'mid', 'high'))
+levels(paras2_eta$demo) <- c('Bad', 'Medium', 'Good')
+
+# take data1 & data2 together
+paras1_alpha$show <- 'Hide'
+paras1_beta$show <- 'Hide'
+paras1_eta$show <- 'Hide'
+paras2_alpha$show <- 'Show'
+paras2_beta$show <- 'Show'
+paras2_eta$show <- 'Show'
+
+paras_alpha <- rbind(paras1_alpha, paras2_alpha)
+paras_alpha$show <- factor(paras_alpha$show, 
+                           levels = c('Hide', 'Show'))
+paras_beta <- rbind(paras1_beta, paras2_beta)
+paras_beta$show <- factor(paras_beta$show,
+                          levels = c('Hide', 'Show'))
+paras_eta <- rbind(paras1_eta, paras2_eta)
+paras_eta$show <- factor(paras_eta$show, 
+                         levels = c('Hide', 'Show'))
+
+# descriptive statistics ----
+tbl_alpha <- paras_alpha %>% 
+  group_by(show, num_arms) %>%
+  summarise(m_alpha = mean(alpha) %>% round(2),
+            sd_alpha = sd(alpha) %>% round(2))
+knitr::kable(tbl_alpha)
+tbl_beta <- paras_beta %>% 
+  group_by(show, num_arms) %>%
+  summarise(m_beta = mean(beta) %>% round(2),
+            sd_beta = sd(beta) %>% round(2))
+knitr::kable(tbl_beta)
+tbl_eta <- paras_eta %>% 
+  group_by(show, demo, num_arms) %>%
+  summarise(m_eta = mean(eta) %>% round(2),
+            sd_eta = sd(eta) %>% round(2)) 
+knitr::kable(tbl_eta)
+
+# parameter ~ num_arms + demo ----
+# alpha
+m1_alpha.null <- lmer(alpha ~ 1 + (1 | id), 
+                      data = paras1_alpha, REML = F)
+m1_alpha <- lmer(alpha ~ num_arms + (1 | id),
+                 data = paras1_alpha, REML = F)
+anova(m1_alpha.null, m1_alpha)
+summary(m1_alpha)
+
+m2_alpha.null <- lmer(alpha ~ 1 + (1 | id), 
+                      data = paras2_alpha, REML = F)
+m2_alpha <- lmer(alpha ~ num_arms + (1 | id),
+                 data = paras2_alpha, REML = F)
+anova(m2_alpha.null, m2_alpha)
+summary(m2_alpha)
+
+# beta
+m1_beta.null <- lmer(log(beta) ~ 1 + (1 | id),
+                     data = paras1_beta, REML = F)
+m1_beta <- lmer(log(beta) ~ num_arms + (1 | id),
+                data = paras1_beta, REML = F)
+anova(m1_beta.null, m1_beta)
+summary(m1_beta)
+
+m2_beta.null <- lmer(log(beta) ~ 1 + (1 | id),
+                     data = paras2_beta, REML = F)
+m2_beta <- lmer(log(beta) ~ num_arms + (1 | id),
+                data = paras2_beta, REML = F)
+anova(m2_beta.null, m2_beta)
+summary(m2_beta)
+
+# social
+m1_eta.null <- lmer(eta ~ 1 + (1 | id),
+                    data = paras1_eta,
+                    REML = F)
+m1_eta <- lmer(eta ~ num_arms + (1 | id),
+               data = paras1_eta,
+               REML = F)
+m1_eta.0 <- lmer(eta ~ num_arms + demo + (1 | id),
+                 data = paras1_eta,
+                 REML = F)
+m1_eta.1 <- lmer(eta ~ num_arms * demo + (1 | id),
+                 data = paras1_eta,
+                 REML = F)
+anova(m1_eta.null, m1_eta, m1_eta.0, m1_eta.1)
+summary(m1_eta.0)
+
+m2_eta.null <- lmer(eta ~ 1 + (1 | id),
+                    data = paras2_eta,
+                    REML = F)
+m2_eta <- lmer(eta ~ num_arms + (1 | id),
+               data = paras2_eta,
+               REML = F)
+m2_eta.0 <- lmer(eta ~ num_arms + demo + (1 | id),
+                 data = paras2_eta,
+                 REML = F)
+m2_eta.1 <- lmer(eta ~ num_arms * demo + (1 | id),
+                 data = paras2_eta,
+                 REML = F)
+anova(m2_eta.null, m2_eta, m2_eta.0, m2_eta.1)
+summary(m2_eta.0)
+
+# parameter ~ demographics ----
+df1$show <- 'Hide'
+df2$show <- 'Show'
+levels(df2$id) <- 51:100
+df <- rbind(df1, df2)
+df$show <- as.factor(df$show)
+
+paras_alpha <- merge(paras_alpha, df %>% filter(demo == 'No'), 
+                     by = c('id', 'num_arms', 'show'))
+paras_beta <- merge(paras_beta, df %>% filter(demo == 'No'),
+                    by = c('id', 'num_arms', 'show'))
+paras_eta <- merge(paras_eta, df %>% filter(demo != 'No'), 
+                   by = c('id', 'num_arms', 'demo', 'conditions', 'show'))
+
+# alpha
+m1_idv_alpha.null <- lmer(alpha ~ 1 + (1 | id),
+                          data = paras_alpha %>% filter(show == 'Hide'),
+                          REML = F)
+m1_idv_alpha <- lmer(alpha ~ age + edu + gender + (1 | id),
+                    data = paras_alpha %>% filter(show == 'Hide'),
+                    REML = F)
+anova(m1_idv_alpha.null, m1_idv_alpha) # insignificant
+summary(m1_idv_alpha) # insignificant 
+
+m2_idv_alpha.null <- lmer(alpha ~ 1 + (1 | id),
+                          data = paras_alpha %>% filter(show == 'Show'),
+                          REML = F)
+m2_idv_alpha <- lmer(alpha ~ age + edu + gender + (1 | id),
+                     data = paras_alpha %>% filter(show == 'Show'),
+                     REML = F)
+anova(m2_idv_alpha.null, m2_idv_alpha) # insignificant
+summary(m2_idv_alpha) # insignificant
+
+# beta
+m1_idv_beta.null <- lmer(beta ~ 1 + (1 | id),
+                         data = paras_beta %>% filter(show == 'Hide'),
+                         REML = F)
+m1_idv_beta <- lmer(beta ~ age + edu + gender + (1 | id),
+                    data = paras_beta %>% filter(show == 'Hide'),
+                    REML = F)
+anova(m1_idv_beta.null, m1_idv_beta) # insignificant
+summary(m1_idv_beta) # insignificant 
+
+m2_idv_beta.null <- lmer(beta ~ 1 + (1 | id),
+                         data = paras_beta %>% filter(show == 'Show'),
+                         REML = F)
+m2_idv_beta <- lmer(beta ~ age + edu + gender + (1 | id),
+                    data = paras_beta %>% filter(show == 'Show'),
+                    REML = F)
+anova(m2_idv_beta.null, m2_idv_beta) # insignificant
+summary(m2_idv_beta) # gender significant 
+
+# eta
+m1_idv_eta.null <- lmer(eta ~ 1 + (1 | id),
+                        data = paras_eta %>% filter(show == 'Hide'),
+                        REML = F)
+m1_idv_eta <- lmer(eta ~ edu + age + gender + (1 | id),
+                   data = paras_eta %>% filter(show == 'Hide'),
+                   REML = F)
+anova(m1_idv_eta.null, m1_idv_eta) # insignificant
+summary(m1_idv_eta) # gender significant
+
+m2_idv_eta.null <- lmer(eta ~ 1 + (1 | id),
+                        data = paras_eta %>% filter(show == 'Show'),
+                        REML = F)
+m2_idv_eta <- lmer(eta ~ edu + age + gender + (1 | id),
+                   data = paras_eta %>% filter(show == 'Show'),
+                   REML = F)
+anova(m2_idv_eta.null, m2_idv_eta) # insignificant
+summary(m2_idv_eta) # insignificant
+
+# parameter ~ num_arms + demo * show ----
+# alpha - all insignificant
+m_alpha.null <- lmer(alpha ~ 1 + (1 | id),
+                     data = paras_alpha, REML = F)
+m_alpha <- lmer(alpha ~ num_arms + (1 | id),
+                data = paras_alpha, REML = F)
+m_alpha.0 <- lmer(alpha ~ num_arms + show + (1 | id),
+                  data = paras_alpha, REML = F)
+m_alpha.1 <- lmer(alpha ~ num_arms * show + (1 | id),
+                  data = paras_alpha, REML = F)
+anova(m_alpha.null, m_alpha, m_alpha.0, m_alpha.1)
+summary(m_alpha.1)
+
+# beta - only num_arms (m_beta) significant (same as before)
+m_beta.null <- lmer(log(beta) ~ 1 + (1 | id),
+                    data = paras_beta, REML = F)
+m_beta <- lmer(log(beta) ~ num_arms + (1 | id),
+               data = paras_beta, REML = F)
+m_beta.0 <- lmer(log(beta) ~ num_arms + show + (1 | id),
+                 data = paras_beta, REML = F)
+m_beta.1 <- lmer(log(beta) ~ num_arms * show + (1 | id),
+                 data = paras_beta, REML = F)
+anova(m_beta.null, m_beta, m_beta.0, m_beta.1)
+summary(m_beta)
+
+# eta (show insignificant)
+m_eta.null <- lmer(eta ~ 1 + (1 | id),
+                   data = paras_eta, REML = F)
+m_eta <- lmer(eta ~ num_arms + (1 | id),
+              data = paras_eta, REML = F)
+m_eta.0 <- lmer(eta ~ num_arms + demo + (1 | id),
+                data = paras_eta, REML = F)
+m_eta.1 <- lmer(eta ~ num_arms + demo + show + (1 | id),
+                data = paras_eta, REML = F)
+m_eta.2 <- lmer(eta ~ num_arms + demo * show + (1| id),
+                data = paras_eta, REML = F) # √
+m_eta.3 <- lmer(eta ~ num_arms * demo * show + (1| id),
+                data = paras_eta, REML = F)
+anova(m_eta.null, m_eta, m_eta.0, m_eta.1, m_eta.2, m_eta.3)
+summary(m_eta.2) # interaction significant!
+
+# eta ~ alpha + beta + num_arms + demo ----
+paras_all <- paras_alpha %>%
+  select(id, num_arms, alpha) %>%
+  merge(paras_beta) %>%
+  select(id, num_arms, alpha, beta) %>%
+  merge(paras_eta, by = c('id', 'num_arms'))
+
+m1_beta <- lmer(eta ~ num_arms + demo + (1 | id),
+                data = paras_all %>% filter(show == 'Hide'), REML = F)
+m1_beta.0 <- lmer(eta ~ num_arms + demo + beta + (1 | id),
+                  data = paras_all %>% filter(show == 'Hide'), REML = F)
+m1_beta.1 <- lmer(eta ~ (num_arms + demo) * beta + (1 | id),
+                  data = paras_all %>% filter(show == 'Hide'), REML = F)
+anova(m1_beta, m1_beta.0, m1_beta.1)
+summary(m1_beta.0) # beta significant
+
+m2_beta <- lmer(eta ~ num_arms + demo + (1 | id),
+                data = paras_all %>% filter(show == 'Show'), REML = F)
+m2_beta.0 <- lmer(eta ~ num_arms + demo + beta + (1 | id),
+                  data = paras_all %>% filter(show == 'Show'), REML = F)
+m2_beta.1 <- lmer(eta ~ (num_arms + demo) * beta + (1 | id),
+                  data = paras_all %>% filter(show == 'Show'), REML = F)
+anova(m2_beta, m2_beta.0, m2_beta.1) # insignificant
+summary(m2_beta.0) # beta insignificant
+
+# figure (eta) (900×400)
+ggplot(data = paras_eta, aes(x = num_arms, y = eta, fill = demo)) +
+  stat_summary(fun.data = mean_se, geom = 'bar',
+               position = position_dodge(0.7), width = 0.7) +
+  stat_summary(fun.data = mean_se, geom = 'errorbar', 
+               position = position_dodge(0.7), width = 0.25) +
+  facet_grid(~show) +
+  xlab('Number of Arms') +
+  ylab('\U03B7') +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(fill = 'Demonstrator') +
+  scale_fill_brewer(palette = 'BuGn') + 
+  scale_color_brewer() +
+  theme_classic() +
+  theme(text = element_text(family = 'serif'), # font setting
+        axis.title = element_text(size = 18, face = 'bold'),
+        axis.text = element_text(size = 16),
+        legend.title = element_text(size = 18, face = 'bold'),
+        legend.text = element_text(size = 16),
+        strip.text = element_text(size = 16, face = 'bold'), # facet title
+        strip.background = element_rect(linetype = 0))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

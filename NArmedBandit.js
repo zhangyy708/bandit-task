@@ -242,14 +242,17 @@ $(document).ready(function () {
             // console.log('re-ordered demos = [' + String(t) + ']');
             if (showTeacher) {
                 switch (teacherPerform) {
+                    case 'No':
+                        isTeacherDisplay = '';
+                        break;
                     case 'Low':
-                        isTeacherDisplay = ' (bad)';
+                        isTeacherDisplay = ' <b>(bad)</b>';
                         break;
                     case 'Mid':
-                        isTeacherDisplay = ' (medium)';
+                        isTeacherDisplay = ' <b>(medium)</b>';
                         break;
                     case 'High':
-                        isTeacherDisplay = ' (good)';
+                        isTeacherDisplay = ' <b>(good)</b>';
                         break;
                 };
                 isTeacherDisplay = names[conditions[numGames - 1]] + isTeacherDisplay;
@@ -389,6 +392,8 @@ $(document).ready(function () {
                                 'For Mac, press Cmd + R">' + 
                                 'refresh</abbr> this page if you switch on the full-screen mode. ' + 
                                 'But <b>do not</b> refresh in the following pages.</li>' +
+                            '<li><font color="red"><b>Important: </b></font>You <b>can only</b> participate if ' + 
+                                'you have <b>not</b> participated in this study before.</li>' +
                         '</ul>' +
                     '</div>';
 
@@ -432,7 +437,8 @@ $(document).ready(function () {
                 $('#Stage').empty();
                 $('#Bottom').empty();
                 
-                instructions(1); // move to the first page of instrcutions
+                // instructions(1); // move to the first page of instrcutions
+                ipcheck();
             });
         });        
     };
@@ -453,7 +459,7 @@ $(document).ready(function () {
                 var info2 = '<p>Thanks for participanting!</p>' + 
                     '<p>In this experiment, you will play ' + conditions.length + ' short games ' + 
                     '(excluding the practice session). ' +
-                    'In each game you will have ' + numTrials + ' shots ' + 
+                    'In each game you will have ' + numTrialsExp + ' shots ' + 
                     'where you select one out of the <b>2 (4 or 8 ) slot machines</b> using your mouse.</p>' + 
                     '<p>For a given game, each slot machine has a <b>fixed</b> chance ' + 
                     'of giving you a <b>coin</b> every time that you select it. ' + 
@@ -461,9 +467,15 @@ $(document).ready(function () {
                     'Your goal is to <b>collect as many coins as possible.</b> ' + 
                     'For every coin you collect in the task, you will earn additional $0.01 ' + 
                     'meaning you can make up to $' + Math.floor(expRewardsOpt()) / 100 + ' in bonus.</p>';
-                var thisImage = '<div align="center"><img class="pics" src="static/images/instruction1.png" ' + 
-                    'alt="picture for instructions" height="' + picHeight + '" align="center">' + 
-                    '<p><i>An example of a game in the experiment.</i></p>' + '</div>';
+                if (showTeacher) {
+                    var thisImage = '<div align="center"><img class="pics" src="static/images/instruction_show1.png" ' + 
+                        'alt="picture for instructions" height="' + picHeight + '" align="center">' + 
+                        '<p><i>An example of a game in the experiment.</i></p>' + '</div>';
+                } else {
+                    var thisImage = '<div align="center"><img class="pics" src="static/images/instruction1.png" ' + 
+                        'alt="picture for instructions" height="' + picHeight + '" align="center">' + 
+                        '<p><i>An example of a game in the experiment.</i></p>' + '</div>';
+                };
                 break;
             case 2:
                 var info1 = '<p><i>***Please remember to read all instructions <b>carefully</b>. ' + 
@@ -487,9 +499,15 @@ $(document).ready(function () {
                     'but only the choices they made. ' + 
                     'The code of the demonstrator will be displayed before each game starts ' + 
                     '(codes, instead of names, are used in this experiment to preserve anonymity).</p>';
-                var thisImage = '<div align="center"><img class="pics" src="static/images/instruction2.png" ' + 
-                    'alt="picture for instructions" height="' + picHeight + '" align="center">' + 
-                    '<p><i>The cartoon finger shows the choice made by the demonstrator.</i></p>' + '</div>';
+                if (showTeacher) {
+                    var thisImage = '<div align="center"><img class="pics" src="static/images/instruction_show2.png" ' + 
+                        'alt="picture for instructions" height="' + picHeight + '" align="center">' + 
+                        '<p><i>The cartoon finger shows the choice made by the demonstrator.</i></p>' + '</div>';
+                } else {
+                    var thisImage = '<div align="center"><img class="pics" src="static/images/instruction2.png" ' + 
+                        'alt="picture for instructions" height="' + picHeight + '" align="center">' + 
+                        '<p><i>The cartoon finger shows the choice made by the demonstrator.</i></p>' + '</div>';
+                };
                 break;
             case 3:
                 var info1 = '<p><i>***Please remember to read all instructions <b>carefully</b>. ' + 
@@ -497,15 +515,27 @@ $(document).ready(function () {
                 var info2 = '<p>After each decision, you will see the outcome of your choice (1 coin or nothing). ' +
                     'You will then continue directly to the next shot. ' +
                     'At the end of each game, you will see how many coins you have earned in total.</p>';
-                var thisImage = '<div align="center">' + 
-                    '<p align="left"><i>If you get a coin:</i></p>' +
-                    '<img class="pics" src="static/images/instruction3.png" ' + 
-                    'alt="picture for instructions" height="' + picHeight + '" align="center">' + 
-                    '<p align="left"><br><br><i>If you get nothing:</i></p>' +
-                    '<img class="pics" src="static/images/instruction4.png" ' + 
-                    'alt="picture for instructions" height="' + picHeight + '" align="center">' + 
-                    '</div>' +
-                    '<p align="left"><br>This experiment takes around 20 minutes to complete on average.</p>';
+                if (showTeacher) {
+                    var thisImage = '<div align="center">' + 
+                        '<p align="left"><i>If you get a coin:</i></p>' +
+                        '<img class="pics" src="static/images/instruction_show3.png" ' + 
+                        'alt="picture for instructions" height="' + picHeight + '" align="center">' + 
+                        '<p align="left"><br><br><i>If you get nothing:</i></p>' +
+                        '<img class="pics" src="static/images/instruction_show4.png" ' + 
+                        'alt="picture for instructions" height="' + picHeight + '" align="center">' + 
+                        '</div>' +
+                        '<p align="left"><br>This experiment takes around 20 minutes to complete on average.</p>';
+                } else {
+                    var thisImage = '<div align="center">' + 
+                        '<p align="left"><i>If you get a coin:</i></p>' +
+                        '<img class="pics" src="static/images/instruction3.png" ' + 
+                        'alt="picture for instructions" height="' + picHeight + '" align="center">' + 
+                        '<p align="left"><br><br><i>If you get nothing:</i></p>' +
+                        '<img class="pics" src="static/images/instruction4.png" ' + 
+                        'alt="picture for instructions" height="' + picHeight + '" align="center">' + 
+                        '</div>' +
+                        '<p align="left"><br>This experiment takes around 20 minutes to complete on average.</p>';
+                };
                 break;
             case 4:
                 var info1 = '';
@@ -715,7 +745,7 @@ $(document).ready(function () {
                     break;
             };
             if (showTeacher) {
-                isTeacherDisplay = isTeacherDisplay + ' (medium)';
+                isTeacherDisplay = isTeacherDisplay + ' <b>(medium)</b>';
             };
         } else {
             isTeacherDisplay = "None";
@@ -841,6 +871,8 @@ $(document).ready(function () {
                 $('#Bottom').empty();
 
                 timeStart = new Date();
+                tempReward = 0;
+                sumReward = 0;
                 control(); // start
             } else {
                 // Throw them back to the start of the instructions
@@ -1553,19 +1585,21 @@ $(document).ready(function () {
     // checking whether the current ip is already in the database (participated the experiment before)
     // copied from Tia!
     function ipcheck () {
-        console.log('test');
+        console.log('check ip ...');
 
         jQuery.ajax({
             url: 'static/php/check_id.php',
             type:'POST',
             success:function(data)
             {
-                if (data==1)
+                if (data == 1)
                 {
+                    console.log('ip existed in the database')
                     Oops();
-                } else if (data==0)
+                } else if (data == 0)
                 {
-                    information();
+                    console.log('ip not existed in the database')
+                    instructions(1);
                 } else {
                     alert('answer was not 1 or 0!');
                 }
@@ -1573,7 +1607,7 @@ $(document).ready(function () {
             },
             error:function()
             {
-                alert('failed to connect to ip')
+                alert('failed to connect to ip');
             }
         })
     };
@@ -1587,11 +1621,10 @@ $(document).ready(function () {
         $('#TextBoxDiv').css('font-size', thisWidth / 60 + 'px');
         $('#TextBoxDiv').css('padding-top', '20%');
 
-        var HIT = '3C8QQOM6JQSODD6QQ7XZ098QZ3NILM';
+        // var HIT = '3C8QQOM6JQSODD6QQ7XZ098QZ3NILM';
 
         var info = '<p>Unfortunately, you cannot do this experiment because you (or someone in your household) have ' + 
-                   'participated in this experiment or a similar experiment before ' + 
-                   '(the HIT ID of the experiment is ' + HIT + ').</p>' +
+                   'participated in this experiment or a similar experiment before.</p>' +
                    '<p>Please close the window. Thank you!</p>';
         
         $('#TextBoxDiv').html(info);
@@ -1634,7 +1667,7 @@ $(document).ready(function () {
     };
 
     // function expRewardsBest() {
-    //     console.log(conditions.length * numTrials);
+    //     console.log(conditions.length * numTrialsExp);
     //     // total rewards if all choices get a reward
     // };
 
@@ -1644,7 +1677,7 @@ $(document).ready(function () {
         var i;
         for (i = 0; i < conditions.length; i++) {
             tempPsNew = Math.max.apply(null, ps[conditions[i]]);
-            y[i] = tempPsNew * numTrials;
+            y[i] = tempPsNew * numTrialsExp;
         };
 
         console.log(eval(y.join("+")));
@@ -1658,7 +1691,7 @@ $(document).ready(function () {
         var i;
         for (i = 0; i < conditions.length; i++) {
             tempPsNew = Math.min.apply(null, ps[conditions[i]]);
-            y[i] = tempPsNew * numTrials;
+            y[i] = tempPsNew * numTrialsExp;
         };
 
         console.log(eval(y.join("+")));
