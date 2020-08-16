@@ -1,7 +1,7 @@
 <?php
 
 	// Create a database connection
-	$mysqli = mysqli_connect("chost4.is.ed.ac.uk","wwwbramleylabppl_neil","M2B(BKwEYa5.RXQ9", "wwwbramleylabppl_expdata");
+	// NOTE!!! THIS LINE HAS BEEN DELETED SINCE THIS DIRECTORY CANNOT LINK TO THE DATABASE
 
 	if (mysqli_connect_errno($mysqli)) {
 		echo "Failed to connect to MySQL: " . mysqli_connect_error();
