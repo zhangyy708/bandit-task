@@ -437,8 +437,8 @@ $(document).ready(function () {
                 $('#Stage').empty();
                 $('#Bottom').empty();
                 
-                // instructions(1); // move to the first page of instrcutions
-                ipcheck();
+                instructions(1); // move to the first page of instrcutions
+                // ipcheck();
             });
         });        
     };
